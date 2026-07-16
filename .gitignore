@@ -66,6 +66,13 @@ yarn-error.log
 # testing
 /coverage
 
+# environment
+.env
+
+# local bundle-check output
+bundle-check.jsbundle
+bundle-check-assets/
+
 # Yarn
 .yarn/*
 !.yarn/patches
