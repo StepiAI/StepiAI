@@ -13,6 +13,7 @@
     "@react-native/new-app-screen": "0.86.0",
     "@react-navigation/bottom-tabs": "^7.18.8",
     "@react-navigation/native": "^7.3.8",
+    "nativewind": "^4.2.6",
     "react": "19.2.3",
     "react-native": "0.86.0",
     "react-native-safe-area-context": "^5.8.0",
@@ -38,6 +39,7 @@
     "prettier": "2.8.8",
     "react-native-dotenv": "^3.4.11",
     "react-test-renderer": "19.2.3",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5.8.3"
   },
   "engines": {
