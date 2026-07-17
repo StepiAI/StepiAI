@@ -20,6 +20,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # react-native-dotenv requires every key referenced in src/config/env.ts
+      # to exist in .env (values may be empty) — .env itself is gitignored, so
+      # CI needs its own copy. .env.example already lists the full key set.
+      - name: Set up env file
+        run: cp .env.example .env
+
       - name: Typecheck
         run: npx tsc --noEmit
 
