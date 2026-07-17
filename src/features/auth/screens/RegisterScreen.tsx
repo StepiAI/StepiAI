@@ -1,15 +1,25 @@
-import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MeshGradient } from '../../../shared/components/MeshGradient';
 import { GoogleLogo } from '../../../shared/components/GoogleLogo';
 import { textStyle } from '../../../shared/theme/typography';
+import { signInWithGoogle } from '../services/googleAuth';
 
-interface RegisterScreenProps {
-  onSignUpWithGoogle?: () => void;
-  onLogIn?: () => void;
-}
+export function RegisterScreen() {
+  const [signingIn, setSigningIn] = useState(false);
 
-export function RegisterScreen({ onSignUpWithGoogle, onLogIn }: RegisterScreenProps) {
+  async function handleGoogleSignIn() {
+    setSigningIn(true);
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      Alert.alert('Sign-in failed', error instanceof Error ? error.message : 'Please try again.');
+    } finally {
+      setSigningIn(false);
+    }
+  }
+
   return (
     <MeshGradient>
       <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
@@ -26,21 +36,28 @@ export function RegisterScreen({ onSignUpWithGoogle, onLogIn }: RegisterScreenPr
 
           <TouchableOpacity
             activeOpacity={0.85}
-            onPress={onSignUpWithGoogle}
+            onPress={handleGoogleSignIn}
+            disabled={signingIn}
             className="h-[62px] flex-row items-center justify-center gap-3 rounded-[34px] bg-white"
             style={googleShadow}
           >
-            <GoogleLogo size={22} />
-            <Text className="text-[17px] text-[#3B3A6B]" style={textStyle('bold')}>
-              Sign Up with Google
-            </Text>
+            {signingIn ? (
+              <ActivityIndicator color="#3B3A6B" />
+            ) : (
+              <>
+                <GoogleLogo size={22} />
+                <Text className="text-[17px] text-[#3B3A6B]" style={textStyle('bold')}>
+                  Sign Up with Google
+                </Text>
+              </>
+            )}
           </TouchableOpacity>
 
           <View className="mt-20 flex-row justify-center">
             <Text className="text-[15px] text-white/80" style={textStyle('medium')}>
               Already have an account?{' '}
             </Text>
-            <TouchableOpacity activeOpacity={0.7} onPress={onLogIn} hitSlop={8}>
+            <TouchableOpacity activeOpacity={0.7} onPress={handleGoogleSignIn} hitSlop={8}>
               <Text className="text-[15px] text-white" style={textStyle('bold')}>
                 Log In
               </Text>

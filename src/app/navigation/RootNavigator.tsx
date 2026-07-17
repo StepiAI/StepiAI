@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { HomeScreen } from '../../features/scheduler/screens/HomeScreen';
@@ -6,6 +6,7 @@ import { TasksScreen } from '../../features/tasks/screens/TasksScreen';
 import { SummaryScreen } from '../../features/summary/screens/SummaryScreen';
 import { SettingsScreen } from '../../features/settings/screens/SettingsScreen';
 import { RegisterScreen } from '../../features/auth/screens/RegisterScreen';
+import { useAuthSession } from '../../features/auth/hooks/useAuthSession';
 import { MainTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -22,18 +23,15 @@ function MainTabs() {
 }
 
 export function RootNavigator() {
-  const [signedIn, setSignedIn] = useState(false);
+  const { session, loading } = useAuthSession();
 
-  return (
-    <NavigationContainer>
-      {signedIn ? (
-        <MainTabs />
-      ) : (
-        <RegisterScreen
-          onSignUpWithGoogle={() => setSignedIn(true)}
-          onLogIn={() => setSignedIn(true)}
-        />
-      )}
-    </NavigationContainer>
-  );
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  return <NavigationContainer>{session ? <MainTabs /> : <RegisterScreen />}</NavigationContainer>;
 }
