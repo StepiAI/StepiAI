@@ -1,0 +1,62 @@
+import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { MeshGradient } from '../../../shared/components/MeshGradient';
+import { GoogleLogo } from '../../../shared/components/GoogleLogo';
+import { textStyle } from '../../../shared/theme/typography';
+
+interface RegisterScreenProps {
+  onSignUpWithGoogle?: () => void;
+  onLogIn?: () => void;
+}
+
+export function RegisterScreen({ onSignUpWithGoogle, onLogIn }: RegisterScreenProps) {
+  return (
+    <MeshGradient>
+      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
+      <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1 }}>
+        <View className="flex-1 justify-end px-7 pb-14">
+          <View className="items-center mb-11">
+            <Text className="text-[30px] tracking-[0.2px] text-white" style={textStyle('bold')}>
+              Create your Account
+            </Text>
+            <Text className="mt-2 text-[17px] text-white/80" style={textStyle('medium')}>
+              Start planning your day to day
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={onSignUpWithGoogle}
+            className="h-[62px] flex-row items-center justify-center gap-3 rounded-[34px] bg-white"
+            style={googleShadow}
+          >
+            <GoogleLogo size={22} />
+            <Text className="text-[17px] text-[#3B3A6B]" style={textStyle('bold')}>
+              Sign Up with Google
+            </Text>
+          </TouchableOpacity>
+
+          <View className="mt-20 flex-row justify-center">
+            <Text className="text-[15px] text-white/80" style={textStyle('medium')}>
+              Already have an account?{' '}
+            </Text>
+            <TouchableOpacity activeOpacity={0.7} onPress={onLogIn} hitSlop={8}>
+              <Text className="text-[15px] text-white" style={textStyle('bold')}>
+                Log In
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
+    </MeshGradient>
+  );
+}
+
+// shadow props gaada di tailwind jir, coba klo ketemu boleh diganti
+const googleShadow = {
+  shadowColor: '#3A2C6B',
+  shadowOffset: { width: 0, height: 10 },
+  shadowOpacity: 0.18,
+  shadowRadius: 24,
+  elevation: 6,
+};
