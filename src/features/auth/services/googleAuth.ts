@@ -9,6 +9,7 @@ import { supabase } from '../../../services/supabase/client';
 
 GoogleSignin.configure({
   webClientId: GOOGLE_WEB_CLIENT_ID,
+  offlineAccess: true, // return serverAuthCode buat api.
 });
 
 // flow ny: google account picker -> idToken -> session ambil dari Supabase
