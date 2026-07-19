@@ -1,11 +1,32 @@
 import { API_BASE_URL } from '../../config/env';
 import { supabase } from '../supabase/client';
 
+export class ApiError extends Error {
+  constructor(readonly status: number, message: string, readonly path: string) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+function readErrorMessage(body: string, status: number) {
+  try {
+    const parsed = JSON.parse(body) as { message?: string | string[] };
+    if (Array.isArray(parsed.message)) {
+      return parsed.message.join(', ');
+    }
+    if (parsed.message) {
+      return parsed.message;
+    }
+  } catch {
+  }
+
+  return body || `Request failed with status ${status}`;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  console.log('debuggg1:', !!session, 'expires_at:', session?.expires_at);
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: {
@@ -17,7 +38,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const body = await response.text().catch(() => '');
-    throw new Error(`API request failed: ${response.status} ${path} ${body}`);
+    throw new ApiError(
+      response.status,
+      readErrorMessage(body, response.status),
+      path,
+    );
   }
 
   return response.json() as Promise<T>;

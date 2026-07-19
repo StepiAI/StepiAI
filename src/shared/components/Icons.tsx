@@ -1,0 +1,195 @@
+import { Text, View } from 'react-native';
+
+const STROKE = '#1C1C1E';
+
+export function ClockIcon({ color = STROKE }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View
+        className="absolute top-0 h-[3px] w-[8px] rounded-sm"
+        style={{ backgroundColor: color }}
+      />
+      <View
+        className="h-[18px] w-[18px] rounded-full border-[1.6px]"
+        style={{ borderColor: color, marginTop: 3 }}
+      />
+      <View
+        className="absolute h-[5px] w-[1.6px]"
+        style={{ backgroundColor: color, transform: [{ translateY: -1 }] }}
+      />
+      <View
+        className="absolute h-[1.6px] w-[4px]"
+        style={{ backgroundColor: color, transform: [{ translateX: 2 }, { translateY: 3 }] }}
+      />
+    </View>
+  );
+}
+
+export function MoonIcon({
+  color = STROKE,
+  backdrop = '#FFFFFF',
+}: {
+  color?: string;
+  backdrop?: string;
+}) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View
+        className="h-[18px] w-[18px] rounded-full border-[1.6px]"
+        style={{ borderColor: color }}
+      />
+      <View
+        className="absolute h-[18px] w-[18px] rounded-full"
+        style={{
+          backgroundColor: backdrop,
+          transform: [{ translateX: 6 }, { translateY: -5 }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function ChevronLeft({ color = STROKE, size = 11 }: { color?: string; size?: number }) {
+  return (
+    <View className="h-[24px] w-[24px] items-center justify-center">
+      <View
+        style={{
+          width: size,
+          height: size,
+          borderLeftWidth: 2,
+          borderBottomWidth: 2,
+          borderColor: color,
+          transform: [{ rotate: '45deg' }, { translateX: 2 }, { translateY: -2 }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function ChevronRight({ color = '#B4B4BC', size = 11 }: { color?: string; size?: number }) {
+  return (
+    <View className="h-[24px] w-[24px] items-center justify-center">
+      <View
+        style={{
+          width: size,
+          height: size,
+          borderRightWidth: 2,
+          borderTopWidth: 2,
+          borderColor: color,
+          transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 2 }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function ChevronDown({ color = '#B0B0B8', size = 9 }: { color?: string; size?: number }) {
+  return (
+    <View className="h-[20px] w-[20px] items-center justify-center">
+      <View
+        style={{
+          width: size,
+          height: size,
+          borderRightWidth: 2,
+          borderBottomWidth: 2,
+          borderColor: color,
+          transform: [{ rotate: '45deg' }, { translateY: -2 }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function SendIcon({ color = '#FFFFFF', size = 9 }: { color?: string; size?: number }) {
+  return (
+    <View className="h-[20px] w-[20px] items-center justify-center">
+      <View
+        style={{
+          width: 0,
+          height: 0,
+          borderTopWidth: size,
+          borderBottomWidth: size,
+          borderLeftWidth: size * 1.4,
+          borderTopColor: 'transparent',
+          borderBottomColor: 'transparent',
+          borderLeftColor: color,
+          transform: [{ translateX: 2 }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function CheckBadge({ color = '#41C46F', size = 15 }: { color?: string; size?: number }) {
+  return (
+    <View
+      className="items-center justify-center rounded-full"
+      style={{ width: size, height: size, backgroundColor: color }}
+    >
+      <View
+        style={{
+          width: size * 0.4,
+          height: size * 0.22,
+          borderLeftWidth: 1.6,
+          borderBottomWidth: 1.6,
+          borderColor: '#FFFFFF',
+          transform: [{ rotate: '-45deg' }, { translateY: -1 }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function ClearIcon() {
+  return (
+    <View className="h-[20px] w-[20px] items-center justify-center rounded-full bg-[#D8D8DE]">
+      <Text className="text-[13px] leading-[15px] text-white">×</Text>
+    </View>
+  );
+}
+
+const ACCENT = '#2E7BE0';
+
+export function CarIcon({ color = ACCENT }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View
+        className="absolute h-[7px] w-[12px] rounded-t-[4px] border-[1.6px] border-b-0"
+        style={{ borderColor: color, transform: [{ translateY: -4 }] }}
+      />
+      <View
+        className="h-[8px] w-[19px] rounded-[3px] border-[1.6px]"
+        style={{ borderColor: color, transform: [{ translateY: 2 }] }}
+      />
+      <View
+        className="absolute h-[4px] w-[4px] rounded-full"
+        style={{
+          backgroundColor: color,
+          transform: [{ translateX: -5 }, { translateY: 7 }],
+        }}
+      />
+      <View
+        className="absolute h-[4px] w-[4px] rounded-full"
+        style={{
+          backgroundColor: color,
+          transform: [{ translateX: 5 }, { translateY: 7 }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function LockIcon({ color = ACCENT }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View
+        className="absolute h-[10px] w-[10px] rounded-t-full border-[1.6px] border-b-0"
+        style={{ borderColor: color, transform: [{ translateY: -5 }] }}
+      />
+      <View
+        className="h-[11px] w-[15px] items-center justify-center rounded-[3px]"
+        style={{ backgroundColor: color, transform: [{ translateY: 3 }] }}
+      />
+    </View>
+  );
+}
