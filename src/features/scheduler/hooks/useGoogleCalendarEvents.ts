@@ -4,6 +4,7 @@ import {
   GoogleCalendarEvent,
   listGoogleCalendarEvents,
 } from '../../../services/googleCalendar/client';
+import { syncWidgetFromApp } from '../../widget/sync';
 
 const DEFAULT_RANGE_DAYS = 7;
 
@@ -30,8 +31,18 @@ const INITIAL: State = {
   notConnected: false,
 };
 
-export function useGoogleCalendarEvents(rangeDays = DEFAULT_RANGE_DAYS) {
+interface Options {
+  // default nya hari ini
+  from?: Date;
+  // default nya from + 7 hari
+  to?: Date;
+}
+
+export function useGoogleCalendarEvents({ from, to }: Options = {}) {
   const [state, setState] = useState<State>(INITIAL);
+
+  const fromMs = from?.getTime();
+  const toMs = to?.getTime();
 
   const load = useCallback(
     async (mode: 'initial' | 'refresh') => {
@@ -42,10 +53,18 @@ export function useGoogleCalendarEvents(rangeDays = DEFAULT_RANGE_DAYS) {
         error: null,
       }));
 
-      // mulai dari awal hari ini biar event yg jamnya udah lewat tetep keliatan
-      const timeMin = new Date();
-      timeMin.setHours(0, 0, 0, 0);
-      const timeMax = new Date(timeMin.getTime() + rangeDays * 86_400_000);
+      let timeMin: Date;
+      if (fromMs !== undefined) {
+        timeMin = new Date(fromMs);
+      } else {
+        timeMin = new Date();
+        timeMin.setHours(0, 0, 0, 0);
+      }
+
+      const timeMax =
+        toMs !== undefined
+          ? new Date(toMs)
+          : new Date(timeMin.getTime() + DEFAULT_RANGE_DAYS * 86_400_000);
 
       try {
         const events = await listGoogleCalendarEvents(
@@ -59,10 +78,17 @@ export function useGoogleCalendarEvents(rangeDays = DEFAULT_RANGE_DAYS) {
           error: null,
           notConnected: false,
         });
+
+        // ini gk gw await SENGAJA -> widget tu bonus soalny, jgn ampe dia nahan" render
+        syncWidgetFromApp(events);
       } catch (err) {
         console.error('[GoogleCalendar] failed to list events:', err);
-        // backend balikin 404 kalau akun google belum di-connect
         const notConnected = err instanceof ApiError && err.status === 404;
+
+        if (notConnected) {
+          syncWidgetFromApp([], { connected: false });
+        }
+
         setState({
           events: [],
           loading: false,
@@ -72,7 +98,7 @@ export function useGoogleCalendarEvents(rangeDays = DEFAULT_RANGE_DAYS) {
         });
       }
     },
-    [rangeDays],
+    [fromMs, toMs],
   );
 
   useEffect(() => {
