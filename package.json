@@ -19,6 +19,7 @@
     "nativewind": "^4.2.6",
     "react": "19.2.3",
     "react-native": "0.86.0",
+    "react-native-android-widget": "^0.21.0",
     "react-native-safe-area-context": "^5.8.0",
     "react-native-screens": "^4.26.1",
     "react-native-url-polyfill": "^4.0.0"
