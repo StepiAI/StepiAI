@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { textStyle } from '../../../shared/theme/typography';
 import { ChatComposer } from '../components/ChatComposer';
 import { MessageBubble } from '../components/MessageBubble';
+import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { useChat } from '../hooks/useChat';
 
 function EmptyState() {
@@ -48,6 +49,7 @@ function TypingIndicator() {
 export function ChatScreen() {
   const { messages, loading, sending, error, sendError, send, refresh } = useChat();
   const scrollRef = useRef<ScrollView>(null);
+  const tabBarSpace = useTabBarSpace();
 
   return (
     <SafeAreaView className="flex-1 bg-light-sheet" edges={['top']}>
@@ -121,7 +123,9 @@ export function ChatScreen() {
           </Text>
         ) : null}
 
-        <ChatComposer onSend={send} />
+        <View style={{ paddingBottom: tabBarSpace }}>
+          <ChatComposer onSend={send} />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

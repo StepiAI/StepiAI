@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { textStyle } from '../../../shared/theme/typography';
 import { ChevronRight } from '../../../shared/components/Icons';
 import { DayTimeline } from '../components/DayTimeline';
@@ -22,6 +23,7 @@ import { buildWeek, formatWeekRange, startOfWeek } from '../utils/week';
 export function CalendarScreen() {
   const [selected, setSelected] = useState(() => new Date());
   const [pickerOpen, setPickerOpen] = useState(false);
+  const tabBarSpace = useTabBarSpace();
 
   const week = useMemo(() => buildWeek(selected), [selected]);
 
@@ -122,6 +124,9 @@ export function CalendarScreen() {
             <DayTimeline events={timed} />
           </>
         )}
+
+        {/* navbar */}
+        <View style={{ height: tabBarSpace }} />
       </ScrollView>
 
       <MonthPickerModal
