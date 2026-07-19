@@ -6,6 +6,10 @@ import { TasksScreen } from '../../features/tasks/screens/TasksScreen';
 import { SummaryScreen } from '../../features/summary/screens/SummaryScreen';
 import { SettingsScreen } from '../../features/settings/screens/SettingsScreen';
 import { RegisterScreen } from '../../features/auth/screens/RegisterScreen';
+import { PersonalizeDayScreen } from '../../features/onboarding/screens/PersonalizeDayScreen';
+import { LocationAccessScreen } from '../../features/onboarding/screens/LocationAccessScreen';
+import { CalendarScreen } from '../../features/scheduler/screens/CalendarScreen';
+import { ChatScreen } from '../../features/chat/screens/ChatScreen';
 import { useAuthSession } from '../../features/auth/hooks/useAuthSession';
 import { MainTabParamList } from './types';
 
@@ -18,6 +22,11 @@ function MainTabs() {
       <Tab.Screen name="Tasks" component={TasksScreen} />
       <Tab.Screen name="Summary" component={SummaryScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen name="Calendar" component={CalendarScreen} />
+      <Tab.Screen name="Chat" component={ChatScreen} />
+      {/* tab sementara buat ngecek UI onboarding */}
+      <Tab.Screen name="Personalize" component={PersonalizeDayScreen} />
+      <Tab.Screen name="Location" component={LocationAccessScreen} />
     </Tab.Navigator>
   );
 }
