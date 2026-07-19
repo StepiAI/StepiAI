@@ -12,13 +12,22 @@ const CALENDAR_SCOPES = [
 
 export type GoogleCalendarStatus =
   | { connected: false }
-  | { connected: true; scope: string; connectedAt: string };
+  | { connected: true; scope: string; connectedAt: string; email?: string | null };
 
 export interface GoogleCalendarEvent {
   id?: string | null;
   summary?: string | null;
+  location?: string | null;
   start?: { dateTime?: string | null; date?: string | null } | null;
   end?: { dateTime?: string | null; date?: string | null } | null;
+}
+
+export interface CreateGoogleCalendarEventInput {
+  summary: string;
+  location?: string;
+  description?: string;
+  startDateTime: string;
+  endDateTime: string;
 }
 
 export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | null> {
@@ -61,6 +70,10 @@ export function getGoogleCalendarStatus() {
 
 export function disconnectGoogleCalendar() {
   return apiClient.delete<GoogleCalendarStatus>(BASE_PATH);
+}
+
+export function createGoogleCalendarEvent(input: CreateGoogleCalendarEventInput) {
+  return apiClient.post<GoogleCalendarEvent>(`${BASE_PATH}/events`, input);
 }
 
 export function listGoogleCalendarEvents(timeMin?: string, timeMax?: string) {
