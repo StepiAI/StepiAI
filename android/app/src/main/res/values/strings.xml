@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">StepiAI</string>
+    <string name="widget_stepiagenda_description" translatable="false">Your next scheduled activity at a glance.</string>
 </resources>
