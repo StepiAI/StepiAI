@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { textStyle } from '../../../shared/theme/typography';
 import {
   ChevronDown,
@@ -34,9 +35,10 @@ interface PersonalizeDayScreenProps {
 
 export function PersonalizeDayScreen({ onBack, onContinue }: PersonalizeDayScreenProps) {
   const [goal, setGoal] = useState('Learning React');
+  const tabBarSpace = useTabBarSpace();
 
   return (
-    <SafeAreaView className="flex-1 bg-light-canvas" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
       <StatusBar barStyle="dark-content" />
 
       <KeyboardAvoidingView
@@ -128,7 +130,7 @@ export function PersonalizeDayScreen({ onBack, onContinue }: PersonalizeDayScree
           </View>
         </ScrollView>
 
-        <View className="px-[20px] pb-[10px] pt-[6px]">
+        <View className="px-[20px] pt-[6px]" style={{ paddingBottom: tabBarSpace }}>
           <TouchableOpacity
             onPress={onContinue}
             activeOpacity={0.85}

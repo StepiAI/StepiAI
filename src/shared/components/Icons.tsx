@@ -193,3 +193,122 @@ export function LockIcon({ color = ACCENT }: { color?: string }) {
     </View>
   );
 }
+
+export function HomeIcon({ color = STROKE }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View
+        className="absolute"
+        style={{
+          width: 13,
+          height: 13,
+          borderTopWidth: 1.8,
+          borderLeftWidth: 1.8,
+          borderColor: color,
+          borderTopLeftRadius: 2,
+          transform: [{ rotate: '45deg' }, { translateY: 2 }],
+        }}
+      />
+      <View
+        className="absolute"
+        style={{
+          width: 14,
+          height: 9,
+          borderWidth: 1.8,
+          borderTopWidth: 0,
+          borderColor: color,
+          transform: [{ translateY: 5 }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function ListIcon({ color = STROKE }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] justify-center gap-[4px]">
+      {[0, 1, 2].map(row => (
+        <View key={row} className="flex-row items-center gap-[4px]">
+          <View
+            className="rounded-full"
+            style={{ width: 3.5, height: 3.5, backgroundColor: color }}
+          />
+          <View style={{ width: 12, height: 2, borderRadius: 1, backgroundColor: color }} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+export function ChatBubbleIcon({ color = STROKE }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View
+        style={{
+          width: 18,
+          height: 14,
+          borderWidth: 1.8,
+          borderColor: color,
+          borderRadius: 7,
+          transform: [{ translateY: -1 }],
+        }}
+      />
+      <View
+        className="absolute"
+        style={{
+          width: 5,
+          height: 5,
+          borderBottomWidth: 1.8,
+          borderLeftWidth: 1.8,
+          borderColor: color,
+          transform: [{ translateX: -4 }, { translateY: 6 }, { rotate: '-45deg' }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function PersonIcon({ color = STROKE }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View
+        className="absolute rounded-full"
+        style={{
+          width: 8,
+          height: 8,
+          borderWidth: 1.8,
+          borderColor: color,
+          transform: [{ translateY: -5 }],
+        }}
+      />
+      <View
+        className="absolute"
+        style={{
+          width: 15,
+          height: 8,
+          borderWidth: 1.8,
+          borderBottomWidth: 0,
+          borderColor: color,
+          borderTopLeftRadius: 8,
+          borderTopRightRadius: 8,
+          transform: [{ translateY: 6 }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function PlusIcon({ color = '#FFFFFF', size = 20 }: { color?: string; size?: number }) {
+  return (
+    <View className="items-center justify-center" style={{ width: size, height: size }}>
+      <View
+        className="absolute rounded-full"
+        style={{ width: size, height: 2.4, backgroundColor: color }}
+      />
+      <View
+        className="absolute rounded-full"
+        style={{ width: 2.4, height: size, backgroundColor: color }}
+      />
+    </View>
+  );
+}

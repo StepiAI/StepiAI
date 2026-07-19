@@ -6,6 +6,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import {
   CarIcon,
   ChevronLeft,
@@ -30,6 +31,7 @@ export function LocationAccessScreen({
   onSkip,
 }: LocationAccessScreenProps) {
   const { status, requesting, request, openSettings } = useLocationPermission();
+  const tabBarSpace = useTabBarSpace();
 
   const blocked = status === 'blocked';
   const unavailable = status === 'unavailable';
@@ -44,7 +46,7 @@ export function LocationAccessScreen({
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-light-canvas" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
       <StatusBar barStyle="dark-content" />
 
       <View className="flex-row items-center px-[18px] pt-[6px]">
@@ -143,7 +145,8 @@ export function LocationAccessScreen({
         </TouchableOpacity>
       </View>
 
-      <View className="px-[24px] pb-[6px]">
+      {/* navbar */}
+      <View className="px-[24px]" style={{ paddingBottom: tabBarSpace }}>
         <TouchableOpacity
           onPress={onSkip}
           disabled={requesting}

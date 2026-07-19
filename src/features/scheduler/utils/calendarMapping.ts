@@ -14,7 +14,6 @@ function minutesFromStartOfDay(date: Date, day: Date) {
   return Math.round((date.getTime() - startOfDay(day).getTime()) / 60_000);
 }
 
- */
 function coversDay(event: GoogleCalendarEvent, day: Date) {
   const startDate = event.start?.date;
   if (!startDate) return false;
