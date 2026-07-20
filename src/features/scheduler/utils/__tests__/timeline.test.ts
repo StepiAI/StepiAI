@@ -56,23 +56,13 @@ describe('formatDuration', () => {
 });
 
 describe('rangeForEvents', () => {
-  it('hari kosong pakai rentang default', () => {
+  it('hari kosong pakai rentang default (00:00 - 23:00, sehari penuh)', () => {
     expect(rangeForEvents([])).toEqual(DEFAULT_RANGE);
   });
 
-  it('event di dalam jam kerja gak ngubah rentang', () => {
-    expect(rangeForEvents([event({ startMinutes: 10 * 60 })])).toEqual(DEFAULT_RANGE);
-  });
-
-  it('melar buat event malem, kalau nggak event-nya keilangan', () => {
-    const range = rangeForEvents([event({ startMinutes: 22 * 60 })]);
-
-    expect(range.endHour).toBeGreaterThanOrEqual(23);
-    expect(range.startHour).toBe(DEFAULT_RANGE.startHour);
-  });
-
-  it('melar ke atas buat event subuh', () => {
-    expect(rangeForEvents([event({ startMinutes: 5 * 60 })]).startHour).toBe(5);
+  it('event subuh atau malem tetep gak ngubah rentang, udah sehari penuh dari sononya', () => {
+    expect(rangeForEvents([event({ startMinutes: 5 * 60 })])).toEqual(DEFAULT_RANGE);
+    expect(rangeForEvents([event({ startMinutes: 22 * 60 })])).toEqual(DEFAULT_RANGE);
   });
 
   it('gak pernah keluar dari 0..24', () => {
@@ -92,8 +82,10 @@ describe('hourSlots', () => {
 });
 
 describe('blockPosition', () => {
+  const workRange = { startHour: 9, endHour: 17 };
+
   it('posisinya diukur dari awal rentang, bukan dari tengah malam', () => {
-    const { top } = blockPosition(event({ startMinutes: 10 * 60 }), DEFAULT_RANGE);
+    const { top } = blockPosition(event({ startMinutes: 10 * 60 }), workRange);
 
     expect(top).toBe(HOUR_HEIGHT);
   });
@@ -101,7 +93,7 @@ describe('blockPosition', () => {
   it('setengah jam jatuh di tengah baris', () => {
     const { top } = blockPosition(
       event({ startMinutes: 10 * 60 + 30 }),
-      DEFAULT_RANGE,
+      workRange,
     );
 
     expect(top).toBe(HOUR_HEIGHT * 1.5);
@@ -121,9 +113,13 @@ describe('blockPosition', () => {
 });
 
 describe('isWithinTimeline', () => {
-  it('cuma true kalau jamnya masuk rentang', () => {
-    expect(isWithinTimeline(11 * 60, DEFAULT_RANGE)).toBe(true);
-    expect(isWithinTimeline(8 * 60, DEFAULT_RANGE)).toBe(false);
-    expect(isWithinTimeline(20 * 60, DEFAULT_RANGE)).toBe(false);
+  it('true buat jam berapa pun sepanjang hari, dari tengah malam sampe jam 11 malem', () => {
+    expect(isWithinTimeline(0, DEFAULT_RANGE)).toBe(true);
+    expect(isWithinTimeline(8 * 60, DEFAULT_RANGE)).toBe(true);
+    expect(isWithinTimeline(23 * 60, DEFAULT_RANGE)).toBe(true);
+  });
+
+  it('false kalau udah lewat jam 11 malem', () => {
+    expect(isWithinTimeline(23 * 60 + 30, DEFAULT_RANGE)).toBe(false);
   });
 });

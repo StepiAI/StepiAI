@@ -391,6 +391,136 @@ export function CalendarIcon({ color = STROKE }: { color?: string }) {
     </View>
   );
 }
+        
+export function TargetIcon({ color = ACCENT }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View className="h-[20px] w-[20px] rounded-full border-[1.6px]" style={{ borderColor: color }} />
+      <View
+        className="absolute h-[12px] w-[12px] rounded-full border-[1.6px]"
+        style={{ borderColor: color }}
+      />
+      <View className="absolute h-[5px] w-[5px] rounded-full" style={{ backgroundColor: color }} />
+    </View>
+  );
+}
+
+export function ScaleIcon({ color = ACCENT }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View className="absolute h-[16px] w-[1.6px]" style={{ backgroundColor: color }} />
+      <View
+        className="absolute h-[1.6px] w-[16px]"
+        style={{ backgroundColor: color, transform: [{ translateY: -7 }] }}
+      />
+      <View
+        className="absolute h-[1.6px] w-[10px]"
+        style={{ backgroundColor: color, transform: [{ translateY: 8 }] }}
+      />
+      <View
+        className="absolute h-[6px] w-[6px] rounded-full border-[1.4px]"
+        style={{ borderColor: color, transform: [{ translateX: -8 }, { translateY: -2 }] }}
+      />
+      <View
+        className="absolute h-[6px] w-[6px] rounded-full border-[1.4px]"
+        style={{ borderColor: color, transform: [{ translateX: 8 }, { translateY: -2 }] }}
+      />
+    </View>
+  );
+}
+
+export function HourglassIcon({ color = ACCENT }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View
+        className="absolute h-[1.6px] w-[14px]"
+        style={{ backgroundColor: color, transform: [{ translateY: -8 }] }}
+      />
+      <View
+        className="absolute h-[1.6px] w-[14px]"
+        style={{ backgroundColor: color, transform: [{ translateY: 8 }] }}
+      />
+      <View
+        className="absolute"
+        style={{
+          width: 0,
+          height: 0,
+          borderLeftWidth: 6,
+          borderRightWidth: 6,
+          borderTopWidth: 8,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderTopColor: color,
+          transform: [{ translateY: -4 }],
+        }}
+      />
+      <View
+        style={{
+          width: 0,
+          height: 0,
+          borderLeftWidth: 6,
+          borderRightWidth: 6,
+          borderBottomWidth: 8,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderBottomColor: color,
+          transform: [{ translateY: 4 }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function MoreIcon({ color = '#B4B4BC' }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center gap-[3px]">
+      {[0, 1, 2].map(dot => (
+        <View key={dot} className="h-[3.5px] w-[3.5px] rounded-full" style={{ backgroundColor: color }} />
+      ))}
+    </View>
+  );
+}
+
+export function ClipboardIcon({ color = ACCENT }: { color?: string }) {
+  return (
+    <View className="h-[20px] w-[20px] items-center justify-center">
+      <View
+        className="h-[16px] w-[13px] rounded-[3px] border-[1.6px]"
+        style={{ borderColor: color, transform: [{ translateY: 1 }] }}
+      />
+      <View
+        className="absolute h-[4px] w-[7px] rounded-[2px] border-[1.6px] bg-white"
+        style={{ borderColor: color, transform: [{ translateY: -7 }] }}
+      />
+    </View>
+  );
+}
+
+export function ClipboardCheckIcon({ color = ACCENT }: { color?: string }) {
+  return (
+    <View className="h-[20px] w-[20px] items-center justify-center">
+      <View
+        className="h-[16px] w-[13px] rounded-[3px] border-[1.6px]"
+        style={{ borderColor: color, transform: [{ translateY: 1 }] }}
+      />
+      <View
+        className="absolute h-[4px] w-[7px] rounded-[2px] border-[1.6px] bg-white"
+        style={{ borderColor: color, transform: [{ translateY: -7 }] }}
+      />
+      <View
+        className="absolute"
+        style={{
+          width: 6,
+          height: 3,
+          borderLeftWidth: 1.6,
+          borderBottomWidth: 1.6,
+          borderColor: color,
+          transform: [{ rotate: '-45deg' }, { translateY: 2 }],
+        }}
+      />
+    </View>
+  );
+}
 
 export function BookIcon({ color = STROKE }: { color?: string }) {
   return (
@@ -402,6 +532,82 @@ export function BookIcon({ color = STROKE }: { color?: string }) {
       <View
         className="absolute h-[16px] w-[1.6px]"
         style={{ backgroundColor: color }}
+      />
+    </View>
+  );
+}
+
+export function CheckIcon({ color = '#FFFFFF', size = 12 }: { color?: string; size?: number }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View
+        style={{
+          width: size * 0.55,
+          height: size * 0.3,
+          borderLeftWidth: 2,
+          borderBottomWidth: 2,
+          borderColor: color,
+          transform: [{ rotate: '-45deg' }, { translateY: -1 }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function ChevronUpDownIcon({ color = '#C6C6CC', size = 7 }: { color?: string; size?: number }) {
+  return (
+    <View className="h-[20px] w-[14px] items-center justify-center gap-[3px]">
+      <View
+        style={{
+          width: 0,
+          height: 0,
+          borderLeftWidth: size / 2,
+          borderRightWidth: size / 2,
+          borderBottomWidth: size * 0.7,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderBottomColor: color,
+        }}
+      />
+      <View
+        style={{
+          width: 0,
+          height: 0,
+          borderLeftWidth: size / 2,
+          borderRightWidth: size / 2,
+          borderTopWidth: size * 0.7,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderTopColor: color,
+        }}
+      />
+    </View>
+  );
+}
+
+export function AlertTriangleIcon({ color = '#E14545', size = 18 }: { color?: string; size?: number }) {
+  return (
+    <View className="items-center justify-center" style={{ width: size, height: size }}>
+      <View
+        style={{
+          width: 0,
+          height: 0,
+          borderLeftWidth: size / 2,
+          borderRightWidth: size / 2,
+          borderBottomWidth: size * 0.87,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderBottomColor: color,
+          borderRadius: 2,
+        }}
+      />
+      <View
+        className="absolute rounded-full bg-white"
+        style={{ width: 2, height: size * 0.3, top: size * 0.36 }}
+      />
+      <View
+        className="absolute rounded-full bg-white"
+        style={{ width: 2, height: 2, bottom: size * 0.18 }}
       />
     </View>
   );

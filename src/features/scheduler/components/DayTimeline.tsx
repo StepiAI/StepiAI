@@ -30,21 +30,41 @@ export function DayTimeline({ events, nowMinutes }: DayTimelineProps) {
 
   return (
     <View style={{ height: timelineHeight(range) }}>
-      {hourSlots(range).map((hour, index) => (
-        <View
-          key={hour}
-          className="absolute left-0 right-0 flex-row items-center"
-          style={{ top: index * HOUR_HEIGHT }}
-        >
-          <Text
-            className="text-[12px] text-light-faint"
-            style={[textStyle('regular'), { width: GUTTER_WIDTH }]}
+      {hourSlots(range).map((hour, index) => {
+        const isNowHour = isWithinTimeline(now, range) && now === hour * 60;
+
+        return (
+          <View
+            key={hour}
+            className="absolute left-0 right-0 flex-row items-center"
+            style={{ top: index * HOUR_HEIGHT }}
           >
-            {formatHourLabel(hour)}
-          </Text>
-          <View className="flex-1 border-t border-dotted border-light-grid" />
-        </View>
-      ))}
+            {isNowHour ? (
+              <View
+                className="items-center justify-center rounded-full px-[10px] py-[3px]"
+                style={{ backgroundColor: NOW_INDICATOR_COLOR, marginLeft: -12 }}
+              >
+                <Text className="text-[11px] text-white" style={textStyle('bold')}>
+                  {formatHourLabel(hour)}
+                </Text>
+              </View>
+            ) : (
+              <Text
+                className="text-[12px] text-light-faint"
+                style={[textStyle('regular'), { width: GUTTER_WIDTH }]}
+              >
+                {formatHourLabel(hour)}
+              </Text>
+            )}
+
+            {isNowHour ? (
+              <View className="flex-1" style={{ height: 1.5, backgroundColor: NOW_INDICATOR_COLOR }} />
+            ) : (
+              <View className="flex-1 border-t border-dotted border-light-grid" />
+            )}
+          </View>
+        );
+      })}
 
       <View className="absolute right-0 top-0" style={{ left: GUTTER_WIDTH }}>
         {events.map(event => {
@@ -95,15 +115,15 @@ export function DayTimeline({ events, nowMinutes }: DayTimelineProps) {
         })}
       </View>
 
-      {isWithinTimeline(now, range) ? (
+      {isWithinTimeline(now, range) && now % 60 !== 0 ? (
         <View
           className="absolute left-0 right-0 flex-row items-center"
           style={{ top: offsetForMinutes(now, range) }}
           pointerEvents="none"
         >
           <View
-            className="h-[9px] w-[9px] rounded-full bg-light-accent"
-            style={{ marginLeft: GUTTER_WIDTH - 4 }}
+            className="h-[9px] w-[9px] rounded-full"
+            style={{ marginLeft: GUTTER_WIDTH - 4, backgroundColor: NOW_INDICATOR_COLOR }}
           />
           <View className="h-[1.5px] flex-1" style={{ backgroundColor: NOW_INDICATOR_COLOR }} />
         </View>
