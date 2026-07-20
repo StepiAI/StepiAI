@@ -17,7 +17,7 @@ module.exports = {
         border: '#26262E',
 
         light: {
-          canvas: '#F2F2F5',
+          canvas: '#F2F2F7',
           sheet: '#FFFFFF',
           ink: '#1C1C1E',
           inkStrong: '#111114',
@@ -33,7 +33,8 @@ module.exports = {
           accentSoft: '#D7E7FC',
           icon: '#4A4A52',
           cta: '#0A0A0A',
-          bubble: '#F0F2FA',
+          bubble: '#FFFFFF',
+          userBubble: '#E8F1FD',
           accentLine: '#C4D7F5',
           success: '#41C46F',
         },
