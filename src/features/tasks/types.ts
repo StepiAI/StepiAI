@@ -1,0 +1,42 @@
+export interface StudyPlanTopic {
+  id: string;
+  label: string;
+}
+
+export const WEEKDAYS = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+] as const;
+
+export type Weekday = (typeof WEEKDAYS)[number];
+
+export type FocusPreference = 'deep-focus' | 'balanced' | 'pomodoro';
+
+export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
+
+export interface StudySchedule {
+  startDate: Date;
+  endDate: Date;
+  availableDays: Weekday[];
+  preferredStartTime: Date;
+  preferredEndTime: Date;
+}
+
+export interface StudyPreferences {
+  focus: FocusPreference;
+  difficulty: DifficultyLevel;
+  includeReviewSessions: boolean;
+}
+
+export interface StudyPlanDraft {
+  title: string;
+  goal: string;
+  topics: StudyPlanTopic[];
+  schedule: StudySchedule;
+  preferences: StudyPreferences;
+}
