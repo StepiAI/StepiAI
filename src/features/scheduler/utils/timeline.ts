@@ -1,7 +1,7 @@
 export const HOUR_HEIGHT = 52;
 
-export const DEFAULT_START_HOUR = 9;
-export const DEFAULT_END_HOUR = 17;
+export const DEFAULT_START_HOUR = 0;
+export const DEFAULT_END_HOUR = 23;
 
 export type EventTone = 'blue' | 'purple';
 
