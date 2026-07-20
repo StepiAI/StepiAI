@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { HomeScreen } from '../../features/scheduler/screens/HomeScreen';
+import { NewScheduleModal } from '../../features/scheduler/components/NewScheduleModal';
 import { TasksScreen } from '../../features/tasks/screens/TasksScreen';
 import { SummaryScreen } from '../../features/summary/screens/SummaryScreen';
 import { SettingsScreen } from '../../features/settings/screens/SettingsScreen';
@@ -17,21 +19,32 @@ import { MainTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-const renderTabBar = (props: BottomTabBarProps) => <TabBar {...props} />;
-
 function MainTabs() {
-  return (
-    <Tab.Navigator screenOptions={{ headerShown: false }} tabBar={renderTabBar}>
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Tasks" component={TasksScreen} />
-      <Tab.Screen name="Chat" component={ChatScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+  const [addingSchedule, setAddingSchedule] = useState(false);
 
-      <Tab.Screen name="Calendar" component={CalendarScreen} />
-      <Tab.Screen name="Summary" component={SummaryScreen} />
-      <Tab.Screen name="Personalize" component={PersonalizeDayScreen} />
-      <Tab.Screen name="Location" component={LocationAccessScreen} />
-    </Tab.Navigator>
+  const renderTabBar = (props: BottomTabBarProps) => (
+    <TabBar {...props} onAddPress={() => setAddingSchedule(true)} />
+  );
+
+  return (
+    <>
+      <Tab.Navigator screenOptions={{ headerShown: false }} tabBar={renderTabBar}>
+        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Tasks" component={TasksScreen} />
+        <Tab.Screen name="Chat" component={ChatScreen} />
+        <Tab.Screen name="Settings" component={SettingsScreen} />
+
+        <Tab.Screen name="Calendar" component={CalendarScreen} />
+        <Tab.Screen name="Summary" component={SummaryScreen} />
+        <Tab.Screen name="Personalize" component={PersonalizeDayScreen} />
+        <Tab.Screen name="Location" component={LocationAccessScreen} />
+      </Tab.Navigator>
+
+      <NewScheduleModal
+        visible={addingSchedule}
+        onClose={() => setAddingSchedule(false)}
+      />
+    </>
   );
 }
 

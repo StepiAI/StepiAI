@@ -475,6 +475,65 @@ export function CheckIcon({ color = '#FFFFFF', size = 12 }: { color?: string; si
   );
 }
 
+export function ChevronUpDownIcon({ color = '#C6C6CC', size = 7 }: { color?: string; size?: number }) {
+  return (
+    <View className="h-[20px] w-[14px] items-center justify-center gap-[3px]">
+      <View
+        style={{
+          width: 0,
+          height: 0,
+          borderLeftWidth: size / 2,
+          borderRightWidth: size / 2,
+          borderBottomWidth: size * 0.7,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderBottomColor: color,
+        }}
+      />
+      <View
+        style={{
+          width: 0,
+          height: 0,
+          borderLeftWidth: size / 2,
+          borderRightWidth: size / 2,
+          borderTopWidth: size * 0.7,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderTopColor: color,
+        }}
+      />
+    </View>
+  );
+}
+
+export function AlertTriangleIcon({ color = '#E14545', size = 18 }: { color?: string; size?: number }) {
+  return (
+    <View className="items-center justify-center" style={{ width: size, height: size }}>
+      <View
+        style={{
+          width: 0,
+          height: 0,
+          borderLeftWidth: size / 2,
+          borderRightWidth: size / 2,
+          borderBottomWidth: size * 0.87,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderBottomColor: color,
+          borderRadius: 2,
+        }}
+      />
+      <View
+        className="absolute rounded-full bg-white"
+        style={{ width: 2, height: size * 0.3, top: size * 0.36 }}
+      />
+      <View
+        className="absolute rounded-full bg-white"
+        style={{ width: 2, height: 2, bottom: size * 0.18 }}
+      />
+    </View>
+  );
+}
+
 export function PlusIcon({ color = '#FFFFFF', size = 20 }: { color?: string; size?: number }) {
   return (
     <View className="items-center justify-center" style={{ width: size, height: size }}>
