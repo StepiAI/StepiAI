@@ -35,8 +35,26 @@ export interface SendMessageResponse {
   proposal?: ScheduleProposal;
 }
 
+export interface AcceptScheduleResponse {
+  schedule: { id: string; googleCalendarEventId: string | null };
+  syncedToGoogleCalendar: boolean;
+  googleSyncError?: string;
+}
+
 export function getMyChat() {
   return apiClient.get<ChatApiChat>('/chats');
+}
+
+export function clearChat() {
+  return apiClient.delete<ChatApiChat>('/chats/messages');
+}
+
+export function acceptScheduleProposal(messageId: string) {
+  return apiClient.post<AcceptScheduleResponse>(`/chats/messages/${messageId}/accept`);
+}
+
+export function dismissScheduleProposal(messageId: string) {
+  return apiClient.post<{ dismissed: true }>(`/chats/messages/${messageId}/dismiss`);
 }
 
 

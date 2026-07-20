@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { TextInput, TouchableOpacity, View } from 'react-native';
-import { SendIcon } from '../../../shared/components/Icons';
+import { MicIcon, SendIcon } from '../../../shared/components/Icons';
 import { textStyle } from '../../../shared/theme/typography';
+import { softGradientCss } from '../../../shared/theme/gradient';
 
 // dipakai sebagai prop, bukan className, jadi gak bisa ambil token tailwind
 const PLACEHOLDER_COLOR = '#A0A0A8';
 
 interface ChatComposerProps {
   onSend: (text: string) => void;
+  onVoicePress?: () => void;
 }
 
-export function ChatComposer({ onSend }: ChatComposerProps) {
+export function ChatComposer({ onSend, onVoicePress }: ChatComposerProps) {
   const [draft, setDraft] = useState('');
 
   const trimmed = draft.trim();
@@ -39,15 +41,13 @@ export function ChatComposer({ onSend }: ChatComposerProps) {
       </View>
 
       <TouchableOpacity
-        onPress={send}
-        disabled={!canSend}
+        onPress={canSend ? send : onVoicePress}
         activeOpacity={0.8}
-        accessibilityLabel="Send message"
-        className={`h-[44px] w-[44px] items-center justify-center rounded-full bg-light-accent ${
-          canSend ? '' : 'opacity-40'
-        }`}
+        accessibilityLabel={canSend ? 'Send message' : 'Voice input'}
+        className="h-[44px] w-[44px] items-center justify-center rounded-full"
+        style={{ experimental_backgroundImage: softGradientCss }}
       >
-        <SendIcon />
+        {canSend ? <SendIcon /> : <MicIcon />}
       </TouchableOpacity>
     </View>
   );

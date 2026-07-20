@@ -12,5 +12,6 @@ export interface ChatMessage {
   quickReplies?: string[];
 
   proposal?: ScheduleProposal;
+  proposalStatus?: 'pending' | 'accepted' | 'dismissed';
   status?: ChatMessageStatus;
 }

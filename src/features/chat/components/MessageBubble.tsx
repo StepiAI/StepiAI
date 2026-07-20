@@ -14,11 +14,11 @@ export function MessageBubble({ message, onQuickReply }: MessageBubbleProps) {
     return (
       <View className="mb-[14px] max-w-[78%] self-end">
         <View
-          className={`rounded-[22px] bg-light-accent px-[18px] py-[12px] ${
+          className={`rounded-[22px] bg-light-userBubble px-[18px] py-[12px] ${
             message.status === 'sending' ? 'opacity-60' : ''
           }`}
         >
-          <Text className="text-[15px] text-white" style={textStyle('semibold')}>
+          <Text className="text-[15px] text-light-inkStrong" style={textStyle('semibold')}>
             {message.text}
           </Text>
         </View>
@@ -36,7 +36,7 @@ export function MessageBubble({ message, onQuickReply }: MessageBubbleProps) {
   }
 
   return (
-    <View className="mb-[14px] max-w-[86%] self-start rounded-[18px] bg-light-bubble px-[16px] py-[14px]">
+    <View className="mb-[14px] max-w-[86%] self-start rounded-[18px] border border-light-line bg-light-bubble px-[16px] py-[14px]">
       <Text className="text-[15px] leading-[21px] text-light-ink" style={textStyle('medium')}>
         {message.text}
       </Text>
@@ -50,7 +50,13 @@ export function MessageBubble({ message, onQuickReply }: MessageBubbleProps) {
         </View>
       ))}
 
-      {message.proposal ? <ScheduleProposalCard proposal={message.proposal} /> : null}
+      {message.proposal ? (
+        <ScheduleProposalCard
+          messageId={message.id}
+          proposal={message.proposal}
+          status={message.proposalStatus ?? 'pending'}
+        />
+      ) : null}
 
       {message.quickReplies?.length ? (
         <View className="mt-[14px] flex-row flex-wrap gap-[10px]">
