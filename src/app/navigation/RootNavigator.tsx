@@ -22,9 +22,13 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 function MainTabs() {
   const [addingSchedule, setAddingSchedule] = useState(false);
 
-  const renderTabBar = (props: BottomTabBarProps) => (
-    <TabBar {...props} onAddPress={() => setAddingSchedule(true)} />
-  );
+  const renderTabBar = (props: BottomTabBarProps) => {
+    const activeRoute = props.state.routes[props.state.index]?.name;
+    if (activeRoute === 'Chat') return null;
+    return (
+      <TabBar {...props} onAddPress={() => setAddingSchedule(true)} />
+    );
+  };
 
   return (
     <>
