@@ -613,6 +613,98 @@ export function AlertTriangleIcon({ color = '#E14545', size = 18 }: { color?: st
   );
 }
 
+export function GridIcon({ color = STROKE, size = 22 }: { color?: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      {[
+        [4, 4],
+        [14, 4],
+        [4, 14],
+        [14, 14],
+      ].map(([x, y]) => (
+        <Rect
+          key={`${x}-${y}`}
+          x={x}
+          y={y}
+          width={6}
+          height={6}
+          rx={1.6}
+          stroke={color}
+          strokeWidth={1.8}
+        />
+      ))}
+    </Svg>
+  );
+}
+
+export function AccessibilityIcon({ color = STROKE, size = 22 }: { color?: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12 5.5a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8Z"
+        fill={color}
+        stroke={color}
+        strokeWidth={1.2}
+      />
+      <Path
+        d="M4.5 8.2c2.4.9 4.9 1.4 7.5 1.4s5.1-.5 7.5-1.4M12 9.6v4.2m0 0L9 21m3-7.2L15 21"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+export function BellIcon({ color = STROKE, size = 22 }: { color?: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M18 8.5a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16s-2-1.5-2-6.5ZM13.7 19a2 2 0 0 1-3.4 0"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+export function HelpIcon({ color = STROKE, size = 22 }: { color?: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"
+        stroke={color}
+        strokeWidth={1.8}
+      />
+      <Path
+        d="M9.6 9.3a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.8-.9 1.4v.5"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path d="M12 16.8h.01" stroke={color} strokeWidth={2.2} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+export function SearchIcon({ color = '#8E8E93', size = 18 }: { color?: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14ZM20 20l-4-4"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 export function PlusIcon({ color = '#FFFFFF', size = 20 }: { color?: string; size?: number }) {
   return (
     <View className="items-center justify-center" style={{ width: size, height: size }}>
