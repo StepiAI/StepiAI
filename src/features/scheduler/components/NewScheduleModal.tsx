@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -23,8 +24,13 @@ import {
 import { textStyle } from '../../../shared/theme/typography';
 import { TimePickerModal } from '../../tasks/components/TimePickerModal';
 import { formatDateLabel, formatTimeLabel } from '../../tasks/utils/dateTime';
+import type { PlaceSuggestion } from '../../../services/weather/client';
 import { useCreateGoogleCalendarEvent } from '../hooks/useCreateGoogleCalendarEvent';
+import { usePlaceSearch } from '../hooks/usePlaceSearch';
+import { useScheduleWeather } from '../hooks/useScheduleWeather';
 import { MonthPickerModal } from './MonthPickerModal';
+import { PlaceSuggestions } from './PlaceSuggestions';
+import { WeatherHint } from './WeatherHint';
 
 const PLACEHOLDER_COLOR = '#C6C6CC';
 
@@ -45,6 +51,24 @@ function combineDateAndTime(date: Date, time: Date) {
   const result = new Date(date);
   result.setHours(time.getHours(), time.getMinutes(), 0, 0);
   return result;
+}
+
+// gw nemu edge case, method atas ini cuma abil jam ama menit, jd acara cross midnight gitu kek jam 11 malem selsai 00 bisa bikin "selesai" sebelom "mulai". 
+// solusi gw: date++
+function resolveRange(
+  startDate: Date,
+  startTime: Date,
+  endDate: Date,
+  endTime: Date,
+) {
+  const start = combineDateAndTime(startDate, startTime);
+  const end = combineDateAndTime(endDate, endTime);
+
+  if (end.getTime() <= start.getTime()) {
+    end.setDate(end.getDate() + 1);
+  }
+
+  return { start, end };
 }
 
 type PickerTarget = 'startDate' | 'startTime' | 'endDate' | 'endTime' | null;
@@ -71,20 +95,44 @@ export function NewScheduleModal({
   const [formError, setFormError] = useState<string | null>(null);
   const [picker, setPicker] = useState<PickerTarget>(null);
 
-  // balikkin ke default tiap buka ulang
+  const [place, setPlace] = useState<PlaceSuggestion | null>(null);
+  const [locationFocused, setLocationFocused] = useState(false);
+
+  const { results: placeResults, loading: placesLoading } = usePlaceSearch(
+    location,
+    locationFocused && !place && !allDay,
+  );
+
+  const { start: weatherStart, end: weatherEnd } = resolveRange(
+    startDate,
+    startTime,
+    endDate,
+    endTime,
+  );
+
+  const { weather, loading: weatherLoading } = useScheduleWeather(
+    allDay ? null : place,
+    weatherStart,
+    weatherEnd,
+  );
+
   useEffect(() => {
     if (!visible) return;
 
     const start = nextHour();
+    const end = new Date(start.getTime() + 3_600_000);
     setTitle('');
     setLocation('');
+    setPlace(null);
+    setLocationFocused(false);
     setUrl('');
     setNotes('');
     setAllDay(false);
-    setStartDate(new Date());
+    setStartDate(new Date(start));
     setStartTime(start);
-    setEndDate(new Date());
-    setEndTime(new Date(start.getTime() + 3_600_000));
+    // pake tanggal milik 'end', bukan hari ini, jadiny acara jam 11 malam gk ke set selesai di tanggal yg sama
+    setEndDate(new Date(end));
+    setEndTime(end);
     setFormError(null);
     setPicker(null);
     reset();
@@ -98,8 +146,7 @@ export function NewScheduleModal({
       return;
     }
 
-    const start = combineDateAndTime(startDate, startTime);
-    const end = combineDateAndTime(endDate, endTime);
+    const { start, end } = resolveRange(startDate, startTime, endDate, endTime);
 
     if (end.getTime() <= start.getTime()) {
       setFormError('End time must be after the start time.');
@@ -185,13 +232,49 @@ export function NewScheduleModal({
                   <View className="ml-[18px] h-[1px] bg-light-rule" />
                   <TextInput
                     value={location}
-                    onChangeText={setLocation}
+                    onChangeText={text => {
+                      setLocation(text);
+                      // ngetik lagi = batal pilih, biar cuaca gk nyangkut di koordinat lokasi lama
+                      setPlace(null);
+                    }}
+                    onFocus={() => setLocationFocused(true)}
                     placeholder="Location or Video Call"
                     placeholderTextColor={PLACEHOLDER_COLOR}
                     maxLength={500}
                     className="px-[18px] py-[14px] text-[15px] text-light-ink"
                     style={textStyle('regular')}
                   />
+
+                  {locationFocused && !place && !allDay ? (
+                    <View className="border-t border-light-rule">
+                      <PlaceSuggestions
+                        results={placeResults}
+                        loading={placesLoading}
+                        emptyQuery={location.trim().length >= 2}
+                        onPick={picked => {
+                          setPlace(picked);
+                          setLocation(picked.name);
+                          setLocationFocused(false);
+                          Keyboard.dismiss();
+                        }}
+                      />
+                    </View>
+                  ) : null}
+
+                  {place || weatherLoading ? (
+                    <View className="border-t border-light-rule px-[18px] py-[12px]">
+                      {place ? (
+                        <Text
+                          className="mb-[6px] text-[12px] text-light-faint"
+                          style={textStyle('regular')}
+                          numberOfLines={1}
+                        >
+                          {place.context ?? place.name}
+                        </Text>
+                      ) : null}
+                      <WeatherHint weather={weather} loading={weatherLoading} />
+                    </View>
+                  ) : null}
                 </View>
 
                 <View className="mt-[16px] overflow-hidden rounded-[18px] bg-white">

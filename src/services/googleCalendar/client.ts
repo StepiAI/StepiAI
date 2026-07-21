@@ -28,6 +28,8 @@ export interface CreateGoogleCalendarEventInput {
   description?: string;
   startDateTime: string;
   endDateTime: string;
+  timeZone?: string;
+  recurrence?: string[];
 }
 
 export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | null> {
