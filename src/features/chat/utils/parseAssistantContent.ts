@@ -67,12 +67,7 @@ export function parseAssistantContent(raw: string): AssistantContent {
 
   if (value.type === 'schedule_proposal') {
     return readProposal(value);
-  }
-
-  if (value.type === 'message') {
+  } else {
     return isNonEmptyString(value.content) ? { kind: 'text', text: value.content.trim() } : { kind: 'text', text: FALLBACK_TEXT };
   }
-
-  console.warn('[Chat] bentuk balasan gak dikenal:', value);
-  return { kind: 'text', text: FALLBACK_TEXT };
 }
