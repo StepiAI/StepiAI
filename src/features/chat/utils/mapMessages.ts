@@ -17,6 +17,27 @@ export function toChatMessage(message: ChatApiMessage): ChatMessage {
       role: 'bot',
       text: PROPOSAL_LEAD,
       proposal: parsed.proposal,
+      proposalStatus: 'pending',
+    };
+  }
+
+  if (parsed.kind === 'acceptedProposal') {
+    return {
+      id: message.id,
+      role: 'bot',
+      text: PROPOSAL_LEAD,
+      proposal: parsed.proposal,
+      proposalStatus: 'accepted',
+    };
+  }
+
+  if (parsed.kind === 'dismissedProposal') {
+    return {
+      id: message.id,
+      role: 'bot',
+      text: PROPOSAL_LEAD,
+      proposal: parsed.proposal,
+      proposalStatus: 'dismissed',
     };
   }
 

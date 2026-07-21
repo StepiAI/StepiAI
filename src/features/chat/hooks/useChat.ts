@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError } from '../../../services/api/client';
-import { getMyChat, sendChatMessage } from '../../../services/chat/client';
+import { clearChat, getMyChat, sendChatMessage } from '../../../services/chat/client';
 import type { ChatMessage } from '../types';
 import { toChatMessage, toChatMessages } from '../utils/mapMessages';
 
@@ -78,5 +78,19 @@ export function useChat() {
     }
   }, []);
 
-  return { messages, loading, sending, error, sendError, send, refresh: load };
+  const clear = useCallback(async () => {
+    const previous = messages;
+    setMessages([]);
+    setSendError(null);
+
+    try {
+      await clearChat();
+    } catch (err) {
+      console.error('[Chat] failed to clear chat:', err);
+      setMessages(previous);
+      setSendError(describeError(err));
+    }
+  }, [messages]);
+
+  return { messages, loading, sending, error, sendError, send, refresh: load, clear };
 }
