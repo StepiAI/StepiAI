@@ -1,12 +1,25 @@
 import { useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
-import type { ScheduleProposal } from '../../../services/chat/client';
+import { ApiError } from '../../../services/api/client';
+import {
+  acceptScheduleProposal,
+  dismissScheduleProposal,
+  type ScheduleProposal,
+} from '../../../services/chat/client';
 import { CheckBadge } from '../../../shared/components/Icons';
 import { textStyle } from '../../../shared/theme/typography';
-import { useCreateGoogleCalendarEvent } from '../../scheduler/hooks/useCreateGoogleCalendarEvent';
 
 interface ScheduleProposalCardProps {
+  messageId: string;
   proposal: ScheduleProposal;
+  status: 'pending' | 'accepted' | 'dismissed';
+}
+
+function describeError(err: unknown) {
+  if (err instanceof ApiError) {
+    return `${err.status} — ${err.message}`;
+  }
+  return err instanceof Error ? err.message : 'Could not save the event.';
 }
 
 function formatWhen({ startDateTime, endDateTime }: ScheduleProposal) {
@@ -25,20 +38,51 @@ function formatWhen({ startDateTime, endDateTime }: ScheduleProposal) {
   return `${day}  ·  ${time(start)} – ${time(end)}`;
 }
 
-export function ScheduleProposalCard({ proposal }: ScheduleProposalCardProps) {
-  const { create, saving, error } = useCreateGoogleCalendarEvent();
-  const [outcome, setOutcome] = useState<'pending' | 'added' | 'dismissed'>('pending');
+export function ScheduleProposalCard({ messageId, proposal, status }: ScheduleProposalCardProps) {
+  const [outcome, setOutcome] = useState<'pending' | 'added' | 'dismissed'>(
+    status === 'accepted' ? 'added' : status === 'dismissed' ? 'dismissed' : 'pending',
+  );
+  const [saving, setSaving] = useState(false);
+  const [dismissing, setDismissing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const busy = saving || dismissing;
 
   const confirm = async () => {
-    const created = await create({
-      summary: proposal.summary,
-      description: proposal.description ?? undefined,
-      location: proposal.location ?? undefined,
-      startDateTime: proposal.startDateTime,
-      endDateTime: proposal.endDateTime,
-    });
+    setSaving(true);
+    setError(null);
 
-    if (created) setOutcome('added');
+    try {
+      await acceptScheduleProposal(messageId);
+      setOutcome('added');
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setOutcome('added');
+        return;
+      }
+      console.error('[Chat] failed to accept schedule proposal:', err);
+      setError(describeError(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const dismiss = async () => {
+    setDismissing(true);
+    setError(null);
+
+    try {
+      await dismissScheduleProposal(messageId);
+      setOutcome('dismissed');
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setOutcome('added');
+        return;
+      }
+      console.error('[Chat] failed to dismiss schedule proposal:', err);
+      setError(describeError(err));
+    } finally {
+      setDismissing(false);
+    }
   };
 
   return (
@@ -72,10 +116,10 @@ export function ScheduleProposalCard({ proposal }: ScheduleProposalCardProps) {
         <View className="mt-[14px] flex-row gap-[10px]">
           <TouchableOpacity
             onPress={confirm}
-            disabled={saving}
+            disabled={busy}
             activeOpacity={0.8}
             className={`flex-1 items-center rounded-[10px] bg-light-accent py-[10px] ${
-              saving ? 'opacity-60' : ''
+              busy ? 'opacity-60' : ''
             }`}
           >
             {saving ? (
@@ -88,14 +132,20 @@ export function ScheduleProposalCard({ proposal }: ScheduleProposalCardProps) {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => setOutcome('dismissed')}
-            disabled={saving}
+            onPress={dismiss}
+            disabled={busy}
             activeOpacity={0.8}
-            className="items-center rounded-[10px] border border-light-line px-[16px] py-[10px]"
+            className={`items-center rounded-[10px] border border-light-line px-[16px] py-[10px] ${
+              busy ? 'opacity-60' : ''
+            }`}
           >
-            <Text className="text-[13px] text-light-muted" style={textStyle('semibold')}>
-              Not now
-            </Text>
+            {dismissing ? (
+              <ActivityIndicator color="#8E8E93" size="small" />
+            ) : (
+              <Text className="text-[13px] text-light-muted" style={textStyle('semibold')}>
+                Not now
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
       )}

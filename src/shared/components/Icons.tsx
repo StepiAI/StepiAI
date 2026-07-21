@@ -1,4 +1,5 @@
 import { Text, View } from 'react-native';
+import Svg, { Path, Rect } from 'react-native-svg';
 
 const STROKE = '#1C1C1E';
 
@@ -100,23 +101,93 @@ export function ChevronDown({ color = '#B0B0B8', size = 9 }: { color?: string; s
   );
 }
 
-export function SendIcon({ color = '#FFFFFF', size = 9 }: { color?: string; size?: number }) {
+export function SendIcon({ color = '#FFFFFF', size = 19 }: { color?: string; size?: number }) {
   return (
-    <View className="h-[20px] w-[20px] items-center justify-center">
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M22 2 11 13M22 2 15 22l-4-9-9-4 20-7Z"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+export function MenuIcon({ color = STROKE, size = 18 }: { color?: string; size?: number }) {
+  return (
+    <View className="items-center justify-center gap-[4px]" style={{ width: 22, height: 22 }}>
+      {[0, 1, 2].map(row => (
+        <View
+          key={row}
+          style={{ width: row === 1 ? size * 0.7 : size, height: 1.8, borderRadius: 1, backgroundColor: color }}
+        />
+      ))}
+    </View>
+  );
+}
+
+export function CloseIcon({ color = STROKE, size = 12 }: { color?: string; size?: number }) {
+  return (
+    <View className="items-center justify-center" style={{ width: 22, height: 22 }}>
       <View
         style={{
-          width: 0,
-          height: 0,
-          borderTopWidth: size,
-          borderBottomWidth: size,
-          borderLeftWidth: size * 1.4,
-          borderTopColor: 'transparent',
-          borderBottomColor: 'transparent',
-          borderLeftColor: color,
-          transform: [{ translateX: 2 }],
+          position: 'absolute',
+          width: size,
+          height: 1.8,
+          borderRadius: 1,
+          backgroundColor: color,
+          transform: [{ rotate: '45deg' }],
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          width: size,
+          height: 1.8,
+          borderRadius: 1,
+          backgroundColor: color,
+          transform: [{ rotate: '-45deg' }],
         }}
       />
     </View>
+  );
+}
+
+export function EditIcon({ color = STROKE, size = 22 }: { color?: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M18.4 3.4a1.8 1.8 0 0 1 2.5 2.5L13.4 13.4l-3 .8.8-3z"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+export function MicIcon({ color = '#FFFFFF', size = 20 }: { color?: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Rect x="9" y="2" width="6" height="12" rx="3" fill={color} />
+      <Path
+        d="M6 11v1a6 6 0 0 0 12 0v-1M12 19v3M9 22h6"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
   );
 }
 
@@ -298,6 +369,29 @@ export function PersonIcon({ color = STROKE }: { color?: string }) {
   );
 }
 
+export function CalendarIcon({ color = STROKE }: { color?: string }) {
+  return (
+    <View className="h-[22px] w-[22px] items-center justify-center">
+      <View
+        className="h-[17px] w-[18px] rounded-[3px] border-[1.6px]"
+        style={{ borderColor: color, transform: [{ translateY: 1 }] }}
+      />
+      <View
+        className="absolute h-[1.6px] w-[18px]"
+        style={{ backgroundColor: color, transform: [{ translateY: -2 }] }}
+      />
+      <View
+        className="absolute h-[4px] w-[1.6px]"
+        style={{ backgroundColor: color, transform: [{ translateX: -5 }, { translateY: -7 }] }}
+      />
+      <View
+        className="absolute h-[4px] w-[1.6px]"
+        style={{ backgroundColor: color, transform: [{ translateX: 5 }, { translateY: -7 }] }}
+      />
+    </View>
+  );
+}
+        
 export function TargetIcon({ color = ACCENT }: { color?: string }) {
   return (
     <View className="h-[22px] w-[22px] items-center justify-center">
@@ -428,31 +522,16 @@ export function ClipboardCheckIcon({ color = ACCENT }: { color?: string }) {
   );
 }
 
-export function CalendarIcon({ color = ACCENT }: { color?: string }) {
-  return (
-    <View className="h-[16px] w-[16px] items-center justify-center">
-      <View
-        className="h-[13px] w-[13px] rounded-[3px] border-[1.6px]"
-        style={{ borderColor: color, transform: [{ translateY: 1 }] }}
-      />
-      <View
-        className="absolute h-[3px] w-[13px]"
-        style={{ backgroundColor: color, transform: [{ translateY: -3.5 }] }}
-      />
-    </View>
-  );
-}
-
-export function CloseIcon({ color = '#1C1C1E', size = 12 }: { color?: string; size?: number }) {
+export function BookIcon({ color = STROKE }: { color?: string }) {
   return (
     <View className="h-[22px] w-[22px] items-center justify-center">
       <View
-        className="absolute rounded-full"
-        style={{ width: size, height: 1.8, backgroundColor: color, transform: [{ rotate: '45deg' }] }}
+        className="h-[16px] w-[17px] rounded-[3px] border-[1.6px]"
+        style={{ borderColor: color }}
       />
       <View
-        className="absolute rounded-full"
-        style={{ width: size, height: 1.8, backgroundColor: color, transform: [{ rotate: '-45deg' }] }}
+        className="absolute h-[16px] w-[1.6px]"
+        style={{ backgroundColor: color }}
       />
     </View>
   );

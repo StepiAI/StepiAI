@@ -1,5 +1,5 @@
 import { GoogleSignin, isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
-import { GOOGLE_WEB_CLIENT_ID } from '../../config/env';
+import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../../config/env';
 import { apiClient } from '../api/client';
 
 const BASE_PATH = '/integrations/google-calendar';
@@ -35,6 +35,7 @@ export interface CreateGoogleCalendarEventInput {
 export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | null> {
   GoogleSignin.configure({
     webClientId: GOOGLE_WEB_CLIENT_ID,
+    iosClientId: GOOGLE_IOS_CLIENT_ID,
     scopes: CALENDAR_SCOPES,
     offlineAccess: true,
     forceCodeForRefreshToken: true,
