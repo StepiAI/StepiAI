@@ -14,7 +14,7 @@ export function SettingsSwitch({ value, onValueChange }: SettingsSwitchProps) {
     <Switch
       value={value}
       onValueChange={onValueChange}
-      trackColor={{ false: '#E4E4EA', true: '#34C759' }}
+      trackColor={{ false: '#E4E4EA', true: '#2E7BE0' }}
       thumbColor="#FFFFFF"
       ios_backgroundColor="#E4E4EA"
       style={
