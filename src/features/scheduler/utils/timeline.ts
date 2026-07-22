@@ -9,6 +9,9 @@ export interface TimelineEvent {
   id: string;
   title: string;
   subtitle?: string;
+  notes?: string;
+  latitude?: number;
+  longitude?: number;
   startMinutes: number;
   durationMinutes: number;
   tone: EventTone;

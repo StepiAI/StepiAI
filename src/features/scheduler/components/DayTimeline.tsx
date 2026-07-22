@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { textStyle } from '../../../shared/theme/typography';
 import { EVENT_TONE, NOW_INDICATOR_COLOR } from '../theme';
 import {
@@ -22,9 +22,10 @@ const GUTTER_WIDTH = 52;
 interface DayTimelineProps {
   events: TimelineEvent[];
   nowMinutes?: number;
+  onEventPress?: (event: TimelineEvent) => void;
 }
 
-export function DayTimeline({ events, nowMinutes }: DayTimelineProps) {
+export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelineProps) {
   const now = nowMinutes ?? minutesNow();
   const range = useMemo(() => rangeForEvents(events), [events]);
 
@@ -72,8 +73,11 @@ export function DayTimeline({ events, nowMinutes }: DayTimelineProps) {
           const tone = EVENT_TONE[event.tone];
 
           return (
-            <View
+            <TouchableOpacity
               key={event.id}
+              activeOpacity={0.7}
+              disabled={!onEventPress}
+              onPress={onEventPress ? () => onEventPress(event) : undefined}
               className="absolute left-0 right-[8px] flex-row items-start rounded-[10px] px-[12px] py-[8px]"
               style={{ top, height, backgroundColor: tone.background }}
             >
@@ -110,7 +114,7 @@ export function DayTimeline({ events, nowMinutes }: DayTimelineProps) {
                   </Text>
                 ) : null}
               </View>
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>

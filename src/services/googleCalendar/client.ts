@@ -18,6 +18,9 @@ export interface GoogleCalendarEvent {
   id?: string | null;
   summary?: string | null;
   location?: string | null;
+  description?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   start?: { dateTime?: string | null; date?: string | null } | null;
   end?: { dateTime?: string | null; date?: string | null } | null;
 }
@@ -30,6 +33,8 @@ export interface CreateGoogleCalendarEventInput {
   endDateTime: string;
   timeZone?: string;
   recurrence?: string[];
+  latitude?: number;
+  longitude?: number;
 }
 
 export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | null> {

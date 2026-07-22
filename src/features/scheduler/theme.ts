@@ -6,6 +6,7 @@ export const EVENT_TONE: Record<EventTone, { background: string; text: string }>
 };
 
 export const NOW_INDICATOR_COLOR = '#F34A4D';
+export const EVENT_DETAIL_ACCENT = '#EB4D3D';
 
 export const ALERT_TONE = {
   background: '#FDECEC',
