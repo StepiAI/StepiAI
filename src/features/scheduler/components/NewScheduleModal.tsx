@@ -220,6 +220,8 @@ export function NewScheduleModal({
       endDateTime: end.toISOString(),
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       recurrence: toRecurrence(repeat),
+      latitude: place?.latitude,
+      longitude: place?.longitude,
     });
 
     if (created) {

@@ -4,7 +4,11 @@ import { textStyle } from '../../../shared/theme/typography';
 import type { LifePlanRecord } from '../../../services/lifePlan/client';
 import { PROGRESS_TRACK_COLOR } from '../theme';
 import { formatDateLabel } from '../utils/dateTime';
-import { countLifePlanSessions, getLifePlanDurationDays } from '../utils/lifePlanMapping';
+import {
+  countCompletedSessions,
+  countLifePlanSessions,
+  getLifePlanDurationDays,
+} from '../utils/lifePlanMapping';
 
 interface LifePlanCardProps {
   plan: LifePlanRecord;
@@ -14,7 +18,7 @@ interface LifePlanCardProps {
 export function LifePlanCard({ plan, onPress }: LifePlanCardProps) {
   const totalSessions = countLifePlanSessions(plan);
   const durationDays = getLifePlanDurationDays(plan);
-  const completedSessions = 0;
+  const completedSessions = countCompletedSessions(plan);
   const progressRatio = totalSessions > 0 ? completedSessions / totalSessions : 0;
 
   return (

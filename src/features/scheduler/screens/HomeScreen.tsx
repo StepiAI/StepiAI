@@ -20,7 +20,9 @@ import { WeekStrip } from '../components/WeekStrip';
 import { useGoogleCalendarEvents } from '../hooks/useGoogleCalendarEvents';
 import { ALERT_TONE } from '../theme';
 import { toDayEvents } from '../utils/calendarMapping';
+import { TimelineEvent } from '../utils/timeline';
 import { buildWeek, startOfWeek } from '../utils/week';
+import { EventDetailScreen } from './EventDetailScreen';
 
 function greetingForHour(hour: number) {
   if (hour < 12) return 'Good morning';
@@ -33,6 +35,7 @@ export function HomeScreen() {
   const [selected, setSelected] = useState(() => new Date());
   const [pickerOpen, setPickerOpen] = useState(false);
   const [trafficDismissed, setTrafficDismissed] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
   const tabBarSpace = useTabBarSpace();
 
   const week = useMemo(() => buildWeek(selected), [selected]);
@@ -57,6 +60,16 @@ export function HomeScreen() {
   const firstName = (metadata.full_name ?? metadata.name ?? '').split(' ')[0] || 'there';
   const avatarUrl = metadata.avatar_url ?? metadata.picture;
   const greeting = greetingForHour(new Date().getHours());
+
+  if (selectedEvent) {
+    return (
+      <EventDetailScreen
+        event={selectedEvent}
+        day={selected}
+        onBack={() => setSelectedEvent(null)}
+      />
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
@@ -178,7 +191,7 @@ export function HomeScreen() {
           ) : error ? (
             <Notice title="Something went wrong" caption={error} />
           ) : (
-            <DayTimeline events={timed} />
+            <DayTimeline events={timed} onEventPress={setSelectedEvent} />
           )}
         </View>
 

@@ -116,7 +116,7 @@ export function LifePlanPreferencesScreen({
           style={{ backgroundColor: '#2E7BE0', experimental_backgroundImage: LIFE_PLAN_GRADIENT }}
         >
           <Text className="text-[16px] text-white" style={textStyle('semibold')}>
-            Create Plan
+            Next
           </Text>
         </TouchableOpacity>
       </View>

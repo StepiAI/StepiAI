@@ -6,30 +6,26 @@ import { textStyle } from '../../../shared/theme/typography';
 import { LifePlanLogo } from '../components/LifePlanLogo';
 import { PROGRESS_TRACK_COLOR, LIFE_PLAN_GRADIENT } from '../theme';
 
-const BAR_WIDTH_RATIO = 0.32;
-const LOOP_DURATION_MS = 1100;
+const FILL_DURATION_MS = 1600;
 
 export function CreatingLifePlanScreen() {
   const progress = useRef(new Animated.Value(0)).current;
   const [trackWidth, setTrackWidth] = useState(0);
-  const barWidth = trackWidth * BAR_WIDTH_RATIO;
 
   useEffect(() => {
-    const loop = Animated.loop(
-      Animated.timing(progress, {
-        toValue: 1,
-        duration: LOOP_DURATION_MS,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: true,
-      }),
-    );
-    loop.start();
-    return () => loop.stop();
+    const anim = Animated.timing(progress, {
+      toValue: 1,
+      duration: FILL_DURATION_MS,
+      easing: Easing.inOut(Easing.ease),
+      useNativeDriver: false,
+    });
+    anim.start();
+    return () => anim.stop();
   }, [progress]);
 
-  const translateX = progress.interpolate({
+  const fillWidth = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: [-barWidth, trackWidth],
+    outputRange: [0, trackWidth],
   });
 
   return (
@@ -53,12 +49,11 @@ export function CreatingLifePlanScreen() {
         >
           {trackWidth > 0 ? (
             <Animated.View
-              className="absolute h-full rounded-full"
+              className="absolute left-0 h-full rounded-full"
               style={{
-                width: barWidth,
+                width: fillWidth,
                 backgroundColor: '#2E7BE0',
                 experimental_backgroundImage: LIFE_PLAN_GRADIENT,
-                transform: [{ translateX }],
               }}
             />
           ) : null}

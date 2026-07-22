@@ -11,6 +11,7 @@ import { useLifePlanDetail } from '../hooks/useLifePlanDetail';
 import { LIFE_PLAN_PROGRESS_GRADIENT } from '../theme';
 import {
   computeElapsedProgress,
+  countCompletedSessions,
   countLifePlanSessions,
   getSessionTopic,
   getThisWeekSchedules,
@@ -76,7 +77,7 @@ export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScree
         >
           <View
             className="rounded-[20px] p-[20px]"
-            style={{ backgroundColor: '#8E91E8', experimental_backgroundImage: LIFE_PLAN_PROGRESS_GRADIENT }}
+            style={{ backgroundColor: '#FFFFFF', experimental_backgroundImage: LIFE_PLAN_PROGRESS_GRADIENT }}
           >
             <Text className="text-[15px] text-light-inkStrong" style={textStyle('semibold')}>
               Progress
@@ -87,7 +88,7 @@ export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScree
 
               <View className="ml-[20px] flex-1 gap-[16px]">
                 <StatRow icon={<ClipboardIcon />} value={countLifePlanSessions(plan)} label="Total Tasks" />
-                <StatRow icon={<ClipboardCheckIcon />} value={0} label="Task Completed" />
+                <StatRow icon={<ClipboardCheckIcon />} value={countCompletedSessions(plan)} label="Task Completed" />
               </View>
             </View>
           </View>
