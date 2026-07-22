@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from '../../../app/navigation/types';
 import { ChevronLeft } from '../../../shared/components/Icons';
@@ -14,11 +15,20 @@ import {
   SparkleIcon,
 } from '../components/adjustIcons';
 
-// TODO(integrate): semua angka & opsi masih hardcode, nanti ganti dari hasil AI/backend
+// fallback kalau screen dibuka tanpa data alert (mis. dari dev tab).
 const RECOMMENDATION = {
   recommended: { time: '08:05 AM', onTime: '91% on-time' },
   previous: { time: '08:20 AM', onTime: '42% on-time' },
 };
+
+type Recommendation = typeof RECOMMENDATION;
+
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
 
 type OptionId = 'ai' | 'earlier' | 'push' | 'move';
 
@@ -63,7 +73,23 @@ const CTA_GRADIENT = 'linear-gradient(90deg, #2E7BE0 0%, #6C5CE7 100%)';
 
 export function AdjustScheduleScreen() {
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
+  const route = useRoute<RouteProp<MainTabParamList, 'AdjustSchedule'>>();
   const [selected, setSelected] = useState<OptionId>('push');
+
+  // heavy traffic, klo mo tes, bikin aja jadwal workhour, cb ke bandara soekarno hatta jam 8-9 pagi
+  const traffic = route.params?.alert?.traffic;
+  const recommendation: Recommendation = traffic
+    ? {
+        recommended: {
+          time: formatTime(traffic.recommendedDeparture),
+          onTime: `${Math.round(traffic.onTimeAfter * 100)}% on-time`,
+        },
+        previous: {
+          time: formatTime(traffic.naiveDeparture),
+          onTime: `${Math.round(traffic.onTimeBefore * 100)}% on-time`,
+        },
+      }
+    : RECOMMENDATION;
 
   const goBack = () => {
     if (navigation.canGoBack()) {
@@ -108,7 +134,7 @@ export function AdjustScheduleScreen() {
         contentContainerClassName="pb-[24px] pt-[10px]"
         showsVerticalScrollIndicator={false}
       >
-        <RecommendationCard />
+        <RecommendationCard recommendation={recommendation} />
 
         <Text
           className="mb-[14px] mt-[24px] text-[17px] text-light-inkStrong"
@@ -148,7 +174,11 @@ export function AdjustScheduleScreen() {
   );
 }
 
-function RecommendationCard() {
+function RecommendationCard({
+  recommendation,
+}: {
+  recommendation: Recommendation;
+}) {
   return (
     <View className="rounded-[18px] bg-white px-[18px] pb-[18px] pt-[16px]">
       <Text className="text-[15px] text-light-inkStrong" style={textStyle('semibold')}>
@@ -162,18 +192,18 @@ function RecommendationCard() {
           dotColor="#F34A4D"
           label="Recommended"
           labelClass="text-[#F34A4D]"
-          time={RECOMMENDATION.recommended.time}
+          time={recommendation.recommended.time}
           timeClass="text-[#F34A4D]"
-          onTime={RECOMMENDATION.recommended.onTime}
+          onTime={recommendation.recommended.onTime}
           onTimeClass="text-[#F34A4D]"
         />
         <TimeColumn
           dotColor="#C6C6CC"
           label="Previous"
           labelClass="text-light-faint"
-          time={RECOMMENDATION.previous.time}
+          time={recommendation.previous.time}
           timeClass="text-light-hint"
-          onTime={RECOMMENDATION.previous.onTime}
+          onTime={recommendation.previous.onTime}
           onTimeClass="text-light-faint"
         />
       </View>

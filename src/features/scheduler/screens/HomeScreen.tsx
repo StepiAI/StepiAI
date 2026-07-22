@@ -21,6 +21,9 @@ import { DayTimeline } from '../components/DayTimeline';
 import { MonthPickerModal } from '../components/MonthPickerModal';
 import { WeekStrip } from '../components/WeekStrip';
 import { useGoogleCalendarEvents } from '../hooks/useGoogleCalendarEvents';
+import { useScheduleAlerts } from '../hooks/useScheduleAlerts';
+import { useCurrentLocation } from '../../settings/hooks/useCurrentLocation';
+import type { ScheduleAlert } from '../../../services/alerts/client';
 import { ALERT_TONE } from '../theme';
 import { toDayEvents } from '../utils/calendarMapping';
 import { TimelineEvent } from '../utils/timeline';
@@ -38,7 +41,7 @@ export function HomeScreen() {
   const { session } = useAuthSession();
   const [selected, setSelected] = useState(() => new Date());
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [trafficDismissed, setTrafficDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState<Set<string>>(() => new Set());
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
   const tabBarSpace = useTabBarSpace();
 
@@ -59,6 +62,16 @@ export function HomeScreen() {
     () => toDayEvents(events, selected),
     [events, selected],
   );
+
+  const { location } = useCurrentLocation();
+  const { alerts } = useScheduleAlerts(location, events);
+  const visibleAlerts = useMemo(
+    () => alerts.filter(alert => !dismissed.has(alertKey(alert))),
+    [alerts, dismissed],
+  );
+
+  const dismissAlert = (alert: ScheduleAlert) =>
+    setDismissed(prev => new Set(prev).add(alertKey(alert)));
 
   const metadata = (session?.user?.user_metadata ?? {}) as Record<string, string | undefined>;
   const firstName = (metadata.full_name ?? metadata.name ?? '').split(' ')[0] || 'there';
@@ -119,49 +132,14 @@ export function HomeScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}
       >
-        {trafficDismissed ? null : (
-          <View
-            className="mt-[16px] flex-row items-start gap-[10px] rounded-[14px] p-[14px]"
-            style={{ backgroundColor: ALERT_TONE.background }}
-          >
-            <View className="mt-[2px]">
-              <AlertTriangleIcon />
-            </View>
-
-            <View className="flex-1">
-              <Text
-                className="text-[14px]"
-                style={[textStyle('semibold'), { color: ALERT_TONE.title }]}
-              >
-                Heavy traffic detected
-              </Text>
-              <Text
-                className="mt-[4px] text-[12px] leading-[17px]"
-                style={[textStyle('regular'), { color: ALERT_TONE.body }]}
-              >
-                Leaving at 08:05 instead of 08:20 increases your on-time probability from 42% to
-                91%.
-              </Text>
-
-              <TouchableOpacity
-                onPress={() => navigation.navigate('AdjustSchedule')}
-                activeOpacity={0.7}
-                className="mt-[10px] self-start rounded-full bg-white px-[14px] py-[6px]"
-              >
-                <Text
-                  className="text-[12px]"
-                  style={[textStyle('semibold'), { color: ALERT_TONE.action }]}
-                >
-                  Adjust
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity onPress={() => setTrafficDismissed(true)} hitSlop={10}>
-              <CloseIcon color={ALERT_TONE.body} size={10} />
-            </TouchableOpacity>
-          </View>
-        )}
+        {visibleAlerts.map(alert => (
+          <AlertCard
+            key={alertKey(alert)}
+            alert={alert}
+            onAdjust={() => navigation.navigate('AdjustSchedule', { alert })}
+            onDismiss={() => dismissAlert(alert)}
+          />
+        ))}
 
         <View className="mt-[20px] h-[1px] bg-light-line" />
 
@@ -210,6 +188,67 @@ export function HomeScreen() {
         onSelect={setSelected}
       />
     </SafeAreaView>
+  );
+}
+
+function alertKey(alert: ScheduleAlert) {
+  return `${alert.type}:${alert.eventId}`;
+}
+
+function AlertCard({
+  alert,
+  onAdjust,
+  onDismiss,
+}: {
+  alert: ScheduleAlert;
+  onAdjust: () => void;
+  onDismiss: () => void;
+}) {
+  const isTraffic = alert.type === 'HEAVY_TRAFFIC';
+
+  return (
+    <View
+      className="mt-[12px] flex-row items-start gap-[10px] rounded-[14px] p-[14px]"
+      style={{ backgroundColor: ALERT_TONE.background }}
+    >
+      <View className="mt-[2px]">
+        {isTraffic ? <AlertTriangleIcon /> : <Text className="text-[15px]">🌧️</Text>}
+      </View>
+
+      <View className="flex-1">
+        <Text
+          className="text-[14px]"
+          style={[textStyle('semibold'), { color: ALERT_TONE.title }]}
+        >
+          {alert.title}
+        </Text>
+        <Text
+          className="mt-[4px] text-[12px] leading-[17px]"
+          style={[textStyle('regular'), { color: ALERT_TONE.body }]}
+        >
+          {alert.body}
+        </Text>
+
+        {isTraffic ? (
+          <TouchableOpacity
+            onPress={onAdjust}
+            activeOpacity={0.7}
+            className="mt-[10px] self-start rounded-full bg-white px-[14px] py-[6px]"
+          >
+            <Text
+              className="text-[12px]"
+              style={[textStyle('semibold'), { color: ALERT_TONE.action }]}
+            >
+              Adjust
+            </Text>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+
+      <TouchableOpacity onPress={onDismiss} hitSlop={10}>
+        <CloseIcon color={ALERT_TONE.body} size={10} />
+      </TouchableOpacity>
+    </View>
   );
 }
 
