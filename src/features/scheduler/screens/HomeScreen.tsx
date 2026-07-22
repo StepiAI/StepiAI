@@ -121,7 +121,7 @@ export function HomeScreen() {
           <TouchableOpacity
             onPress={openZoom}
             activeOpacity={0.6}
-            className="flex-row items-center gap-[2px] py-[4px]"
+            className="flex-row items-center gap-[3px] self-start rounded-full bg-light-canvas px-[14px] py-[8px]"
           >
             <ChevronLeft color="#8E8E93" size={9} />
             <Text className="text-[15px] text-light-muted" style={textStyle('medium')}>
