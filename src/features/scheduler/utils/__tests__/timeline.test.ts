@@ -3,6 +3,8 @@ import {
   HOUR_HEIGHT,
   TimelineEvent,
   blockPosition,
+  formatClockRange,
+  formatClockTime,
   formatDuration,
   formatEventTime,
   formatHourLabel,
@@ -40,6 +42,25 @@ describe('formatEventTime', () => {
     expect(formatEventTime(9 * 60)).toBe('09.00');
     expect(formatEventTime(10 * 60 + 30)).toBe('10.30');
     expect(formatEventTime(0)).toBe('00.00');
+  });
+});
+
+describe('formatClockTime', () => {
+  it('format 12-jam dengan AM/PM, jam dua digit', () => {
+    expect(formatClockTime(9 * 60)).toBe('09:00 AM');
+    expect(formatClockTime(13 * 60 + 30)).toBe('01:30 PM');
+    expect(formatClockTime(0)).toBe('12:00 AM');
+    expect(formatClockTime(12 * 60)).toBe('12:00 PM');
+  });
+
+  it('tengah malam di ujung hari balik ke 12:00 AM', () => {
+    expect(formatClockTime(24 * 60)).toBe('12:00 AM');
+  });
+});
+
+describe('formatClockRange', () => {
+  it('gabungin mulai sampe selesai', () => {
+    expect(formatClockRange(9 * 60, 60)).toBe('09:00 AM – 10:00 AM');
   });
 });
 

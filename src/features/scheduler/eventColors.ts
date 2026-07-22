@@ -6,10 +6,10 @@ export interface EventTone {
 }
 
 export const EVENT_PALETTE: EventTone[] = [
-  { background: '#DCE8FB', text: '#3B72C4' }, 
-  { background: '#FBF1CE', text: '#977512' }, 
-  { background: '#E7E1FB', text: '#6355D8' }, 
-  { background: '#D9F0DE', text: '#2E8B4F' }, 
+  { background: '#1A73E81A', text: '#1A73E8' },
+  { background: '#FBF1CE', text: '#977512' },
+  { background: '#7E77FF1A', text: '#7E77FF' },
+  { background: '#D9F0DE', text: '#2E8B4F' },
   { background: '#FBE0EA', text: '#C24B7E' },
 ];
 
