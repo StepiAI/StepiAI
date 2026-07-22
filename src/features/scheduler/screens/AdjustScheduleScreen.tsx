@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Alert, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -8,6 +8,11 @@ import type { MainTabParamList } from '../../../app/navigation/types';
 import { ChevronLeft } from '../../../shared/components/Icons';
 import { textStyle } from '../../../shared/theme/typography';
 import { AdjustOptionCard } from '../components/AdjustOptionCard';
+import { TimePickerModal } from '../../tasks/components/TimePickerModal';
+import {
+  pushGoogleCalendarEventsLater,
+  rescheduleGoogleCalendarEvent,
+} from '../../../services/googleCalendar/client';
 import {
   ClockOptionIcon,
   MoveMeetingIcon,
@@ -32,52 +37,24 @@ function formatTime(iso: string) {
 
 type OptionId = 'ai' | 'earlier' | 'push' | 'move';
 
-const OPTIONS: {
+interface AdjustOption {
   id: OptionId;
   icon: React.ReactNode;
   title: string;
-  onTime: string;
+  onTime?: string;
   description: string;
-}[] = [
-  {
-    id: 'ai',
-    icon: <SparkleIcon />,
-    title: 'Let AI optimize',
-    onTime: '94% on-time',
-    description: 'AI will find the best schedule',
-  },
-  {
-    id: 'earlier',
-    icon: <ClockOptionIcon />,
-    title: 'Leave earlier',
-    onTime: '91% on-time',
-    description: 'Leave at 08:05 AM',
-  },
-  {
-    id: 'push',
-    icon: <PushLaterIcon />,
-    title: 'Push everything later',
-    onTime: '63% on-time',
-    description: 'Delay all events by 15 min',
-  },
-  {
-    id: 'move',
-    icon: <MoveMeetingIcon />,
-    title: 'Move this meeting',
-    onTime: '53% on-time',
-    description: 'Reschedule “Client Meeting”',
-  },
-];
+}
 
 const CTA_GRADIENT = 'linear-gradient(90deg, #2E7BE0 0%, #6C5CE7 100%)';
+const PUSH_DELAY_MIN = 15;
 
 export function AdjustScheduleScreen() {
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const route = useRoute<RouteProp<MainTabParamList, 'AdjustSchedule'>>();
-  const [selected, setSelected] = useState<OptionId>('push');
-
   // heavy traffic, klo mo tes, bikin aja jadwal workhour, cb ke bandara soekarno hatta jam 8-9 pagi
-  const traffic = route.params?.alert?.traffic;
+  const alert = route.params?.alert;
+  const traffic = alert?.traffic;
+  const eventSummary = alert?.summary ?? null;
   const recommendation: Recommendation = traffic
     ? {
         recommended: {
@@ -91,6 +68,47 @@ export function AdjustScheduleScreen() {
       }
     : RECOMMENDATION;
 
+  const options = useMemo<AdjustOption[]>(
+    () => [
+      {
+        id: 'ai',
+        icon: <SparkleIcon />,
+        title: 'Let AI optimize',
+        onTime: '94% on-time',
+        description: 'AI will find the best schedule',
+      },
+      {
+        id: 'earlier',
+        icon: <ClockOptionIcon />,
+        title: 'Leave earlier',
+        onTime: recommendation.recommended.onTime,
+        description: `Leave at ${recommendation.recommended.time}`,
+      },
+      {
+        id: 'push',
+        icon: <PushLaterIcon />,
+        title: 'Push everything later',
+        onTime: traffic
+          ? `${Math.round(traffic.pushOnTime * 100)}% on-time`
+          : undefined,
+        description: `Delay all events by ${PUSH_DELAY_MIN} min`,
+      },
+      {
+        id: 'move',
+        icon: <MoveMeetingIcon />,
+        title: 'Move this meeting',
+        description: eventSummary
+          ? `Reschedule “${eventSummary}”`
+          : 'Pilih jam baru buat meeting ini',
+      },
+    ],
+    [recommendation, eventSummary, traffic],
+  );
+
+  const [selected, setSelected] = useState<OptionId>(traffic ? 'earlier' : 'push');
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+
   const goBack = () => {
     if (navigation.canGoBack()) {
       navigation.goBack();
@@ -99,8 +117,109 @@ export function AdjustScheduleScreen() {
     navigation.navigate('Home');
   };
 
+  const applyLeaveEarlier = () => {
+    const onTimePct = recommendation.recommended.onTime.replace(' on-time', '');
+    const forEvent = eventSummary ? ` buat "${eventSummary}"` : '';
+    Alert.alert(
+      'Berangkat lebih awal',
+      `Oke - berangkat jam ${recommendation.recommended.time}${forEvent} biar peluang tepat waktu kamu ${onTimePct}.`,
+      [{ text: 'Siap', onPress: goBack }],
+    );
+  };
+
+  const startMoveMeeting = () => {
+    if (!alert?.eventId || !alert.eventStart || !alert.eventEnd) {
+      Alert.alert('Nggak bisa pindah', 'Buka Adjust dari kartu alert dulu ya.');
+      return;
+    }
+    setPickerOpen(true);
+  };
+
+  const onPickNewTime = async (slot: Date) => {
+    setPickerOpen(false);
+    if (!alert?.eventId || !alert.eventStart || !alert.eventEnd || busy) {
+      return;
+    }
+
+    const originalStart = new Date(alert.eventStart);
+    const durationMs =
+      new Date(alert.eventEnd).getTime() - originalStart.getTime();
+
+    // pindahin jam:menit ke tanggal event yang sama
+    const newStart = new Date(originalStart);
+    newStart.setHours(slot.getHours(), slot.getMinutes(), 0, 0);
+    const newEnd = new Date(newStart.getTime() + durationMs);
+
+    setBusy(true);
+    try {
+      await rescheduleGoogleCalendarEvent(
+        alert.eventId,
+        newStart.toISOString(),
+        newEnd.toISOString(),
+      );
+      const label = newStart.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      Alert.alert(
+        'Meeting dipindah',
+        `${eventSummary ? `"${eventSummary}" ` : 'Meeting '}sekarang jam ${label}.`,
+        [{ text: 'Oke', onPress: goBack }],
+      );
+    } catch (err) {
+      console.error('[Adjust] gagal reschedule:', err);
+      Alert.alert('Gagal memindah', 'Coba lagi sebentar ya.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const applyPushLater = async () => {
+    if (!alert?.eventStart) {
+      Alert.alert('Nggak bisa geser', 'Buka Adjust dari kartu alert dulu ya.');
+      return;
+    }
+    if (busy) return;
+
+    const from = new Date(alert.eventStart);
+    const endOfDay = new Date(from);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    setBusy(true);
+    try {
+      const res = await pushGoogleCalendarEventsLater(
+        from.toISOString(),
+        endOfDay.toISOString(),
+        PUSH_DELAY_MIN,
+      );
+      Alert.alert(
+        'Jadwal digeser',
+        `${res.shifted} acara digeser ${res.delayMinutes} menit lebih lambat.`,
+        [{ text: 'Oke', onPress: goBack }],
+      );
+    } catch (err) {
+      console.error('[Adjust] gagal push later:', err);
+      Alert.alert('Gagal menggeser', 'Coba lagi sebentar ya.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const onAdjust = () => {
-    // TODO(integrate): kirim `selected` ke backend buat nge-apply penyesuaian jadwal
+    if (busy) return;
+    if (selected === 'earlier') {
+      applyLeaveEarlier();
+      return;
+    }
+    if (selected === 'move') {
+      startMoveMeeting();
+      return;
+    }
+    if (selected === 'push') {
+      applyPushLater();
+      return;
+    }
+    // TODO(integrate): opsi "Let AI optimize" belum di-apply — tahap berikutnya
     goBack();
   };
 
@@ -144,7 +263,7 @@ export function AdjustScheduleScreen() {
         </Text>
 
         <View className="gap-[12px]">
-          {OPTIONS.map(option => (
+          {options.map(option => (
             <AdjustOptionCard
               key={option.id}
               icon={option.icon}
@@ -161,15 +280,23 @@ export function AdjustScheduleScreen() {
       <View className="px-[18px] pb-[10px] pt-[8px]">
         <TouchableOpacity
           onPress={onAdjust}
+          disabled={busy}
           activeOpacity={0.85}
           className="items-center justify-center rounded-full py-[17px]"
-          style={{ experimental_backgroundImage: CTA_GRADIENT }}
+          style={{ experimental_backgroundImage: CTA_GRADIENT, opacity: busy ? 0.6 : 1 }}
         >
           <Text className="text-[16px] text-white" style={textStyle('semibold')}>
-            Adjust Schedule
+            {busy ? 'Menyimpan…' : 'Adjust Schedule'}
           </Text>
         </TouchableOpacity>
       </View>
+
+      <TimePickerModal
+        visible={pickerOpen}
+        selected={alert?.eventStart ? new Date(alert.eventStart) : new Date()}
+        onClose={() => setPickerOpen(false)}
+        onSelect={onPickNewTime}
+      />
     </SafeAreaView>
   );
 }

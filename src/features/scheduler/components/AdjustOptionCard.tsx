@@ -5,7 +5,7 @@ import { textStyle } from '../../../shared/theme/typography';
 interface AdjustOptionCardProps {
   icon: ReactNode;
   title: string;
-  onTime: string;
+  onTime?: string;
   description: string;
   selected: boolean;
   onSelect: () => void;
@@ -34,11 +34,13 @@ export function AdjustOptionCard({
           <Text className="text-[15px] text-light-inkStrong" style={textStyle('semibold')}>
             {title}
           </Text>
-          <View className="ml-[8px] rounded-full bg-light-accentSoft px-[8px] py-[2px]">
-            <Text className="text-[11px] text-light-accent" style={textStyle('semibold')}>
-              {onTime}
-            </Text>
-          </View>
+          {onTime ? (
+            <View className="ml-[8px] rounded-full bg-light-accentSoft px-[8px] py-[2px]">
+              <Text className="text-[11px] text-light-accent" style={textStyle('semibold')}>
+                {onTime}
+              </Text>
+            </View>
+          ) : null}
         </View>
         <Text className="mt-[3px] text-[13px] text-light-muted" style={textStyle('regular')}>
           {description}
