@@ -15,6 +15,7 @@ module.exports = {
         warning: '#F5A623',
         danger: '#E74C3C',
         border: '#26262E',
+        blue: '#1A73E8',
 
         light: {
           canvas: '#F2F2F7',

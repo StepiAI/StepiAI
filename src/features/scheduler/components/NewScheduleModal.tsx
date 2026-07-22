@@ -364,7 +364,7 @@ export function NewScheduleModal({
                     <Switch
                       value={allDay}
                       onValueChange={setAllDay}
-                      trackColor={{ false: '#E5E5EA', true: '#1C1C1E' }}
+                      trackColor={{ false: '#E5E5EA', true: '#2E7BE0' }}
                       thumbColor="#FFFFFF"
                       ios_backgroundColor="#E5E5EA"
                     />
