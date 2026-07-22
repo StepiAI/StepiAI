@@ -72,6 +72,28 @@ export function countLifePlanSessions(plan: LifePlanRecord): number {
   return count;
 }
 
+export function countCompletedSessions(plan: LifePlanRecord): number {
+  const availableDayIndexes = new Set(plan.availableDays.map(day => API_WEEKDAY_TO_DAY_INDEX[day]));
+  if (availableDayIndexes.size === 0) return 0;
+
+  const now = new Date();
+  const todayStart = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const cursor = new Date(plan.startDate);
+  const end = new Date(plan.endDate);
+  let count = 0;
+
+  while (cursor.getTime() <= end.getTime()) {
+    // session nya keitung kelar klo udh lewat hari ini (sesuai perkataan jacq)
+    if (availableDayIndexes.has(cursor.getUTCDay()) && cursor.getTime() < todayStart) {
+      count++;
+    }
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  return count;
+}
+
 export function getLifePlanDurationDays(plan: LifePlanRecord): number {
   const start = new Date(plan.startDate);
   const end = new Date(plan.endDate);

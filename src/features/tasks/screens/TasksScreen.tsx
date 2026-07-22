@@ -22,9 +22,10 @@ import { CreateLifePlanScreen } from './CreateLifePlanScreen';
 import { CreatingLifePlanScreen } from './CreatingLifePlanScreen';
 import { LifePlanDetailScreen } from './LifePlanDetailScreen';
 import { LifePlanPreferencesScreen } from './LifePlanPreferencesScreen';
+import { PreviewLifePlanScreen } from './PreviewLifePlanScreen';
 import { StudyScheduleScreen } from './StudyScheduleScreen';
 
-type CreationStep = 'goals' | 'schedule' | 'preferences' | 'creating';
+type CreationStep = 'goals' | 'schedule' | 'preferences' | 'review' | 'creating';
 
 export function TasksScreen() {
   const [step, setStep] = useState<CreationStep | null>(null);
@@ -67,7 +68,7 @@ export function TasksScreen() {
       return;
     }
 
-    setStep('preferences');
+    setStep('review');
     Alert.alert('Could not create the life plan', 'Please check your details and try again.');
   };
 
@@ -113,6 +114,16 @@ export function TasksScreen() {
         onDifficultyChange={setDifficulty}
         onIncludeReviewSessionsChange={setIncludeReviewSessions}
         onBack={() => setStep('schedule')}
+        onSubmit={() => setStep('review')}
+      />
+    );
+  }
+
+  if (step === 'review') {
+    return (
+      <PreviewLifePlanScreen
+        draft={draft}
+        onBack={() => setStep('preferences')}
         onSubmit={submitDraft}
       />
     );
