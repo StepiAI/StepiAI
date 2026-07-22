@@ -13,15 +13,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { textStyle } from '../../../shared/theme/typography';
 import { PlanFilterTabs, PlanFilter } from '../components/PlanFilterTabs';
-import { StudyPlanCard } from '../components/StudyPlanCard';
-import { StudyPlanLogo } from '../components/StudyPlanLogo';
-import { useCreateStudyPlan } from '../hooks/useCreateStudyPlan';
-import { useStudyPlanDraft } from '../hooks/useStudyPlanDraft';
-import { useStudyPlans } from '../hooks/useStudyPlans';
-import { CreateStudyPlanScreen } from './CreateStudyPlanScreen';
-import { CreatingStudyPlanScreen } from './CreatingStudyPlanScreen';
-import { StudyPlanDetailScreen } from './StudyPlanDetailScreen';
-import { StudyPlanPreferencesScreen } from './StudyPlanPreferencesScreen';
+import { LifePlanCard } from '../components/LifePlanCard';
+import { LifePlanLogo } from '../components/LifePlanLogo';
+import { useCreateLifePlan } from '../hooks/useCreateLifePlan';
+import { useLifePlanDraft } from '../hooks/useLifePlanDraft';
+import { useLifePlans } from '../hooks/useLifePlans';
+import { CreateLifePlanScreen } from './CreateLifePlanScreen';
+import { CreatingLifePlanScreen } from './CreatingLifePlanScreen';
+import { LifePlanDetailScreen } from './LifePlanDetailScreen';
+import { LifePlanPreferencesScreen } from './LifePlanPreferencesScreen';
 import { StudyScheduleScreen } from './StudyScheduleScreen';
 
 type CreationStep = 'goals' | 'schedule' | 'preferences' | 'creating';
@@ -47,9 +47,9 @@ export function TasksScreen() {
     reset,
     canSubmitGoals,
     canSubmitSchedule,
-  } = useStudyPlanDraft();
-  const { create } = useCreateStudyPlan();
-  const { plans, loading, refreshing, error, refresh } = useStudyPlans();
+  } = useLifePlanDraft();
+  const { create } = useCreateLifePlan();
+  const { plans, loading, refreshing, error, refresh } = useLifePlans();
 
   const exitCreation = () => {
     setStep(null);
@@ -73,7 +73,7 @@ export function TasksScreen() {
 
   if (step === 'goals') {
     return (
-      <CreateStudyPlanScreen
+      <CreateLifePlanScreen
         title={draft.title}
         goal={draft.goal}
         topics={draft.topics}
@@ -107,7 +107,7 @@ export function TasksScreen() {
 
   if (step === 'preferences') {
     return (
-      <StudyPlanPreferencesScreen
+      <LifePlanPreferencesScreen
         preferences={draft.preferences}
         onFocusChange={setFocus}
         onDifficultyChange={setDifficulty}
@@ -119,25 +119,25 @@ export function TasksScreen() {
   }
 
   if (step === 'creating') {
-    return <CreatingStudyPlanScreen />;
+    return <CreatingLifePlanScreen />;
   }
 
   if (selectedPlanId) {
     return (
-      <StudyPlanDetailScreen studyPlanId={selectedPlanId} onBack={() => setSelectedPlanId(null)} />
+      <LifePlanDetailScreen lifePlanId={selectedPlanId} onBack={() => setSelectedPlanId(null)} />
     );
   }
 
   if (loading) {
-    return <StudyPlanLoadingScreen />;
+    return <LifePlanLoadingScreen />;
   }
 
   if (!error && plans.length === 0) {
-    return <StudyPlanEmptyState onCreatePress={() => setStep('goals')} />;
+    return <LifePlanEmptyState onCreatePress={() => setStep('goals')} />;
   }
 
   return (
-    <StudyPlanListScreen
+    <LifePlanListScreen
       plans={plans}
       refreshing={refreshing}
       error={error}
@@ -156,7 +156,7 @@ function ScreenHeader() {
   );
 }
 
-function StudyPlanLoadingScreen() {
+function LifePlanLoadingScreen() {
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
       <StatusBar barStyle="dark-content" />
@@ -168,7 +168,7 @@ function StudyPlanLoadingScreen() {
   );
 }
 
-function StudyPlanEmptyState({ onCreatePress }: { onCreatePress: () => void }) {
+function LifePlanEmptyState({ onCreatePress }: { onCreatePress: () => void }) {
   const tabBarSpace = useTabBarSpace();
 
   return (
@@ -180,7 +180,7 @@ function StudyPlanEmptyState({ onCreatePress }: { onCreatePress: () => void }) {
         className="flex-1 items-center justify-center px-[32px]"
         style={{ paddingBottom: tabBarSpace }}
       >
-        <StudyPlanLogo />
+        <LifePlanLogo />
 
         <Text className="mt-[26px] text-[18px] text-light-inkStrong" style={textStyle('bold')}>
           No life plan yet
@@ -208,8 +208,8 @@ function StudyPlanEmptyState({ onCreatePress }: { onCreatePress: () => void }) {
   );
 }
 
-interface StudyPlanListScreenProps {
-  plans: ReturnType<typeof useStudyPlans>['plans'];
+interface LifePlanListScreenProps {
+  plans: ReturnType<typeof useLifePlans>['plans'];
   refreshing: boolean;
   error: string | null;
   onRefresh: () => void;
@@ -217,14 +217,14 @@ interface StudyPlanListScreenProps {
   onPlanPress: (planId: string) => void;
 }
 
-function StudyPlanListScreen({
+function LifePlanListScreen({
   plans,
   refreshing,
   error,
   onRefresh,
   onCreatePress,
   onPlanPress,
-}: StudyPlanListScreenProps) {
+}: LifePlanListScreenProps) {
   const tabBarSpace = useTabBarSpace();
   const [filter, setFilter] = useState<PlanFilter>('all');
 
@@ -262,7 +262,7 @@ function StudyPlanListScreen({
         ) : (
           <View className="gap-[14px]">
             {plans.map(plan => (
-              <StudyPlanCard key={plan.id} plan={plan} onPress={() => onPlanPress(plan.id)} />
+              <LifePlanCard key={plan.id} plan={plan} onPress={() => onPlanPress(plan.id)} />
             ))}
           </View>
         )}

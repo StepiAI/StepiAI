@@ -1,9 +1,9 @@
 import { Text, View } from 'react-native';
 import { CalendarIcon, CheckIcon } from '../../../shared/components/Icons';
 import { textStyle } from '../../../shared/theme/typography';
-import type { ScheduleRecord } from '../../../services/studyPlan/client';
+import type { ScheduleRecord } from '../../../services/lifePlan/client';
 import { formatTimeLabel } from '../utils/dateTime';
-import { formatSessionDayLabel, isSessionToday } from '../utils/studyPlanMapping';
+import { formatSessionDayLabel, isSessionToday } from '../utils/lifePlanMapping';
 
 interface TaskRowProps {
   schedule: ScheduleRecord;

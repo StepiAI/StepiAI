@@ -10,7 +10,7 @@ import { FieldCard, FieldRow, FieldRowDivider } from '../components/FieldCard';
 import { FieldLabel } from '../components/FieldLabel';
 import { ProgressSteps } from '../components/ProgressSteps';
 import { TimePickerModal } from '../components/TimePickerModal';
-import { STUDY_PLAN_GRADIENT, STUDY_PLAN_TOTAL_STEPS } from '../theme';
+import { LIFE_PLAN_GRADIENT, LIFE_PLAN_TOTAL_STEPS } from '../theme';
 import { WEEKDAYS, type StudySchedule, type Weekday } from '../types';
 import { formatDateLabel, formatTimeLabel } from '../utils/dateTime';
 
@@ -64,7 +64,7 @@ export function StudyScheduleScreen({
         <View className="w-[24px]" />
       </View>
 
-      <ProgressSteps total={STUDY_PLAN_TOTAL_STEPS} current={CURRENT_STEP} />
+      <ProgressSteps total={LIFE_PLAN_TOTAL_STEPS} current={CURRENT_STEP} />
 
       <ScrollView
         className="mt-[26px] flex-1 px-[20px]"
@@ -130,7 +130,7 @@ export function StudyScheduleScreen({
           className={`h-[56px] items-center justify-center rounded-[30px] ${
             canSubmit ? '' : 'opacity-50'
           }`}
-          style={{ backgroundColor: '#2E7BE0', experimental_backgroundImage: STUDY_PLAN_GRADIENT }}
+          style={{ backgroundColor: '#2E7BE0', experimental_backgroundImage: LIFE_PLAN_GRADIENT }}
         >
           <Text className="text-[16px] text-white" style={textStyle('semibold')}>
             Next

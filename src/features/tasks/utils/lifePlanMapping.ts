@@ -1,10 +1,10 @@
 import {
   ApiWeekday,
-  CreateStudyPlanRequest,
+  CreateLifePlanRequest,
   ScheduleRecord,
-  StudyPlanRecord,
-} from '../../../services/studyPlan/client';
-import { DifficultyLevel, FocusPreference, StudyPlanDraft, Weekday } from '../types';
+  LifePlanRecord,
+} from '../../../services/lifePlan/client';
+import { DifficultyLevel, FocusPreference, LifePlanDraft, Weekday } from '../types';
 import { formatDateOnly, formatTimeOnly } from './dateTime';
 
 const WEEKDAY_TO_API: Record<Weekday, ApiWeekday> = {
@@ -17,19 +17,19 @@ const WEEKDAY_TO_API: Record<Weekday, ApiWeekday> = {
   Sunday: 'SUNDAY',
 };
 
-const FOCUS_PREFERENCE_TO_API: Record<FocusPreference, CreateStudyPlanRequest['focusPreferences']> = {
+const FOCUS_PREFERENCE_TO_API: Record<FocusPreference, CreateLifePlanRequest['focusPreferences']> = {
   'deep-focus': 'DEEP_FOCUS',
   balanced: 'BALANCED',
   pomodoro: 'PODOMORO',
 };
 
-const DIFFICULTY_LEVEL_TO_API: Record<DifficultyLevel, CreateStudyPlanRequest['difficultyLevel']> = {
+const DIFFICULTY_LEVEL_TO_API: Record<DifficultyLevel, CreateLifePlanRequest['difficultyLevel']> = {
   beginner: 'BEGINNER',
   intermediate: 'INTERMEDIATE',
   advanced: 'ADVANCED',
 };
 
-export function toCreateStudyPlanRequest(draft: StudyPlanDraft): CreateStudyPlanRequest {
+export function toCreateLifePlanRequest(draft: LifePlanDraft): CreateLifePlanRequest {
   return {
     title: draft.title.trim(),
     goal: draft.goal.trim(),
@@ -54,7 +54,7 @@ const API_WEEKDAY_TO_DAY_INDEX: Record<ApiWeekday, number> = {
   SATURDAY: 6,
 };
 
-export function countStudyPlanSessions(plan: StudyPlanRecord): number {
+export function countLifePlanSessions(plan: LifePlanRecord): number {
   const availableDayIndexes = new Set(plan.availableDays.map(day => API_WEEKDAY_TO_DAY_INDEX[day]));
   if (availableDayIndexes.size === 0) return 0;
 
@@ -72,13 +72,13 @@ export function countStudyPlanSessions(plan: StudyPlanRecord): number {
   return count;
 }
 
-export function getStudyPlanDurationDays(plan: StudyPlanRecord): number {
+export function getLifePlanDurationDays(plan: LifePlanRecord): number {
   const start = new Date(plan.startDate);
   const end = new Date(plan.endDate);
   return Math.max(1, Math.round((end.getTime() - start.getTime()) / 86_400_000));
 }
 
-export function computeElapsedProgress(plan: StudyPlanRecord): number {
+export function computeElapsedProgress(plan: LifePlanRecord): number {
   const start = new Date(plan.startDate).getTime();
   const end = new Date(plan.endDate).getTime();
 
@@ -88,7 +88,7 @@ export function computeElapsedProgress(plan: StudyPlanRecord): number {
   return Math.round(Math.max(0, Math.min(1, ratio)) * 100);
 }
 
-export function getSessionTopic(plan: StudyPlanRecord, index: number): string | null {
+export function getSessionTopic(plan: LifePlanRecord, index: number): string | null {
   if (plan.topics.length === 0) return null;
   return plan.topics[index % plan.topics.length];
 }

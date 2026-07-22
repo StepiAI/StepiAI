@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiError } from '../../../services/api/client';
-import { listStudyPlans, StudyPlanRecord } from '../../../services/studyPlan/client';
+import { listLifePlans, LifePlanRecord } from '../../../services/lifePlan/client';
 
 function describeError(err: unknown) {
   if (err instanceof ApiError) {
@@ -10,7 +10,7 @@ function describeError(err: unknown) {
 }
 
 type State = {
-  plans: StudyPlanRecord[];
+  plans: LifePlanRecord[];
   loading: boolean;
   refreshing: boolean;
   error: string | null;
@@ -18,7 +18,7 @@ type State = {
 
 const INITIAL: State = { plans: [], loading: true, refreshing: false, error: null };
 
-export function useStudyPlans() {
+export function useLifePlans() {
   const [state, setState] = useState<State>(INITIAL);
 
   const load = useCallback(async (mode: 'initial' | 'refresh') => {
@@ -30,10 +30,10 @@ export function useStudyPlans() {
     }));
 
     try {
-      const plans = await listStudyPlans();
+      const plans = await listLifePlans();
       setState({ plans, loading: false, refreshing: false, error: null });
     } catch (err) {
-      console.error('[StudyPlan] failed to list study plans:', err);
+      console.error('[LifePlan] failed to list life plans:', err);
       setState({ plans: [], loading: false, refreshing: false, error: describeError(err) });
     }
   }, []);

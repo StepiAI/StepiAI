@@ -1,6 +1,6 @@
 import { apiClient } from '../api/client';
 
-const BASE_PATH = '/study-plans';
+const BASE_PATH = '/life-plans';
 
 export type ApiWeekday =
   | 'MONDAY'
@@ -15,7 +15,7 @@ export type ApiDifficultyLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 
 export type ApiFocusPreference = 'DEEP_FOCUS' | 'BALANCED' | 'PODOMORO';
 
-export interface CreateStudyPlanRequest {
+export interface CreateLifePlanRequest {
   title: string;
   goal: string;
   topic: string[];
@@ -28,7 +28,7 @@ export interface CreateStudyPlanRequest {
   focusPreferences: ApiFocusPreference;
 }
 
-export interface StudyPlanRecord {
+export interface LifePlanRecord {
   id: string;
   userId: string;
   title: string;
@@ -50,7 +50,7 @@ export type ApiScheduleStatus = 'PENDING' | 'ACCEPTED';
 export interface ScheduleRecord {
   id: string;
   userId: string;
-  studyPlanId: string | null;
+  lifePlanId: string | null;
   summary: string;
   description: string | null;
   location: string | null;
@@ -61,18 +61,18 @@ export interface ScheduleRecord {
   updatedAt: string;
 }
 
-export interface StudyPlanDetail extends StudyPlanRecord {
+export interface LifePlanDetail extends LifePlanRecord {
   schedules: ScheduleRecord[];
 }
 
-export function createStudyPlan(request: CreateStudyPlanRequest) {
-  return apiClient.post<StudyPlanRecord>(BASE_PATH, request);
+export function createLifePlan(request: CreateLifePlanRequest) {
+  return apiClient.post<LifePlanRecord>(BASE_PATH, request);
 }
 
-export function listStudyPlans() {
-  return apiClient.get<StudyPlanRecord[]>(BASE_PATH);
+export function listLifePlans() {
+  return apiClient.get<LifePlanRecord[]>(BASE_PATH);
 }
 
-export function getStudyPlan(id: string) {
-  return apiClient.get<StudyPlanDetail>(`${BASE_PATH}/${id}`);
+export function getLifePlan(id: string) {
+  return apiClient.get<LifePlanDetail>(`${BASE_PATH}/${id}`);
 }

@@ -1,4 +1,4 @@
-import { StudyPlanDraft, StudyPlanTopic, StudyPreferences, StudySchedule } from '../types';
+import { LifePlanDraft, LifePlanTopic, StudyPreferences, StudySchedule } from '../types';
 import { addOneMonth, minutesSinceMidnight, startOfToday, timeOfDay } from './dateTime';
 
 export function createDefaultSchedule(): StudySchedule {
@@ -17,7 +17,7 @@ export function createDefaultPreferences(): StudyPreferences {
   return { focus: 'balanced', difficulty: 'intermediate', includeReviewSessions: true };
 }
 
-export function createEmptyDraft(): StudyPlanDraft {
+export function createEmptyDraft(): LifePlanDraft {
   return {
     title: '',
     goal: '',
@@ -27,11 +27,11 @@ export function createEmptyDraft(): StudyPlanDraft {
   };
 }
 
-export function createTopic(id: string, label = ''): StudyPlanTopic {
+export function createTopic(id: string, label = ''): LifePlanTopic {
   return { id, label };
 }
 
-export function isDraftReady(draft: Pick<StudyPlanDraft, 'title' | 'goal'>): boolean {
+export function isDraftReady(draft: Pick<LifePlanDraft, 'title' | 'goal'>): boolean {
   return draft.title.trim().length > 0 && draft.goal.trim().length > 0;
 }
 
