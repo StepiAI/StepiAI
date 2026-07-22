@@ -4,6 +4,7 @@ export type MainTabParamList = {
   Summary: undefined;
   Profile: undefined;
   Calendar: undefined;
+  AdjustSchedule: undefined;
   Chat: undefined;
   ConnectedApps: undefined;
   Accessibility: undefined;
