@@ -10,6 +10,8 @@ export interface AlertTraffic {
   naiveDeparture: string;
   onTimeBefore: number;
   onTimeAfter: number;
+  pushOnTime: number;
+  pushDelayMinutes: number;
   travelMinutes: number;
   trafficDelayMinutes: number;
 }
@@ -24,6 +26,8 @@ export interface AlertWeather {
 export interface ScheduleAlert {
   eventId: string;
   summary: string;
+  eventStart: string;
+  eventEnd: string;
   type: ScheduleAlertType;
   severity: AlertSeverity;
   title: string;
