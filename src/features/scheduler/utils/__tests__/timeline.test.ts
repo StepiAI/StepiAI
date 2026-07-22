@@ -17,7 +17,7 @@ function event(overrides: Partial<TimelineEvent> = {}): TimelineEvent {
     title: 'Event',
     startMinutes: 9 * 60,
     durationMinutes: 60,
-    tone: 'blue',
+    tone: 0,
     ...overrides,
   };
 }
