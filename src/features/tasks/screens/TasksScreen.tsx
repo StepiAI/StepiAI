@@ -14,8 +14,13 @@ import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { textStyle } from '../../../shared/theme/typography';
 import { PlanFilterTabs, PlanFilter } from '../components/PlanFilterTabs';
 import { LifePlanCard } from '../components/LifePlanCard';
+import { LifePlanConflictModal } from '../components/LifePlanConflictModal';
 import { LifePlanLogo } from '../components/LifePlanLogo';
-import { useCreateLifePlan } from '../hooks/useCreateLifePlan';
+import {
+  LifePlanConflictOption,
+  LifePlanConflictResult,
+} from '../../../services/lifePlan/client';
+import { LifePlanResolution, useCreateLifePlan } from '../hooks/useCreateLifePlan';
 import { useLifePlanDraft } from '../hooks/useLifePlanDraft';
 import { useLifePlans } from '../hooks/useLifePlans';
 import { CreateLifePlanScreen } from './CreateLifePlanScreen';
@@ -49,27 +54,45 @@ export function TasksScreen() {
     canSubmitGoals,
     canSubmitSchedule,
   } = useLifePlanDraft();
-  const { create } = useCreateLifePlan();
+  const { create, saving } = useCreateLifePlan();
   const { plans, loading, refreshing, error, refresh } = useLifePlans();
+  const [conflict, setConflict] = useState<LifePlanConflictResult | null>(null);
 
   const exitCreation = () => {
     setStep(null);
+    setConflict(null);
     reset();
   };
 
-  const submitDraft = async () => {
+  const submitDraft = async (resolution?: LifePlanResolution) => {
+    setConflict(null);
     setStep('creating');
 
-    const created = await create(draft);
+    const result = await create(draft, resolution);
 
-    if (created) {
+    if (result?.created) {
       exitCreation();
       refresh();
       return;
     }
 
+    if (result && !result.created) {
+      setConflict(result.conflict);
+      setStep('review');
+      return;
+    }
+
     setStep('review');
     Alert.alert('Could not create the life plan', 'Please check your details and try again.');
+  };
+
+  const handleSelectResolution = (option: LifePlanConflictOption) => {
+    const resolution: LifePlanResolution =
+      option.type === 'skip_day_and_extend'
+        ? { endDate: option.updatedEndDate, skippedDates: option.skippedDates }
+        : { scheduleOverrides: option.scheduleOverrides };
+
+    submitDraft(resolution);
   };
 
   if (step === 'goals') {
@@ -121,11 +144,19 @@ export function TasksScreen() {
 
   if (step === 'review') {
     return (
-      <PreviewLifePlanScreen
-        draft={draft}
-        onBack={() => setStep('preferences')}
-        onSubmit={submitDraft}
-      />
+      <>
+        <PreviewLifePlanScreen
+          draft={draft}
+          onBack={() => setStep('preferences')}
+          onSubmit={() => submitDraft()}
+        />
+        <LifePlanConflictModal
+          conflict={conflict}
+          submitting={saving}
+          onSelectOption={handleSelectResolution}
+          onCancel={() => setConflict(null)}
+        />
+      </>
     );
   }
 
