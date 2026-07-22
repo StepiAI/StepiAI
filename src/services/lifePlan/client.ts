@@ -15,6 +15,12 @@ export type ApiDifficultyLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 
 export type ApiFocusPreference = 'DEEP_FOCUS' | 'BALANCED' | 'PODOMORO';
 
+export interface ScheduleOverride {
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
 export interface CreateLifePlanRequest {
   title: string;
   goal: string;
@@ -26,6 +32,8 @@ export interface CreateLifePlanRequest {
   endTime: string;
   difficultyLevel: ApiDifficultyLevel;
   focusPreferences: ApiFocusPreference;
+  skippedDates?: string[];
+  scheduleOverrides?: ScheduleOverride[];
 }
 
 export interface LifePlanRecord {
@@ -65,8 +73,46 @@ export interface LifePlanDetail extends LifePlanRecord {
   schedules: ScheduleRecord[];
 }
 
+export interface LifePlanConflictSchedule {
+  id: string;
+  summary: string;
+  startDateTime: string;
+  endDateTime: string;
+}
+
+export interface LifePlanScheduleConflict {
+  date: string;
+  proposedStartDateTime: string;
+  proposedEndDateTime: string;
+  conflictingSchedules: LifePlanConflictSchedule[];
+}
+
+export type LifePlanConflictOptionType =
+  | 'skip_day_and_extend'
+  | 'change_time_for_day';
+
+export interface LifePlanConflictOption {
+  type: LifePlanConflictOptionType;
+  content: string;
+  updatedEndDate?: string;
+  skippedDates?: string[];
+  replacementDates?: string[];
+  scheduleOverrides?: ScheduleOverride[];
+}
+
+export interface LifePlanConflictResult {
+  type: 'life_plan_conflict';
+  content: string;
+  conflicts: LifePlanScheduleConflict[];
+  options: LifePlanConflictOption[];
+}
+
+export type CreateLifePlanResult =
+  | { created: true; lifePlan: LifePlanRecord }
+  | { created: false; conflict: LifePlanConflictResult };
+
 export function createLifePlan(request: CreateLifePlanRequest) {
-  return apiClient.post<LifePlanRecord>(BASE_PATH, request);
+  return apiClient.post<CreateLifePlanResult>(BASE_PATH, request);
 }
 
 export function listLifePlans() {

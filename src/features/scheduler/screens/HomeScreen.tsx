@@ -10,6 +10,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { MainTabParamList } from '../../../app/navigation/types';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { textStyle } from '../../../shared/theme/typography';
 import { AlertTriangleIcon, ChevronLeft, CloseIcon, PersonIcon } from '../../../shared/components/Icons';
@@ -31,6 +34,7 @@ function greetingForHour(hour: number) {
 }
 
 export function HomeScreen() {
+  const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const { session } = useAuthSession();
   const [selected, setSelected] = useState(() => new Date());
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -140,6 +144,7 @@ export function HomeScreen() {
               </Text>
 
               <TouchableOpacity
+                onPress={() => navigation.navigate('AdjustSchedule')}
                 activeOpacity={0.7}
                 className="mt-[10px] self-start rounded-full bg-white px-[14px] py-[6px]"
               >
