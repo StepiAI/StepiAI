@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { textStyle } from '../../../shared/theme/typography';
-import { EVENT_TONE, NOW_INDICATOR_COLOR } from '../theme';
+import { EVENT_PALETTE } from '../eventColors';
+import { NOW_INDICATOR_COLOR } from '../theme';
 import {
   HOUR_HEIGHT,
   TimelineEvent,
@@ -70,7 +71,7 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
       <View className="absolute right-0 top-0" style={{ left: GUTTER_WIDTH }}>
         {events.map(event => {
           const { top, height } = blockPosition(event, range);
-          const tone = EVENT_TONE[event.tone];
+          const tone = EVENT_PALETTE[event.tone % EVENT_PALETTE.length];
 
           return (
             <TouchableOpacity

@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import { textStyle } from '../../../shared/theme/typography';
 import { LocationPinIcon } from '../../../shared/components/Icons';
-import { EVENT_TONE } from '../theme';
+import { EVENT_PALETTE } from '../eventColors';
 import { TimelineEvent, formatEventTime } from '../utils/timeline';
 
 const ROW_HEIGHT = 48;
@@ -15,7 +15,7 @@ interface EventDetailTimelineProps {
 
 // mini timeline sejam sejaman di sekitar event, biar keliatan kek di kalender
 export function EventDetailTimeline({ event }: EventDetailTimelineProps) {
-  const tone = EVENT_TONE[event.tone];
+  const tone = EVENT_PALETTE[event.tone % EVENT_PALETTE.length];
 
   const eventStartHour = Math.floor(event.startMinutes / 60);
   const eventEndHour = Math.ceil((event.startMinutes + event.durationMinutes) / 60);

@@ -3,8 +3,6 @@ export const HOUR_HEIGHT = 52;
 export const DEFAULT_START_HOUR = 0;
 export const DEFAULT_END_HOUR = 23;
 
-export type EventTone = 'blue' | 'purple';
-
 export interface TimelineEvent {
   id: string;
   title: string;
@@ -14,7 +12,7 @@ export interface TimelineEvent {
   longitude?: number;
   startMinutes: number;
   durationMinutes: number;
-  tone: EventTone;
+  tone: number;
 }
 
 export interface TimelineRange {

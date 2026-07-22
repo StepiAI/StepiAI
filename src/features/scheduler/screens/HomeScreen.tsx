@@ -17,8 +17,8 @@ import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { textStyle } from '../../../shared/theme/typography';
 import { AlertTriangleIcon, ChevronLeft, CloseIcon, PersonIcon } from '../../../shared/components/Icons';
 import { useAuthSession } from '../../auth/hooks/useAuthSession';
+import { CalendarZoom } from '../components/CalendarZoom';
 import { DayTimeline } from '../components/DayTimeline';
-import { MonthPickerModal } from '../components/MonthPickerModal';
 import { WeekStrip } from '../components/WeekStrip';
 import { useGoogleCalendarEvents } from '../hooks/useGoogleCalendarEvents';
 import { useScheduleAlerts } from '../hooks/useScheduleAlerts';
@@ -26,6 +26,8 @@ import { useCurrentLocation } from '../../settings/hooks/useCurrentLocation';
 import type { ScheduleAlert } from '../../../services/alerts/client';
 import { ALERT_TONE } from '../theme';
 import { toDayEvents } from '../utils/calendarMapping';
+import { startOfMonth } from '../utils/month';
+import { buildDayChips, buildWeekWindow } from '../utils/monthChips';
 import { TimelineEvent } from '../utils/timeline';
 import { buildWeek, startOfWeek } from '../utils/week';
 import { EventDetailScreen } from './EventDetailScreen';
@@ -41,6 +43,7 @@ export function HomeScreen() {
   const { session } = useAuthSession();
   const [selected, setSelected] = useState(() => new Date());
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [zoomMonth, setZoomMonth] = useState(() => startOfMonth(new Date()));
   const [dismissed, setDismissed] = useState<Set<string>>(() => new Set());
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
   const tabBarSpace = useTabBarSpace();
@@ -62,6 +65,27 @@ export function HomeScreen() {
     () => toDayEvents(events, selected),
     [events, selected],
   );
+
+  const monthRange = useMemo(() => {
+    const weeks = buildWeekWindow(zoomMonth);
+    const first = weeks[0].days[0];
+    const lastWeek = weeks[weeks.length - 1].days;
+    const last = new Date(lastWeek[lastWeek.length - 1]);
+    last.setDate(last.getDate() + 1);
+    return { from: first, to: last };
+  }, [zoomMonth]);
+
+  const { events: monthEvents } = useGoogleCalendarEvents({
+    from: monthRange.from,
+    to: monthRange.to,
+  });
+
+  const dayChips = useMemo(() => buildDayChips(monthEvents), [monthEvents]);
+
+  const openZoom = () => {
+    setZoomMonth(startOfMonth(selected));
+    setPickerOpen(true);
+  };
 
   const { location } = useCurrentLocation();
   const { alerts } = useScheduleAlerts(location, events);
@@ -95,7 +119,7 @@ export function HomeScreen() {
       <View className="px-[20px] pt-[12px]">
         <View className="flex-row items-center justify-between">
           <TouchableOpacity
-            onPress={() => setPickerOpen(true)}
+            onPress={openZoom}
             activeOpacity={0.6}
             className="flex-row items-center gap-[2px] py-[4px]"
           >
@@ -181,11 +205,14 @@ export function HomeScreen() {
         <View style={{ height: tabBarSpace }} />
       </ScrollView>
 
-      <MonthPickerModal
+      <CalendarZoom
         visible={pickerOpen}
         selected={selected}
+        month={zoomMonth}
+        dayChips={dayChips}
+        onMonthChange={setZoomMonth}
+        onSelectDate={setSelected}
         onClose={() => setPickerOpen(false)}
-        onSelect={setSelected}
       />
     </SafeAreaView>
   );

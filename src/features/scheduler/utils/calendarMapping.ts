@@ -1,4 +1,5 @@
 import type { GoogleCalendarEvent } from '../../../services/googleCalendar/client';
+import { eventColorSeed, toneIndexFor } from '../eventColors';
 import { isSameDay, startOfDay, toDateKey } from './day';
 import { isAllDayEvent } from './googleEvent';
 import { TimelineEvent } from './timeline';
@@ -66,15 +67,11 @@ export function toDayEvents(events: GoogleCalendarEvent[], day: Date): DayEvents
       longitude: event.longitude ?? undefined,
       startMinutes,
       durationMinutes: Math.max(endMinutes - startMinutes, 15),
-      tone: 'purple',
+      tone: toneIndexFor(eventColorSeed(event)),
     });
   }
 
   timed.sort((a, b) => a.startMinutes - b.startMinutes);
-
-  if (timed.length > 0) {
-    timed[0] = { ...timed[0], tone: 'blue' };
-  }
 
   return { timed, allDay };
 }
