@@ -6,7 +6,7 @@ function describeError(err: unknown) {
   if (err instanceof ApiError) {
     return `${err.status} — ${err.message}`;
   }
-  return err instanceof Error ? err.message : 'Could not load this study plan.';
+  return err instanceof Error ? err.message : 'Could not load this life plan.';
 }
 
 type State = {

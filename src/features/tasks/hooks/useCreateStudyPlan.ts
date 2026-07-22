@@ -8,7 +8,7 @@ function describeError(err: unknown) {
   if (err instanceof ApiError) {
     return `${err.status} — ${err.message}`;
   }
-  return err instanceof Error ? err.message : 'Could not create the study plan.';
+  return err instanceof Error ? err.message : 'Could not create the life plan.';
 }
 
 export function useCreateStudyPlan() {
@@ -22,7 +22,7 @@ export function useCreateStudyPlan() {
     try {
       return await createStudyPlan(toCreateStudyPlanRequest(draft));
     } catch (err) {
-      console.error('[StudyPlan] failed to create study plan:', err);
+      console.error('[StudyPlan] failed to create life plan:', err);
       setError(describeError(err));
       return null;
     } finally {

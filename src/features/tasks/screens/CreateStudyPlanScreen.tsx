@@ -66,7 +66,7 @@ export function CreateStudyPlanScreen({
             className="flex-1 text-center text-[18px] text-light-inkStrong"
             style={textStyle('bold')}
           >
-            Create Study Plan
+            Create Life Plan
           </Text>
 
           <View className="w-[24px]" />

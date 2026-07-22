@@ -65,7 +65,7 @@ export function StudyPlanDetailScreen({ studyPlanId, onBack }: StudyPlanDetailSc
             className="mt-[4px] text-center text-[13px] text-light-muted"
             style={textStyle('regular')}
           >
-            {error ?? 'Study plan not found.'}
+            {error ?? 'Life plan not found.'}
           </Text>
         </View>
       ) : (

@@ -43,7 +43,7 @@ export function CreatingStudyPlanScreen() {
           className="mt-[26px] text-[16px] text-light-inkStrong"
           style={textStyle('semibold')}
         >
-          Creating your study plan...
+          Creating your life plan...
         </Text>
 
         <View

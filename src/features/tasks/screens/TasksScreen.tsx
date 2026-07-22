@@ -68,7 +68,7 @@ export function TasksScreen() {
     }
 
     setStep('preferences');
-    Alert.alert('Could not create the study plan', 'Please check your details and try again.');
+    Alert.alert('Could not create the life plan', 'Please check your details and try again.');
   };
 
   if (step === 'goals') {
@@ -151,7 +151,7 @@ export function TasksScreen() {
 function ScreenHeader() {
   return (
     <Text className="mt-[6px] text-center text-[21px] text-light-inkStrong" style={textStyle('bold')}>
-      Study Plan
+      Life Plan
     </Text>
   );
 }
@@ -183,7 +183,7 @@ function StudyPlanEmptyState({ onCreatePress }: { onCreatePress: () => void }) {
         <StudyPlanLogo />
 
         <Text className="mt-[26px] text-[18px] text-light-inkStrong" style={textStyle('bold')}>
-          No study plan yet
+          No life plan yet
         </Text>
 
         <Text
@@ -200,7 +200,7 @@ function StudyPlanEmptyState({ onCreatePress }: { onCreatePress: () => void }) {
           className="mt-[26px] h-[52px] w-full items-center justify-center rounded-full bg-light-accentSoft"
         >
           <Text className="text-[15px] text-light-accent" style={textStyle('semibold')}>
-            Create Study Plan
+            Create Life Plan
           </Text>
         </TouchableOpacity>
       </View>
@@ -249,7 +249,7 @@ function StudyPlanListScreen({
           className="h-[64px] items-center justify-center rounded-[16px] border border-dashed border-light-hint"
         >
           <Text className="text-[14px] text-light-muted" style={textStyle('medium')}>
-            + Add a Study Plan
+            + Add a Life Plan
           </Text>
         </TouchableOpacity>
 
