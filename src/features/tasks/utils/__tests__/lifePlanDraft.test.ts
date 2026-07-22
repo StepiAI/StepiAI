@@ -5,7 +5,7 @@ import {
   createTopic,
   isDraftReady,
   isScheduleReady,
-} from '../studyPlanDraft';
+} from '../lifePlanDraft';
 
 describe('createEmptyDraft', () => {
   it('mulai tanpa judul, goal, dan topic', () => {

@@ -1,18 +1,18 @@
-import type { ScheduleRecord, StudyPlanRecord } from '../../../../services/studyPlan/client';
+import type { ScheduleRecord, LifePlanRecord } from '../../../../services/lifePlan/client';
 import type { Weekday } from '../../types';
-import { createEmptyDraft, createTopic } from '../studyPlanDraft';
+import { createEmptyDraft, createTopic } from '../lifePlanDraft';
 import {
   computeElapsedProgress,
-  countStudyPlanSessions,
+  countLifePlanSessions,
   formatSessionDayLabel,
   getSessionTopic,
-  getStudyPlanDurationDays,
+  getLifePlanDurationDays,
   getThisWeekSchedules,
   isSessionToday,
-  toCreateStudyPlanRequest,
-} from '../studyPlanMapping';
+  toCreateLifePlanRequest,
+} from '../lifePlanMapping';
 
-function buildRecord(overrides: Partial<StudyPlanRecord> = {}): StudyPlanRecord {
+function buildRecord(overrides: Partial<LifePlanRecord> = {}): LifePlanRecord {
   return {
     id: 'plan-1',
     userId: 'user-1',
@@ -32,7 +32,7 @@ function buildRecord(overrides: Partial<StudyPlanRecord> = {}): StudyPlanRecord 
   };
 }
 
-describe('toCreateStudyPlanRequest', () => {
+describe('toCreateLifePlanRequest', () => {
   it('konversi hari, fokus, dan level kesulitan ke format enum backend', () => {
     const draft = {
       ...createEmptyDraft(),
@@ -49,7 +49,7 @@ describe('toCreateStudyPlanRequest', () => {
       preferences: { focus: 'balanced' as const, difficulty: 'intermediate' as const, includeReviewSessions: true },
     };
 
-    expect(toCreateStudyPlanRequest(draft)).toEqual({
+    expect(toCreateLifePlanRequest(draft)).toEqual({
       title: 'Learning React',
       goal: 'Build one project',
       topic: ['Hooks'],
@@ -64,7 +64,7 @@ describe('toCreateStudyPlanRequest', () => {
   });
 });
 
-describe('countStudyPlanSessions', () => {
+describe('countLifePlanSessions', () => {
   it('ngitung jumlah hari yang cocok sama available days dalam rentang tanggal', () => {
     const plan = buildRecord({
       startDate: '2026-07-20T00:00:00.000Z',
@@ -73,22 +73,22 @@ describe('countStudyPlanSessions', () => {
     });
 
     // 20 Jul 2026 (Senin) - 27 Jul 2026 (Senin): yang cocok cuma Sabtu 25 & Minggu 26
-    expect(countStudyPlanSessions(plan)).toBe(2);
+    expect(countLifePlanSessions(plan)).toBe(2);
   });
 
   it('balikin 0 kalau gak ada available days', () => {
-    expect(countStudyPlanSessions(buildRecord({ availableDays: [] }))).toBe(0);
+    expect(countLifePlanSessions(buildRecord({ availableDays: [] }))).toBe(0);
   });
 });
 
-describe('getStudyPlanDurationDays', () => {
+describe('getLifePlanDurationDays', () => {
   it('ngitung selisih hari antara startDate dan endDate', () => {
     const plan = buildRecord({
       startDate: '2026-07-20T00:00:00.000Z',
       endDate: '2026-08-20T00:00:00.000Z',
     });
 
-    expect(getStudyPlanDurationDays(plan)).toBe(31);
+    expect(getLifePlanDurationDays(plan)).toBe(31);
   });
 });
 
@@ -148,7 +148,7 @@ function buildSchedule(overrides: Partial<ScheduleRecord> = {}): ScheduleRecord 
   return {
     id: 'schedule-1',
     userId: 'user-1',
-    studyPlanId: 'plan-1',
+    lifePlanId: 'plan-1',
     summary: 'Learning React',
     description: 'Build one project',
     location: 'ONLINE',

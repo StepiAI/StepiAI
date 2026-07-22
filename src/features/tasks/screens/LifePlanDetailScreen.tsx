@@ -7,23 +7,23 @@ import { ChevronLeft, ClipboardCheckIcon, ClipboardIcon } from '../../../shared/
 import { textStyle } from '../../../shared/theme/typography';
 import { CircularProgress } from '../components/CircularProgress';
 import { TaskRow } from '../components/TaskRow';
-import { useStudyPlanDetail } from '../hooks/useStudyPlanDetail';
-import { STUDY_PLAN_PROGRESS_GRADIENT } from '../theme';
+import { useLifePlanDetail } from '../hooks/useLifePlanDetail';
+import { LIFE_PLAN_PROGRESS_GRADIENT } from '../theme';
 import {
   computeElapsedProgress,
-  countStudyPlanSessions,
+  countLifePlanSessions,
   getSessionTopic,
   getThisWeekSchedules,
-} from '../utils/studyPlanMapping';
+} from '../utils/lifePlanMapping';
 import { NewTaskScreen } from './NewTaskScreen';
 
-interface StudyPlanDetailScreenProps {
-  studyPlanId: string;
+interface LifePlanDetailScreenProps {
+  lifePlanId: string;
   onBack: () => void;
 }
 
-export function StudyPlanDetailScreen({ studyPlanId, onBack }: StudyPlanDetailScreenProps) {
-  const { plan, loading, error } = useStudyPlanDetail(studyPlanId);
+export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScreenProps) {
+  const { plan, loading, error } = useLifePlanDetail(lifePlanId);
   const tabBarSpace = useTabBarSpace();
   const [addingTask, setAddingTask] = useState(false);
 
@@ -65,7 +65,7 @@ export function StudyPlanDetailScreen({ studyPlanId, onBack }: StudyPlanDetailSc
             className="mt-[4px] text-center text-[13px] text-light-muted"
             style={textStyle('regular')}
           >
-            {error ?? 'Study plan not found.'}
+            {error ?? 'Life plan not found.'}
           </Text>
         </View>
       ) : (
@@ -76,7 +76,7 @@ export function StudyPlanDetailScreen({ studyPlanId, onBack }: StudyPlanDetailSc
         >
           <View
             className="rounded-[20px] p-[20px]"
-            style={{ backgroundColor: '#8E91E8', experimental_backgroundImage: STUDY_PLAN_PROGRESS_GRADIENT }}
+            style={{ backgroundColor: '#8E91E8', experimental_backgroundImage: LIFE_PLAN_PROGRESS_GRADIENT }}
           >
             <Text className="text-[15px] text-light-inkStrong" style={textStyle('semibold')}>
               Progress
@@ -86,7 +86,7 @@ export function StudyPlanDetailScreen({ studyPlanId, onBack }: StudyPlanDetailSc
               <CircularProgress progress={computeElapsedProgress(plan)} />
 
               <View className="ml-[20px] flex-1 gap-[16px]">
-                <StatRow icon={<ClipboardIcon />} value={countStudyPlanSessions(plan)} label="Total Tasks" />
+                <StatRow icon={<ClipboardIcon />} value={countLifePlanSessions(plan)} label="Total Tasks" />
                 <StatRow icon={<ClipboardCheckIcon />} value={0} label="Task Completed" />
               </View>
             </View>

@@ -3,13 +3,13 @@ import { Animated, Easing, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MeshGradient } from '../../../shared/components/MeshGradient';
 import { textStyle } from '../../../shared/theme/typography';
-import { StudyPlanLogo } from '../components/StudyPlanLogo';
-import { PROGRESS_TRACK_COLOR, STUDY_PLAN_GRADIENT } from '../theme';
+import { LifePlanLogo } from '../components/LifePlanLogo';
+import { PROGRESS_TRACK_COLOR, LIFE_PLAN_GRADIENT } from '../theme';
 
 const BAR_WIDTH_RATIO = 0.32;
 const LOOP_DURATION_MS = 1100;
 
-export function CreatingStudyPlanScreen() {
+export function CreatingLifePlanScreen() {
   const progress = useRef(new Animated.Value(0)).current;
   const [trackWidth, setTrackWidth] = useState(0);
   const barWidth = trackWidth * BAR_WIDTH_RATIO;
@@ -37,13 +37,13 @@ export function CreatingStudyPlanScreen() {
       <StatusBar barStyle="dark-content" />
 
       <View className="flex-1 items-center justify-center px-[40px]">
-        <StudyPlanLogo />
+        <LifePlanLogo />
 
         <Text
           className="mt-[26px] text-[16px] text-light-inkStrong"
           style={textStyle('semibold')}
         >
-          Creating your study plan...
+          Creating your life plan...
         </Text>
 
         <View
@@ -57,7 +57,7 @@ export function CreatingStudyPlanScreen() {
               style={{
                 width: barWidth,
                 backgroundColor: '#2E7BE0',
-                experimental_backgroundImage: STUDY_PLAN_GRADIENT,
+                experimental_backgroundImage: LIFE_PLAN_GRADIENT,
                 transform: [{ translateX }],
               }}
             />

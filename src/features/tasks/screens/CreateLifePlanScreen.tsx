@@ -15,15 +15,15 @@ import { FieldLabel } from '../components/FieldLabel';
 import { PillInput } from '../components/PillInput';
 import { ProgressSteps } from '../components/ProgressSteps';
 import { TopicRow } from '../components/TopicRow';
-import { STUDY_PLAN_GRADIENT, STUDY_PLAN_TOTAL_STEPS } from '../theme';
-import type { StudyPlanTopic } from '../types';
+import { LIFE_PLAN_GRADIENT, LIFE_PLAN_TOTAL_STEPS } from '../theme';
+import type { LifePlanTopic } from '../types';
 
 const CURRENT_STEP = 1;
 
-interface CreateStudyPlanScreenProps {
+interface CreateLifePlanScreenProps {
   title: string;
   goal: string;
-  topics: StudyPlanTopic[];
+  topics: LifePlanTopic[];
   canSubmit: boolean;
   onTitleChange: (title: string) => void;
   onGoalChange: (goal: string) => void;
@@ -34,7 +34,7 @@ interface CreateStudyPlanScreenProps {
   onNext: () => void;
 }
 
-export function CreateStudyPlanScreen({
+export function CreateLifePlanScreen({
   title,
   goal,
   topics,
@@ -46,7 +46,7 @@ export function CreateStudyPlanScreen({
   onTopicRemove,
   onBack,
   onNext,
-}: CreateStudyPlanScreenProps) {
+}: CreateLifePlanScreenProps) {
   const tabBarSpace = useTabBarSpace();
 
   return (
@@ -66,13 +66,13 @@ export function CreateStudyPlanScreen({
             className="flex-1 text-center text-[18px] text-light-inkStrong"
             style={textStyle('bold')}
           >
-            Create Study Plan
+            Create Life Plan
           </Text>
 
           <View className="w-[24px]" />
         </View>
 
-        <ProgressSteps total={STUDY_PLAN_TOTAL_STEPS} current={CURRENT_STEP} />
+        <ProgressSteps total={LIFE_PLAN_TOTAL_STEPS} current={CURRENT_STEP} />
 
         <ScrollView
           className="mt-[26px] flex-1 px-[20px]"
@@ -136,7 +136,7 @@ export function CreateStudyPlanScreen({
             className={`h-[56px] items-center justify-center rounded-[30px] ${
               canSubmit ? '' : 'opacity-50'
             }`}
-            style={{ backgroundColor: '#2E7BE0', experimental_backgroundImage: STUDY_PLAN_GRADIENT }}
+            style={{ backgroundColor: '#2E7BE0', experimental_backgroundImage: LIFE_PLAN_GRADIENT }}
           >
             <Text className="text-[16px] text-white" style={textStyle('semibold')}>
               Next
