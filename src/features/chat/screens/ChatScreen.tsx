@@ -154,7 +154,9 @@ export function ChatScreen() {
 
       <View className="flex-row items-center justify-between px-[18px] pb-[14px] pt-[6px]">
         <TouchableOpacity
-          onPress={() => navigation.navigate('Home')}
+          onPress={() =>
+            navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home')
+          }
           activeOpacity={0.7}
           accessibilityLabel="Back"
           className="h-[46px] w-[46px] items-center justify-center rounded-full bg-white/70"

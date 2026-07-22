@@ -33,7 +33,7 @@ const LEFT_TABS: TabItem[] = [
 
 const RIGHT_TABS: TabItem[] = [
   { name: 'Chat', label: 'Chatbot', Icon: ChatBubbleIcon },
-  { name: 'Settings', label: 'Profil', Icon: PersonIcon },
+  { name: 'Profile', label: 'Profile', Icon: PersonIcon },
 ];
 
 interface TabButtonProps {
