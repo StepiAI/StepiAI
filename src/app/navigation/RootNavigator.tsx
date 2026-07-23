@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useRef, useMemo, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -22,6 +22,9 @@ import { useAuthSession } from '../../features/auth/hooks/useAuthSession';
 import { TabBar } from './TabBar';
 import { TabBarVisibilityContext } from './TabBarVisibilityContext';
 import { MainTabParamList } from './types';
+
+import { SplashScreen } from '../../features/auth/screens/SplashScreen';
+import { OnboardingFeatureScreen } from '../../features/onboarding/screens/OnboardingFeatureScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -86,14 +89,37 @@ function MainTabs() {
 
 export function RootNavigator() {
   const { session, loading } = useAuthSession();
+  const [showSplash, setShowSplash] = useState(true);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  const prevSessionRef = useRef(session);
 
-  if (loading) {
+  useEffect(() => {
+    // If user signs out (session was active and becomes null)
+    if (prevSessionRef.current && !session) {
+      setHasSeenOnboarding(true); // Bring directly to RegisterScreen with '‹ Features' link available
+    }
+    prevSessionRef.current = session;
+  }, [session]);
+
+  if (showSplash || loading) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
+
+  if (session) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator />
-      </View>
+      <NavigationContainer>
+        <MainTabs />
+      </NavigationContainer>
     );
   }
 
-  return <NavigationContainer>{session ? <MainTabs /> : <RegisterScreen />}</NavigationContainer>;
+  if (!hasSeenOnboarding) {
+    return <OnboardingFeatureScreen onFinish={() => setHasSeenOnboarding(true)} />;
+  }
+
+  return (
+    <NavigationContainer>
+      <RegisterScreen onBackToOnboarding={() => setHasSeenOnboarding(false)} />
+    </NavigationContainer>
+  );
 }

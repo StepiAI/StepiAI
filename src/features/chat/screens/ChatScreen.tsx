@@ -6,13 +6,17 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  RefreshControl,
   ScrollView,
   StatusBar,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { textStyle } from '../../../shared/theme/typography';
@@ -43,7 +47,11 @@ interface EmptyStateProps {
 function EmptyState({ onSuggestion }: EmptyStateProps) {
   return (
     <View className="flex-1 justify-between px-[18px] pb-[8px] pt-[20px]">
-      <GradientText lines={['Ask me anything about', 'your schedule']} width={320} align="left" />
+      <GradientText
+        lines={['Ask me anything about', 'your schedule']}
+        width={320}
+        align="left"
+      />
 
       <View className="w-full gap-[4px]">
         {SUGGESTIONS.map(({ icon: Icon, label }) => (
@@ -54,7 +62,10 @@ function EmptyState({ onSuggestion }: EmptyStateProps) {
             className="flex-row items-center gap-[12px] rounded-[12px] px-[10px] py-[10px]"
           >
             <Icon />
-            <Text className="text-[14px] text-light-ink" style={textStyle('regular')}>
+            <Text
+              className="text-[14px] text-light-ink"
+              style={textStyle('regular')}
+            >
               {label}
             </Text>
           </TouchableOpacity>
@@ -116,8 +127,10 @@ function useKeyboardVisible() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showEvent =
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent =
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 
     const showSub = Keyboard.addListener(showEvent, () => setVisible(true));
     const hideSub = Keyboard.addListener(hideEvent, () => setVisible(false));
@@ -132,7 +145,19 @@ function useKeyboardVisible() {
 }
 
 export function ChatScreen() {
-  const { messages, loading, sending, error, sendError, send, refresh, clear } = useChat();
+  const {
+    messages,
+    loading,
+    refreshing,
+    sending,
+    error,
+    sendError,
+    send,
+    refresh,
+    retry,
+    clear,
+    setProposalStatus,
+  } = useChat();
   const scrollRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
   const keyboardVisible = useKeyboardVisible();
@@ -155,7 +180,9 @@ export function ChatScreen() {
       <View className="flex-row items-center justify-between px-[18px] pb-[14px] pt-[6px]">
         <TouchableOpacity
           onPress={() =>
-            navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home')
+            navigation.canGoBack()
+              ? navigation.goBack()
+              : navigation.navigate('Home')
           }
           activeOpacity={0.7}
           accessibilityLabel="Back"
@@ -163,7 +190,10 @@ export function ChatScreen() {
         >
           <ChevronLeft size={13} />
         </TouchableOpacity>
-        <Text className="text-[19px] text-light-inkStrong" style={textStyle('semibold')}>
+        <Text
+          className="text-[19px] text-light-inkStrong"
+          style={textStyle('semibold')}
+        >
           Chatbot STEPI AI
         </Text>
         <TouchableOpacity
@@ -201,31 +231,60 @@ export function ChatScreen() {
               {error}
             </Text>
             <TouchableOpacity
-              onPress={refresh}
+              onPress={retry}
               activeOpacity={0.8}
               className="mt-[16px] rounded-[10px] bg-light-accent px-[20px] py-[10px]"
             >
-              <Text className="text-[13px] text-white" style={textStyle('semibold')}>
+              <Text
+                className="text-[13px] text-white"
+                style={textStyle('semibold')}
+              >
                 Try again
               </Text>
             </TouchableOpacity>
           </View>
-        ) : messages.length === 0 && !sending ? (
-          <EmptyState onSuggestion={send} />
         ) : (
           <ScrollView
             ref={scrollRef}
-            className="flex-1 px-[18px]"
-            contentContainerClassName="py-[18px]"
+            className="flex-1"
+            contentContainerClassName={
+              messages.length === 0 && !sending
+                ? 'flex-grow'
+                : 'px-[18px] py-[18px]'
+            }
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
-            onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
+            alwaysBounceVertical
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={refresh}
+                tintColor="#2E7BE0"
+                colors={['#2E7BE0']}
+                progressBackgroundColor="#FFFFFF"
+              />
+            }
+            onContentSizeChange={() =>
+              scrollRef.current?.scrollToEnd({ animated: true })
+            }
           >
-            {messages.map(message => (
-              <MessageBubble key={message.id} message={message} onQuickReply={send} />
-            ))}
+            {messages.length === 0 && !sending ? (
+              <EmptyState onSuggestion={send} />
+            ) : (
+              <>
+                {messages.map(message => (
+                  <MessageBubble
+                    key={message.id}
+                    message={message}
+                    onQuickReply={send}
+                    onProposalStatusChange={setProposalStatus}
+                    onProposalNeedsFollowUp={refresh}
+                  />
+                ))}
 
-            {sending ? <TypingIndicator /> : null}
+                {sending ? <TypingIndicator /> : null}
+              </>
+            )}
           </ScrollView>
         )}
 
@@ -239,7 +298,10 @@ export function ChatScreen() {
         ) : null}
 
         <View style={{ paddingBottom: keyboardVisible ? 0 : insets.bottom }}>
-          <ChatComposer onSend={send} onVoicePress={() => setVoiceVisible(true)} />
+          <ChatComposer
+            onSend={send}
+            onVoicePress={() => setVoiceVisible(true)}
+          />
         </View>
       </KeyboardAvoidingView>
 
@@ -248,6 +310,8 @@ export function ChatScreen() {
         onClose={() => setVoiceVisible(false)}
         topInset={insets.top}
         bottomInset={insets.bottom}
+        onConversationChanged={refresh}
+        onProposalStatusChange={setProposalStatus}
       />
     </SafeAreaView>
   );

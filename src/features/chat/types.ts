@@ -1,4 +1,4 @@
-import type { ScheduleProposal } from '../../services/chat/client';
+import type { ChatProposal } from '../../services/chat/client';
 
 export type ChatRole = 'user' | 'bot';
 
@@ -11,7 +11,7 @@ export interface ChatMessage {
   bullets?: string[];
   quickReplies?: string[];
 
-  proposal?: ScheduleProposal;
+  proposal?: ChatProposal;
   proposalStatus?: 'pending' | 'accepted' | 'dismissed';
   status?: ChatMessageStatus;
 }

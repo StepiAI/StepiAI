@@ -1,43 +1,60 @@
-import type { ChatApiMessage } from '../../../services/chat/client';
+import type {
+  AssistantResponse,
+  ChatApiMessage,
+  ChatProposal,
+} from '../../../services/chat/client';
 import type { ChatMessage } from '../types';
-import { parseAssistantContent } from './parseAssistantContent';
+import {
+  parseAssistantContent,
+  parseAssistantValue,
+} from './parseAssistantContent';
 
-const PROPOSAL_LEAD = "Here's what I can add to your calendar:";
+function proposalLead(proposal: ChatProposal) {
+  switch (proposal.type) {
+    case 'schedule_proposal':
+      return "Here's what I can add to your calendar:";
+    case 'schedule_update_proposal':
+      return 'Review these schedule changes:';
+    case 'schedule_delete_proposal':
+      return 'Please confirm this schedule deletion:';
+    case 'life_plan_proposal':
+      return 'Review your new study plan:';
+    case 'life_plan_update_proposal':
+      return 'Review these study plan changes:';
+    case 'life_plan_delete_proposal':
+      return 'Please confirm this study plan deletion:';
+  }
+}
 
-export function toChatMessage(message: ChatApiMessage): ChatMessage {
+export function toChatMessage(
+  message: ChatApiMessage,
+  parsedValue?: AssistantResponse,
+): ChatMessage {
   if (message.role === 'user') {
     return { id: message.id, role: 'user', text: message.content };
   }
 
-  const parsed = parseAssistantContent(message.content);
+  const parsed = parsedValue
+    ? parseAssistantValue(parsedValue)
+    : parseAssistantContent(message.content);
 
   if (parsed.kind === 'proposal') {
     return {
       id: message.id,
       role: 'bot',
-      text: PROPOSAL_LEAD,
+      text: proposalLead(parsed.proposal),
       proposal: parsed.proposal,
       proposalStatus: 'pending',
     };
   }
 
-  if (parsed.kind === 'acceptedProposal') {
+  if (parsed.kind === 'resolvedProposal') {
     return {
       id: message.id,
       role: 'bot',
-      text: PROPOSAL_LEAD,
+      text: parsed.text,
       proposal: parsed.proposal,
-      proposalStatus: 'accepted',
-    };
-  }
-
-  if (parsed.kind === 'dismissedProposal') {
-    return {
-      id: message.id,
-      role: 'bot',
-      text: PROPOSAL_LEAD,
-      proposal: parsed.proposal,
-      proposalStatus: 'dismissed',
+      proposalStatus: parsed.status,
     };
   }
 
@@ -45,5 +62,5 @@ export function toChatMessage(message: ChatApiMessage): ChatMessage {
 }
 
 export function toChatMessages(messages: ChatApiMessage[]): ChatMessage[] {
-  return messages.map(toChatMessage);
+  return messages.map(message => toChatMessage(message));
 }
