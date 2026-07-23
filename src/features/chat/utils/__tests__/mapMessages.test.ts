@@ -51,7 +51,10 @@ describe('toChatMessages', () => {
       }),
     ]);
 
-    expect(message.proposal?.summary).toBe('Gym');
+    expect(message.proposal).toMatchObject({
+      type: 'schedule_proposal',
+      summary: 'Gym',
+    });
     expect(message.text).not.toContain('{');
   });
 

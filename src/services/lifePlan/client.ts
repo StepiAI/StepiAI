@@ -58,6 +58,7 @@ export type ApiScheduleStatus = 'PENDING' | 'ACCEPTED';
 export interface ScheduleRecord {
   id: string;
   userId: string;
+  messageId: string;
   lifePlanId: string | null;
   summary: string;
   description: string | null;

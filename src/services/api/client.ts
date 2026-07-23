@@ -17,13 +17,18 @@ function readErrorMessage(body: string, status: number) {
     if (parsed.message) {
       return parsed.message;
     }
-  } catch {
-  }
+  } catch {}
 
   return body || `Request failed with status ${status}`;
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await authorizedFetch(path, init);
+
+  return response.json() as Promise<T>;
+}
+
+async function authorizedFetch(path: string, init?: RequestInit) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -45,12 +50,33 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     );
   }
 
-  return response.json() as Promise<T>;
+  return response;
+}
+
+async function requestBinary(
+  path: string,
+  init?: RequestInit,
+): Promise<ArrayBuffer> {
+  const response = await authorizedFetch(path, init);
+  return response.arrayBuffer();
 }
 
 export const apiClient = {
   get: <T>(path: string) => request<T>(path),
-  post: <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body: body !== undefined ? JSON.stringify(body) : undefined }),
-  patch: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PATCH', body: body !== undefined ? JSON.stringify(body) : undefined }),
+  post: <T>(path: string, body?: unknown) =>
+    request<T>(path, {
+      method: 'POST',
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    }),
+  postBinary: (path: string, body?: unknown) =>
+    requestBinary(path, {
+      method: 'POST',
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    }),
+  patch: <T>(path: string, body?: unknown) =>
+    request<T>(path, {
+      method: 'PATCH',
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    }),
   delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
 };

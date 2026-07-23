@@ -20,7 +20,10 @@ export function ClockIcon({ color = STROKE }: { color?: string }) {
       />
       <View
         className="absolute h-[1.6px] w-[4px]"
-        style={{ backgroundColor: color, transform: [{ translateX: 2 }, { translateY: 3 }] }}
+        style={{
+          backgroundColor: color,
+          transform: [{ translateX: 2 }, { translateY: 3 }],
+        }}
       />
     </View>
   );
@@ -50,7 +53,13 @@ export function MoonIcon({
   );
 }
 
-export function ChevronLeft({ color = STROKE, size = 11 }: { color?: string; size?: number }) {
+export function ChevronLeft({
+  color = STROKE,
+  size = 11,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <View className="h-[24px] w-[24px] items-center justify-center">
       <View
@@ -60,14 +69,24 @@ export function ChevronLeft({ color = STROKE, size = 11 }: { color?: string; siz
           borderLeftWidth: 2,
           borderBottomWidth: 2,
           borderColor: color,
-          transform: [{ rotate: '45deg' }, { translateX: 2 }, { translateY: -2 }],
+          transform: [
+            { rotate: '45deg' },
+            { translateX: 2 },
+            { translateY: -2 },
+          ],
         }}
       />
     </View>
   );
 }
 
-export function ChevronRight({ color = '#B4B4BC', size = 11 }: { color?: string; size?: number }) {
+export function ChevronRight({
+  color = '#B4B4BC',
+  size = 11,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <View className="h-[24px] w-[24px] items-center justify-center">
       <View
@@ -77,14 +96,24 @@ export function ChevronRight({ color = '#B4B4BC', size = 11 }: { color?: string;
           borderRightWidth: 2,
           borderTopWidth: 2,
           borderColor: color,
-          transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 2 }],
+          transform: [
+            { rotate: '45deg' },
+            { translateX: -2 },
+            { translateY: 2 },
+          ],
         }}
       />
     </View>
   );
 }
 
-export function ChevronDown({ color = '#B0B0B8', size = 9 }: { color?: string; size?: number }) {
+export function ChevronDown({
+  color = '#B0B0B8',
+  size = 9,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <View className="h-[20px] w-[20px] items-center justify-center">
       <View
@@ -101,7 +130,13 @@ export function ChevronDown({ color = '#B0B0B8', size = 9 }: { color?: string; s
   );
 }
 
-export function SendIcon({ color = '#FFFFFF', size = 19 }: { color?: string; size?: number }) {
+export function SendIcon({
+  color = '#FFFFFF',
+  size = 19,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -115,22 +150,45 @@ export function SendIcon({ color = '#FFFFFF', size = 19 }: { color?: string; siz
   );
 }
 
-export function MenuIcon({ color = STROKE, size = 18 }: { color?: string; size?: number }) {
+export function MenuIcon({
+  color = STROKE,
+  size = 18,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
-    <View className="items-center justify-center gap-[4px]" style={{ width: 22, height: 22 }}>
+    <View
+      className="items-center justify-center gap-[4px]"
+      style={{ width: 22, height: 22 }}
+    >
       {[0, 1, 2].map(row => (
         <View
           key={row}
-          style={{ width: row === 1 ? size * 0.7 : size, height: 1.8, borderRadius: 1, backgroundColor: color }}
+          style={{
+            width: row === 1 ? size * 0.7 : size,
+            height: 1.8,
+            borderRadius: 1,
+            backgroundColor: color,
+          }}
         />
       ))}
     </View>
   );
 }
 
-export function CloseIcon({ color = STROKE, size = 12 }: { color?: string; size?: number }) {
+export function CloseIcon({
+  color = STROKE,
+  size = 12,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
-    <View className="items-center justify-center" style={{ width: 22, height: 22 }}>
+    <View
+      className="items-center justify-center"
+      style={{ width: 22, height: 22 }}
+    >
       <View
         style={{
           position: 'absolute',
@@ -155,7 +213,13 @@ export function CloseIcon({ color = STROKE, size = 12 }: { color?: string; size?
   );
 }
 
-export function EditIcon({ color = STROKE, size = 22 }: { color?: string; size?: number }) {
+export function EditIcon({
+  color = STROKE,
+  size = 22,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -176,7 +240,13 @@ export function EditIcon({ color = STROKE, size = 22 }: { color?: string; size?:
   );
 }
 
-export function LocationPinIcon({ color = STROKE, size = 16 }: { color?: string; size?: number }) {
+export function LocationPinIcon({
+  color = STROKE,
+  size = 16,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -197,7 +267,13 @@ export function LocationPinIcon({ color = STROKE, size = 16 }: { color?: string;
   );
 }
 
-export function MicIcon({ color = '#FFFFFF', size = 20 }: { color?: string; size?: number }) {
+export function MicIcon({
+  color = '#FFFFFF',
+  size = 20,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Rect x="9" y="2" width="6" height="12" rx="3" fill={color} />
@@ -212,7 +288,27 @@ export function MicIcon({ color = '#FFFFFF', size = 20 }: { color?: string; size
   );
 }
 
-export function CheckBadge({ color = '#41C46F', size = 15 }: { color?: string; size?: number }) {
+export function StopIcon({
+  color = '#FFFFFF',
+  size = 20,
+}: {
+  color?: string;
+  size?: number;
+}) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Rect x="6" y="6" width="12" height="12" rx="2.5" fill={color} />
+    </Svg>
+  );
+}
+
+export function CheckBadge({
+  color = '#41C46F',
+  size = 15,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <View
       className="items-center justify-center rounded-full"
@@ -325,7 +421,14 @@ export function ListIcon({ color = STROKE }: { color?: string }) {
             className="rounded-full"
             style={{ width: 3.5, height: 3.5, backgroundColor: color }}
           />
-          <View style={{ width: 12, height: 2, borderRadius: 1, backgroundColor: color }} />
+          <View
+            style={{
+              width: 12,
+              height: 2,
+              borderRadius: 1,
+              backgroundColor: color,
+            }}
+          />
         </View>
       ))}
     </View>
@@ -353,7 +456,11 @@ export function ChatBubbleIcon({ color = STROKE }: { color?: string }) {
           borderBottomWidth: 1.8,
           borderLeftWidth: 1.8,
           borderColor: color,
-          transform: [{ translateX: -4 }, { translateY: 6 }, { rotate: '-45deg' }],
+          transform: [
+            { translateX: -4 },
+            { translateY: 6 },
+            { rotate: '-45deg' },
+          ],
         }}
       />
     </View>
@@ -403,25 +510,37 @@ export function CalendarIcon({ color = STROKE }: { color?: string }) {
       />
       <View
         className="absolute h-[4px] w-[1.6px]"
-        style={{ backgroundColor: color, transform: [{ translateX: -5 }, { translateY: -7 }] }}
+        style={{
+          backgroundColor: color,
+          transform: [{ translateX: -5 }, { translateY: -7 }],
+        }}
       />
       <View
         className="absolute h-[4px] w-[1.6px]"
-        style={{ backgroundColor: color, transform: [{ translateX: 5 }, { translateY: -7 }] }}
+        style={{
+          backgroundColor: color,
+          transform: [{ translateX: 5 }, { translateY: -7 }],
+        }}
       />
     </View>
   );
 }
-        
+
 export function TargetIcon({ color = ACCENT }: { color?: string }) {
   return (
     <View className="h-[22px] w-[22px] items-center justify-center">
-      <View className="h-[20px] w-[20px] rounded-full border-[1.6px]" style={{ borderColor: color }} />
+      <View
+        className="h-[20px] w-[20px] rounded-full border-[1.6px]"
+        style={{ borderColor: color }}
+      />
       <View
         className="absolute h-[12px] w-[12px] rounded-full border-[1.6px]"
         style={{ borderColor: color }}
       />
-      <View className="absolute h-[5px] w-[5px] rounded-full" style={{ backgroundColor: color }} />
+      <View
+        className="absolute h-[5px] w-[5px] rounded-full"
+        style={{ backgroundColor: color }}
+      />
     </View>
   );
 }
@@ -429,7 +548,10 @@ export function TargetIcon({ color = ACCENT }: { color?: string }) {
 export function ScaleIcon({ color = ACCENT }: { color?: string }) {
   return (
     <View className="h-[22px] w-[22px] items-center justify-center">
-      <View className="absolute h-[16px] w-[1.6px]" style={{ backgroundColor: color }} />
+      <View
+        className="absolute h-[16px] w-[1.6px]"
+        style={{ backgroundColor: color }}
+      />
       <View
         className="absolute h-[1.6px] w-[16px]"
         style={{ backgroundColor: color, transform: [{ translateY: -7 }] }}
@@ -440,11 +562,17 @@ export function ScaleIcon({ color = ACCENT }: { color?: string }) {
       />
       <View
         className="absolute h-[6px] w-[6px] rounded-full border-[1.4px]"
-        style={{ borderColor: color, transform: [{ translateX: -8 }, { translateY: -2 }] }}
+        style={{
+          borderColor: color,
+          transform: [{ translateX: -8 }, { translateY: -2 }],
+        }}
       />
       <View
         className="absolute h-[6px] w-[6px] rounded-full border-[1.4px]"
-        style={{ borderColor: color, transform: [{ translateX: 8 }, { translateY: -2 }] }}
+        style={{
+          borderColor: color,
+          transform: [{ translateX: 8 }, { translateY: -2 }],
+        }}
       />
     </View>
   );
@@ -496,7 +624,11 @@ export function MoreIcon({ color = '#B4B4BC' }: { color?: string }) {
   return (
     <View className="h-[22px] w-[22px] items-center justify-center gap-[3px]">
       {[0, 1, 2].map(dot => (
-        <View key={dot} className="h-[3.5px] w-[3.5px] rounded-full" style={{ backgroundColor: color }} />
+        <View
+          key={dot}
+          className="h-[3.5px] w-[3.5px] rounded-full"
+          style={{ backgroundColor: color }}
+        />
       ))}
     </View>
   );
@@ -558,7 +690,13 @@ export function BookIcon({ color = STROKE }: { color?: string }) {
   );
 }
 
-export function CheckIcon({ color = '#FFFFFF', size = 12 }: { color?: string; size?: number }) {
+export function CheckIcon({
+  color = '#FFFFFF',
+  size = 12,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <View className="h-[22px] w-[22px] items-center justify-center">
       <View
@@ -575,7 +713,13 @@ export function CheckIcon({ color = '#FFFFFF', size = 12 }: { color?: string; si
   );
 }
 
-export function ChevronUpDownIcon({ color = '#C6C6CC', size = 7 }: { color?: string; size?: number }) {
+export function ChevronUpDownIcon({
+  color = '#C6C6CC',
+  size = 7,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <View className="h-[20px] w-[14px] items-center justify-center gap-[3px]">
       <View
@@ -606,9 +750,18 @@ export function ChevronUpDownIcon({ color = '#C6C6CC', size = 7 }: { color?: str
   );
 }
 
-export function AlertTriangleIcon({ color = '#E14545', size = 18 }: { color?: string; size?: number }) {
+export function AlertTriangleIcon({
+  color = '#E14545',
+  size = 18,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
-    <View className="items-center justify-center" style={{ width: size, height: size }}>
+    <View
+      className="items-center justify-center"
+      style={{ width: size, height: size }}
+    >
       <View
         style={{
           width: 0,
@@ -634,7 +787,13 @@ export function AlertTriangleIcon({ color = '#E14545', size = 18 }: { color?: st
   );
 }
 
-export function GridIcon({ color = STROKE, size = 22 }: { color?: string; size?: number }) {
+export function GridIcon({
+  color = STROKE,
+  size = 22,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       {[
@@ -658,7 +817,13 @@ export function GridIcon({ color = STROKE, size = 22 }: { color?: string; size?:
   );
 }
 
-export function AccessibilityIcon({ color = STROKE, size = 22 }: { color?: string; size?: number }) {
+export function AccessibilityIcon({
+  color = STROKE,
+  size = 22,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -678,7 +843,13 @@ export function AccessibilityIcon({ color = STROKE, size = 22 }: { color?: strin
   );
 }
 
-export function BellIcon({ color = STROKE, size = 22 }: { color?: string; size?: number }) {
+export function BellIcon({
+  color = STROKE,
+  size = 22,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -692,7 +863,13 @@ export function BellIcon({ color = STROKE, size = 22 }: { color?: string; size?:
   );
 }
 
-export function HelpIcon({ color = STROKE, size = 22 }: { color?: string; size?: number }) {
+export function HelpIcon({
+  color = STROKE,
+  size = 22,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -707,12 +884,23 @@ export function HelpIcon({ color = STROKE, size = 22 }: { color?: string; size?:
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <Path d="M12 16.8h.01" stroke={color} strokeWidth={2.2} strokeLinecap="round" />
+      <Path
+        d="M12 16.8h.01"
+        stroke={color}
+        strokeWidth={2.2}
+        strokeLinecap="round"
+      />
     </Svg>
   );
 }
 
-export function SearchIcon({ color = '#8E8E93', size = 18 }: { color?: string; size?: number }) {
+export function SearchIcon({
+  color = '#8E8E93',
+  size = 18,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -726,9 +914,18 @@ export function SearchIcon({ color = '#8E8E93', size = 18 }: { color?: string; s
   );
 }
 
-export function PlusIcon({ color = '#FFFFFF', size = 20 }: { color?: string; size?: number }) {
+export function PlusIcon({
+  color = '#FFFFFF',
+  size = 20,
+}: {
+  color?: string;
+  size?: number;
+}) {
   return (
-    <View className="items-center justify-center" style={{ width: size, height: size }}>
+    <View
+      className="items-center justify-center"
+      style={{ width: size, height: size }}
+    >
       <View
         className="absolute rounded-full"
         style={{ width: size, height: 2.4, backgroundColor: color }}
