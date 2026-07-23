@@ -1,13 +1,15 @@
 import { useMemo } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { textStyle } from '../../../shared/theme/typography';
-import { EVENT_TONE, NOW_INDICATOR_COLOR } from '../theme';
+import { LocationPinIcon } from '../../../shared/components/Icons';
+import { EVENT_PALETTE } from '../eventColors';
+import { NOW_INDICATOR_COLOR } from '../theme';
 import {
   HOUR_HEIGHT,
   TimelineEvent,
   blockPosition,
-  formatDuration,
-  formatEventTime,
+  formatClockRange,
   formatHourLabel,
   hourSlots,
   isWithinTimeline,
@@ -18,6 +20,21 @@ import {
 } from '../utils/timeline';
 
 const GUTTER_WIDTH = 52;
+
+function ClockGlyph({ color, size = 12 }: { color: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx={12} cy={12} r={9} stroke={color} strokeWidth={2} />
+      <Path
+        d="M12 7.5V12l2.8 1.8"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
 
 interface DayTimelineProps {
   events: TimelineEvent[];
@@ -61,7 +78,7 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
             {isNowHour ? (
               <View className="flex-1" style={{ height: 1.5, backgroundColor: NOW_INDICATOR_COLOR }} />
             ) : (
-              <View className="flex-1 border-t border-dotted border-light-grid" />
+              <View className="flex-1 border-t border-light-line" />
             )}
           </View>
         );
@@ -70,7 +87,7 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
       <View className="absolute right-0 top-0" style={{ left: GUTTER_WIDTH }}>
         {events.map(event => {
           const { top, height } = blockPosition(event, range);
-          const tone = EVENT_TONE[event.tone];
+          const tone = EVENT_PALETTE[event.tone % EVENT_PALETTE.length];
 
           return (
             <TouchableOpacity
@@ -78,41 +95,43 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
               activeOpacity={0.7}
               disabled={!onEventPress}
               onPress={onEventPress ? () => onEventPress(event) : undefined}
-              className="absolute left-0 right-[8px] flex-row items-start rounded-[10px] px-[12px] py-[8px]"
+              className="absolute left-0 right-[8px] flex-row overflow-hidden rounded-[12px]"
               style={{ top, height, backgroundColor: tone.background }}
             >
-              <View className="w-[54px]">
-                <Text
-                  className="text-[15px]"
-                  style={[textStyle('bold'), { color: tone.text }]}
-                >
-                  {formatEventTime(event.startMinutes)}
-                </Text>
-                <Text
-                  className="text-[9px]"
-                  style={[textStyle('regular'), { color: tone.text }]}
-                >
-                  {formatDuration(event.durationMinutes)}
-                </Text>
-              </View>
+              <View style={[styles.accentBar, { backgroundColor: tone.text }]} />
 
-              <View className="flex-1">
+              <View className="flex-1 px-[12px] py-[8px]">
                 <Text
-                  className="text-[14px] text-light-ink"
+                  className="text-[14px] text-light-inkStrong"
                   style={textStyle('bold')}
                   numberOfLines={1}
                 >
                   {event.title}
                 </Text>
+
                 {event.subtitle ? (
+                  <View className="mt-[4px] flex-row items-center gap-[5px]">
+                    <LocationPinIcon color={tone.text} size={12} />
+                    <Text
+                      className="flex-1 text-[12px]"
+                      style={[textStyle('regular'), { color: tone.text }]}
+                      numberOfLines={1}
+                    >
+                      {event.subtitle}
+                    </Text>
+                  </View>
+                ) : null}
+
+                <View className="mt-[3px] flex-row items-center gap-[5px]">
+                  <ClockGlyph color={tone.text} size={12} />
                   <Text
-                    className="text-[12px] text-light-muted"
-                    style={textStyle('regular')}
+                    className="text-[12px]"
+                    style={[textStyle('regular'), { color: tone.text }]}
                     numberOfLines={1}
                   >
-                    {event.subtitle}
+                    {formatClockRange(event.startMinutes, event.durationMinutes)}
                   </Text>
-                ) : null}
+                </View>
               </View>
             </TouchableOpacity>
           );
@@ -135,3 +154,7 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  accentBar: { width: 5, marginLeft: 8, marginVertical: 8, borderRadius: 3 },
+});

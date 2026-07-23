@@ -1,9 +1,7 @@
-export const HOUR_HEIGHT = 52;
+export const HOUR_HEIGHT = 80;
 
 export const DEFAULT_START_HOUR = 0;
 export const DEFAULT_END_HOUR = 23;
-
-export type EventTone = 'blue' | 'purple';
 
 export interface TimelineEvent {
   id: string;
@@ -14,7 +12,7 @@ export interface TimelineEvent {
   longitude?: number;
   startMinutes: number;
   durationMinutes: number;
-  tone: EventTone;
+  tone: number;
 }
 
 export interface TimelineRange {
@@ -67,6 +65,19 @@ export function formatEventTime(startMinutes: number) {
   const hours = Math.floor(startMinutes / 60);
   const minutes = startMinutes % 60;
   return `${String(hours).padStart(2, '0')}.${String(minutes).padStart(2, '0')}`;
+}
+
+export function formatClockTime(minutes: number) {
+  const normalized = ((minutes % (24 * 60)) + 24 * 60) % (24 * 60);
+  const hour24 = Math.floor(normalized / 60);
+  const minute = normalized % 60;
+  const suffix = hour24 < 12 ? 'AM' : 'PM';
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  return `${String(hour12).padStart(2, '0')}:${String(minute).padStart(2, '0')} ${suffix}`;
+}
+
+export function formatClockRange(startMinutes: number, durationMinutes: number) {
+  return `${formatClockTime(startMinutes)} – ${formatClockTime(startMinutes + durationMinutes)}`;
 }
 
 export function formatDuration(durationMinutes: number) {
