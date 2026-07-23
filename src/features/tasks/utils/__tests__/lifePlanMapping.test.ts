@@ -1,4 +1,7 @@
-import type { ScheduleRecord, LifePlanRecord } from '../../../../services/lifePlan/client';
+import type {
+  ScheduleRecord,
+  LifePlanRecord,
+} from '../../../../services/lifePlan/client';
 import type { Weekday } from '../../types';
 import { createEmptyDraft, createTopic } from '../lifePlanDraft';
 import {
@@ -47,7 +50,11 @@ describe('toCreateLifePlanRequest', () => {
         preferredStartTime: new Date(2026, 6, 20, 19, 0),
         preferredEndTime: new Date(2026, 6, 20, 21, 0),
       },
-      preferences: { focus: 'balanced' as const, difficulty: 'intermediate' as const, includeReviewSessions: true },
+      preferences: {
+        focus: 'balanced' as const,
+        difficulty: 'intermediate' as const,
+        includeReviewSessions: true,
+      },
     };
 
     expect(toCreateLifePlanRequest(draft)).toEqual({
@@ -145,10 +152,13 @@ describe('getSessionTopic', () => {
   });
 });
 
-function buildSchedule(overrides: Partial<ScheduleRecord> = {}): ScheduleRecord {
+function buildSchedule(
+  overrides: Partial<ScheduleRecord> = {},
+): ScheduleRecord {
   return {
     id: 'schedule-1',
     userId: 'user-1',
+    messageId: 'message-1',
     lifePlanId: 'plan-1',
     summary: 'Learning React',
     description: 'Build one project',
@@ -199,15 +209,26 @@ describe('getThisWeekSchedules', () => {
 
   it('cuma ambil sesi dari hari ini sampai 7 hari ke depan', () => {
     const schedules = [
-      buildSchedule({ id: 'yesterday', startDateTime: new Date(2026, 6, 19, 19, 0).toISOString() }),
-      buildSchedule({ id: 'today', startDateTime: new Date(2026, 6, 20, 19, 0).toISOString() }),
-      buildSchedule({ id: 'in-6-days', startDateTime: new Date(2026, 6, 26, 19, 0).toISOString() }),
-      buildSchedule({ id: 'in-10-days', startDateTime: new Date(2026, 6, 30, 19, 0).toISOString() }),
+      buildSchedule({
+        id: 'yesterday',
+        startDateTime: new Date(2026, 6, 19, 19, 0).toISOString(),
+      }),
+      buildSchedule({
+        id: 'today',
+        startDateTime: new Date(2026, 6, 20, 19, 0).toISOString(),
+      }),
+      buildSchedule({
+        id: 'in-6-days',
+        startDateTime: new Date(2026, 6, 26, 19, 0).toISOString(),
+      }),
+      buildSchedule({
+        id: 'in-10-days',
+        startDateTime: new Date(2026, 6, 30, 19, 0).toISOString(),
+      }),
     ];
 
-    expect(getThisWeekSchedules(schedules).map(schedule => schedule.id)).toEqual([
-      'today',
-      'in-6-days',
-    ]);
+    expect(
+      getThisWeekSchedules(schedules).map(schedule => schedule.id),
+    ).toEqual(['today', 'in-6-days']);
   });
 });

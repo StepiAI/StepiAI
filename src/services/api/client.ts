@@ -17,13 +17,18 @@ function readErrorMessage(body: string, status: number) {
     if (parsed.message) {
       return parsed.message;
     }
-  } catch {
-  }
+  } catch {}
 
   return body || `Request failed with status ${status}`;
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await authorizedFetch(path, init);
+
+  return response.json() as Promise<T>;
+}
+
+async function authorizedFetch(path: string, init?: RequestInit) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -50,6 +55,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   return response.json() as Promise<T>;
+}
+
+async function requestBinary(
+  path: string,
+  init?: RequestInit,
+): Promise<ArrayBuffer> {
+  const response = await authorizedFetch(path, init);
+  return response.arrayBuffer();
 }
 
 export const apiClient = {

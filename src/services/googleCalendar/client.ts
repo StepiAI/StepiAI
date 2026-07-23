@@ -1,4 +1,8 @@
-import { GoogleSignin, isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
+import {
+  GoogleSignin,
+  isErrorWithCode,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../../config/env';
 import { apiClient } from '../api/client';
 
@@ -12,7 +16,12 @@ const CALENDAR_SCOPES = [
 
 export type GoogleCalendarStatus =
   | { connected: false }
-  | { connected: true; scope: string; connectedAt: string; email?: string | null };
+  | {
+      connected: true;
+      scope: string;
+      connectedAt: string;
+      email?: string | null;
+    };
 
 export interface GoogleCalendarEvent {
   id?: string | null;
@@ -52,7 +61,10 @@ export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | nu
   try {
     response = await GoogleSignin.signIn();
   } catch (error) {
-    if (isErrorWithCode(error) && error.code === statusCodes.SIGN_IN_CANCELLED) {
+    if (
+      isErrorWithCode(error) &&
+      error.code === statusCodes.SIGN_IN_CANCELLED
+    ) {
       return null;
     }
     throw error;
@@ -80,7 +92,9 @@ export function disconnectGoogleCalendar() {
   return apiClient.delete<GoogleCalendarStatus>(BASE_PATH);
 }
 
-export function createGoogleCalendarEvent(input: CreateGoogleCalendarEventInput) {
+export function createGoogleCalendarEvent(
+  input: CreateGoogleCalendarEventInput,
+) {
   return apiClient.post<GoogleCalendarEvent>(`${BASE_PATH}/events`, input);
 }
 
