@@ -8,11 +8,11 @@ import { NOW_INDICATOR_COLOR } from '../theme';
 import {
   HOUR_HEIGHT,
   TimelineEvent,
-  blockPosition,
   formatClockRange,
   formatHourLabel,
   hourSlots,
   isWithinTimeline,
+  layoutEvents,
   minutesNow,
   offsetForMinutes,
   rangeForEvents,
@@ -20,6 +20,8 @@ import {
 } from '../utils/timeline';
 
 const GUTTER_WIDTH = 52;
+const MAX_INDENT = 0.16;
+const MAX_TOTAL_INDENT = 0.5;
 
 function ClockGlyph({ color, size = 12 }: { color: string; size?: number }) {
   return (
@@ -45,6 +47,7 @@ interface DayTimelineProps {
 export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelineProps) {
   const now = nowMinutes ?? minutesNow();
   const range = useMemo(() => rangeForEvents(events), [events]);
+  const positioned = useMemo(() => layoutEvents(events, range), [events, range]);
 
   return (
     <View style={{ height: timelineHeight(range) }}>
@@ -84,10 +87,12 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
         );
       })}
 
-      <View className="absolute right-0 top-0" style={{ left: GUTTER_WIDTH }}>
-        {events.map(event => {
-          const { top, height } = blockPosition(event, range);
+      <View className="absolute right-[8px] top-0" style={{ left: GUTTER_WIDTH }}>
+        {positioned.map(({ event, top, height, columnIndex, columnCount }) => {
           const tone = EVENT_PALETTE[event.tone % EVENT_PALETTE.length];
+          const indentPerColumn = columnCount > 1 ? Math.min(MAX_INDENT, MAX_TOTAL_INDENT / (columnCount - 1)) : 0;
+          const leftPct = columnIndex * indentPerColumn * 100;
+          const isStacked = columnCount > 1;
 
           return (
             <TouchableOpacity
@@ -95,42 +100,56 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
               activeOpacity={0.7}
               disabled={!onEventPress}
               onPress={onEventPress ? () => onEventPress(event) : undefined}
-              className="absolute left-0 right-[8px] flex-row overflow-hidden rounded-[12px]"
-              style={{ top, height, backgroundColor: tone.background }}
+              className="absolute right-0"
+              style={{
+                top,
+                height,
+                left: `${leftPct}%`,
+                zIndex: columnIndex,
+                elevation: columnIndex,
+              }}
             >
-              <View style={[styles.accentBar, { backgroundColor: tone.text }]} />
+              <View
+                className="flex-1 flex-row overflow-hidden rounded-[12px]"
+                style={[
+                  { backgroundColor: tone.background },
+                  isStacked && styles.stackedCard,
+                ]}
+              >
+                <View style={[styles.accentBar, { backgroundColor: tone.text }]} />
 
-              <View className="flex-1 px-[12px] py-[8px]">
-                <Text
-                  className="text-[14px] text-light-inkStrong"
-                  style={textStyle('bold')}
-                  numberOfLines={1}
-                >
-                  {event.title}
-                </Text>
+                <View className="flex-1 px-[12px] py-[8px]">
+                  <Text
+                    className="text-[14px] text-light-inkStrong"
+                    style={textStyle('bold')}
+                    numberOfLines={1}
+                  >
+                    {event.title}
+                  </Text>
 
-                {event.subtitle ? (
-                  <View className="mt-[4px] flex-row items-center gap-[5px]">
-                    <LocationPinIcon color={tone.text} size={12} />
+                  {event.subtitle ? (
+                    <View className="mt-[4px] flex-row items-center gap-[5px]">
+                      <LocationPinIcon color={tone.text} size={12} />
+                      <Text
+                        className="flex-1 text-[12px]"
+                        style={[textStyle('regular'), { color: tone.text }]}
+                        numberOfLines={1}
+                      >
+                        {event.subtitle}
+                      </Text>
+                    </View>
+                  ) : null}
+
+                  <View className="mt-[3px] flex-row items-center gap-[5px]">
+                    <ClockGlyph color={tone.text} size={12} />
                     <Text
-                      className="flex-1 text-[12px]"
+                      className="text-[12px]"
                       style={[textStyle('regular'), { color: tone.text }]}
                       numberOfLines={1}
                     >
-                      {event.subtitle}
+                      {formatClockRange(event.startMinutes, event.durationMinutes)}
                     </Text>
                   </View>
-                ) : null}
-
-                <View className="mt-[3px] flex-row items-center gap-[5px]">
-                  <ClockGlyph color={tone.text} size={12} />
-                  <Text
-                    className="text-[12px]"
-                    style={[textStyle('regular'), { color: tone.text }]}
-                    numberOfLines={1}
-                  >
-                    {formatClockRange(event.startMinutes, event.durationMinutes)}
-                  </Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -157,4 +176,12 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
 
 const styles = StyleSheet.create({
   accentBar: { width: 5, marginLeft: 8, marginVertical: 8, borderRadius: 3 },
+  stackedCard: {
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: -1, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+  },
 });

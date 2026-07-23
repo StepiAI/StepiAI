@@ -108,6 +108,7 @@ export function HomeScreen() {
         event={selectedEvent}
         day={selected}
         onBack={() => setSelectedEvent(null)}
+        onChanged={refresh}
       />
     );
   }
