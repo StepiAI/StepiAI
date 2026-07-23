@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { supabase } from '../../../services/supabase/client';
+import { configureGoogleSignin } from '../../auth/services/googleSigninConfig';
 
 export function useSignOut() {
   const [busy, setBusy] = useState(false);
@@ -9,6 +11,9 @@ export function useSignOut() {
     setBusy(true);
 
     try {
+      configureGoogleSignin(); 
+      await GoogleSignin.signOut();
+
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       // gak perlu navigate manual, useAuthSession di RootNavigator yg nendang ke RegisterScreen
