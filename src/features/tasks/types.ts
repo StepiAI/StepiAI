@@ -1,4 +1,4 @@
-export interface StudyPlanTopic {
+export interface LifePlanTopic {
   id: string;
   label: string;
 }
@@ -33,10 +33,10 @@ export interface StudyPreferences {
   includeReviewSessions: boolean;
 }
 
-export interface StudyPlanDraft {
+export interface LifePlanDraft {
   title: string;
   goal: string;
-  topics: StudyPlanTopic[];
+  topics: LifePlanTopic[];
   schedule: StudySchedule;
   preferences: StudyPreferences;
 }

@@ -28,12 +28,12 @@ interface TabItem {
 
 const LEFT_TABS: TabItem[] = [
   { name: 'Home', label: 'Home', Icon: HomeIcon },
-  { name: 'Tasks', label: 'Study Plan', Icon: ListIcon },
+  { name: 'Tasks', label: 'Life Plan', Icon: ListIcon },
 ];
 
 const RIGHT_TABS: TabItem[] = [
   { name: 'Chat', label: 'Chatbot', Icon: ChatBubbleIcon },
-  { name: 'Settings', label: 'Profil', Icon: PersonIcon },
+  { name: 'Profile', label: 'Profile', Icon: PersonIcon },
 ];
 
 interface TabButtonProps {

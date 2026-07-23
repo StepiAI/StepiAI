@@ -2,14 +2,24 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { CheckBadge } from '../../../shared/components/Icons';
 import { textStyle } from '../../../shared/theme/typography';
 import { ChatMessage } from '../types';
-import { ScheduleProposalCard } from './ScheduleProposalCard';
+import { ProposalCard } from './ProposalCard';
 
 interface MessageBubbleProps {
   message: ChatMessage;
   onQuickReply?: (reply: string) => void;
+  onProposalStatusChange?: (
+    messageId: string,
+    status: 'pending' | 'accepted' | 'dismissed',
+  ) => void;
+  onProposalNeedsFollowUp?: () => void | Promise<void>;
 }
 
-export function MessageBubble({ message, onQuickReply }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  onQuickReply,
+  onProposalStatusChange,
+  onProposalNeedsFollowUp,
+}: MessageBubbleProps) {
   if (message.role === 'user') {
     return (
       <View className="mb-[14px] max-w-[78%] self-end">
@@ -18,7 +28,10 @@ export function MessageBubble({ message, onQuickReply }: MessageBubbleProps) {
             message.status === 'sending' ? 'opacity-60' : ''
           }`}
         >
-          <Text className="text-[15px] text-light-inkStrong" style={textStyle('semibold')}>
+          <Text
+            className="text-[15px] text-light-inkStrong"
+            style={textStyle('semibold')}
+          >
             {message.text}
           </Text>
         </View>
@@ -37,24 +50,35 @@ export function MessageBubble({ message, onQuickReply }: MessageBubbleProps) {
 
   return (
     <View className="mb-[14px] max-w-[86%] self-start rounded-[18px] border border-light-line bg-light-bubble px-[16px] py-[14px]">
-      <Text className="text-[15px] leading-[21px] text-light-ink" style={textStyle('medium')}>
+      <Text
+        className="text-[15px] leading-[21px] text-light-ink"
+        style={textStyle('medium')}
+      >
         {message.text}
       </Text>
 
       {message.bullets?.map(bullet => (
-        <View key={bullet} className="mt-[8px] flex-row items-center gap-[8px] pl-[6px]">
+        <View
+          key={bullet}
+          className="mt-[8px] flex-row items-center gap-[8px] pl-[6px]"
+        >
           <CheckBadge />
-          <Text className="flex-1 text-[15px] text-light-ink" style={textStyle('medium')}>
+          <Text
+            className="flex-1 text-[15px] text-light-ink"
+            style={textStyle('medium')}
+          >
             {bullet}
           </Text>
         </View>
       ))}
 
       {message.proposal ? (
-        <ScheduleProposalCard
+        <ProposalCard
           messageId={message.id}
           proposal={message.proposal}
           status={message.proposalStatus ?? 'pending'}
+          onStatusChange={onProposalStatusChange}
+          onNeedsFollowUp={onProposalNeedsFollowUp}
         />
       ) : null}
 
@@ -67,7 +91,10 @@ export function MessageBubble({ message, onQuickReply }: MessageBubbleProps) {
               onPress={() => onQuickReply?.(reply)}
               className="rounded-[10px] border border-light-accentLine bg-light-accentSoft px-[14px] py-[9px]"
             >
-              <Text className="text-[13px] text-light-accent" style={textStyle('semibold')}>
+              <Text
+                className="text-[13px] text-light-accent"
+                style={textStyle('semibold')}
+              >
                 {reply}
               </Text>
             </TouchableOpacity>

@@ -1,4 +1,8 @@
-import { GoogleSignin, isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
+import {
+  GoogleSignin,
+  isErrorWithCode,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../../config/env';
 import { apiClient } from '../api/client';
 
@@ -12,12 +16,20 @@ const CALENDAR_SCOPES = [
 
 export type GoogleCalendarStatus =
   | { connected: false }
-  | { connected: true; scope: string; connectedAt: string; email?: string | null };
+  | {
+      connected: true;
+      scope: string;
+      connectedAt: string;
+      email?: string | null;
+    };
 
 export interface GoogleCalendarEvent {
   id?: string | null;
   summary?: string | null;
   location?: string | null;
+  description?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   start?: { dateTime?: string | null; date?: string | null } | null;
   end?: { dateTime?: string | null; date?: string | null } | null;
 }
@@ -28,6 +40,10 @@ export interface CreateGoogleCalendarEventInput {
   description?: string;
   startDateTime: string;
   endDateTime: string;
+  timeZone?: string;
+  recurrence?: string[];
+  latitude?: number;
+  longitude?: number;
 }
 
 export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | null> {
@@ -45,7 +61,10 @@ export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | nu
   try {
     response = await GoogleSignin.signIn();
   } catch (error) {
-    if (isErrorWithCode(error) && error.code === statusCodes.SIGN_IN_CANCELLED) {
+    if (
+      isErrorWithCode(error) &&
+      error.code === statusCodes.SIGN_IN_CANCELLED
+    ) {
       return null;
     }
     throw error;
@@ -73,8 +92,32 @@ export function disconnectGoogleCalendar() {
   return apiClient.delete<GoogleCalendarStatus>(BASE_PATH);
 }
 
-export function createGoogleCalendarEvent(input: CreateGoogleCalendarEventInput) {
+export function createGoogleCalendarEvent(
+  input: CreateGoogleCalendarEventInput,
+) {
   return apiClient.post<GoogleCalendarEvent>(`${BASE_PATH}/events`, input);
+}
+
+export function rescheduleGoogleCalendarEvent(
+  eventId: string,
+  startDateTime: string,
+  endDateTime: string,
+) {
+  return apiClient.patch<GoogleCalendarEvent>(
+    `${BASE_PATH}/events/${encodeURIComponent(eventId)}`,
+    { startDateTime, endDateTime },
+  );
+}
+
+export function pushGoogleCalendarEventsLater(
+  fromDateTime: string,
+  toDateTime: string,
+  delayMinutes: number,
+) {
+  return apiClient.post<{ shifted: number; delayMinutes: number }>(
+    `${BASE_PATH}/events/push-later`,
+    { fromDateTime, toDateTime, delayMinutes },
+  );
 }
 
 export function listGoogleCalendarEvents(timeMin?: string, timeMax?: string) {

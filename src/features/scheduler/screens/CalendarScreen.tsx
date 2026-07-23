@@ -16,7 +16,7 @@ import { DayTimeline } from '../components/DayTimeline';
 import { MonthPickerModal } from '../components/MonthPickerModal';
 import { WeekStrip } from '../components/WeekStrip';
 import { useGoogleCalendarEvents } from '../hooks/useGoogleCalendarEvents';
-import { EVENT_TONE } from '../theme';
+import { TONE_PURPLE } from '../eventColors';
 import { toDayEvents } from '../utils/calendarMapping';
 import { buildWeek, formatWeekRange, startOfWeek } from '../utils/week';
 
@@ -89,11 +89,11 @@ export function CalendarScreen() {
               <View
                 key={event.id ?? `all-day-${index}`}
                 className="rounded-[8px] px-[10px] py-[6px]"
-                style={{ backgroundColor: EVENT_TONE.purple.background }}
+                style={{ backgroundColor: TONE_PURPLE.background }}
               >
                 <Text
                   className="text-[12px]"
-                  style={[textStyle('medium'), { color: EVENT_TONE.purple.text }]}
+                  style={[textStyle('medium'), { color: TONE_PURPLE.text }]}
                 >
                   All day · {event.summary ?? '(no title)'}
                 </Text>

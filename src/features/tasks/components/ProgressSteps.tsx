@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { PROGRESS_TRACK_COLOR, STUDY_PLAN_GRADIENT } from '../theme';
+import { PROGRESS_TRACK_COLOR, LIFE_PLAN_GRADIENT } from '../theme';
 
 interface ProgressStepsProps {
   total: number;
@@ -18,7 +18,7 @@ export function ProgressSteps({ total, current }: ProgressStepsProps) {
           {index < current ? (
             <View
               className="h-full w-full rounded-full"
-              style={{ backgroundColor: '#2E7BE0', experimental_backgroundImage: STUDY_PLAN_GRADIENT }}
+              style={{ backgroundColor: '#2E7BE0', experimental_backgroundImage: LIFE_PLAN_GRADIENT }}
             />
           ) : null}
         </View>
