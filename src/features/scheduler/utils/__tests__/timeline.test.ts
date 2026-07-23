@@ -10,6 +10,7 @@ import {
   formatHourLabel,
   hourSlots,
   isWithinTimeline,
+  layoutEvents,
   rangeForEvents,
 } from '../timeline';
 
@@ -130,6 +131,73 @@ describe('blockPosition', () => {
     expect(
       blockPosition(event({ durationMinutes: 5 }), DEFAULT_RANGE).height,
     ).toBeGreaterThanOrEqual(34);
+  });
+});
+
+describe('layoutEvents', () => {
+  const findCols = (positioned: ReturnType<typeof layoutEvents>, id: string) => {
+    const found = positioned.find(p => p.event.id === id);
+    if (!found) throw new Error(`event ${id} tidak ditemukan`);
+    return found;
+  };
+
+  it('event yang gak nabrak tetep satu kolom, lebar penuh', () => {
+    const positioned = layoutEvents(
+      [
+        event({ id: 'a', startMinutes: 9 * 60, durationMinutes: 60 }),
+        event({ id: 'b', startMinutes: 11 * 60, durationMinutes: 60 }),
+      ],
+      DEFAULT_RANGE,
+    );
+
+    expect(findCols(positioned, 'a').columnCount).toBe(1);
+    expect(findCols(positioned, 'b').columnCount).toBe(1);
+  });
+
+  it('dua event tabrakan dibagi jadi dua kolom bersebelahan', () => {
+    const positioned = layoutEvents(
+      [
+        event({ id: 'a', startMinutes: 9 * 60 + 45, durationMinutes: 135 }), // 09:45–12:00
+        event({ id: 'b', startMinutes: 11 * 60, durationMinutes: 60 }), //       11:00–12:00
+      ],
+      DEFAULT_RANGE,
+    );
+
+    expect(findCols(positioned, 'a').columnCount).toBe(2);
+    expect(findCols(positioned, 'b').columnCount).toBe(2);
+    expect(findCols(positioned, 'a').columnIndex).toBe(0);
+    expect(findCols(positioned, 'b').columnIndex).toBe(1);
+  });
+
+  it('kolom dipakai ulang kalau slotnya udah kosong', () => {
+    const positioned = layoutEvents(
+      [
+        event({ id: 'a', startMinutes: 9 * 60, durationMinutes: 180 }), //  09:00–12:00
+        event({ id: 'b', startMinutes: 9 * 60, durationMinutes: 60 }), //   09:00–10:00
+        event({ id: 'c', startMinutes: 10 * 60, durationMinutes: 60 }), //  10:00–11:00 (isi ulang kolom b)
+      ],
+      DEFAULT_RANGE,
+    );
+
+    // ketiganya satu kelompok tabrakan -> 2 kolom total
+    expect(findCols(positioned, 'a').columnCount).toBe(2);
+    expect(findCols(positioned, 'b').columnIndex).toBe(1);
+    expect(findCols(positioned, 'c').columnIndex).toBe(1);
+  });
+
+  it('kelompok tabrakan terpisah dihitung sendiri-sendiri', () => {
+    const positioned = layoutEvents(
+      [
+        event({ id: 'a', startMinutes: 9 * 60, durationMinutes: 60 }),
+        event({ id: 'b', startMinutes: 9 * 60 + 30, durationMinutes: 60 }),
+        event({ id: 'c', startMinutes: 14 * 60, durationMinutes: 60 }),
+      ],
+      DEFAULT_RANGE,
+    );
+
+    expect(findCols(positioned, 'a').columnCount).toBe(2);
+    expect(findCols(positioned, 'b').columnCount).toBe(2);
+    expect(findCols(positioned, 'c').columnCount).toBe(1);
   });
 });
 

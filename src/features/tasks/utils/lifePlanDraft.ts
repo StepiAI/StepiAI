@@ -31,8 +31,22 @@ export function createTopic(id: string, label = ''): LifePlanTopic {
   return { id, label };
 }
 
+export const LIFE_PLAN_FIELD_MIN = 5;
+export const LIFE_PLAN_FIELD_MAX = 100;
+
+export function validateLifePlanField(label: string, value: string): string | null {
+  const length = value.trim().length;
+  if (length === 0) return `${label} is required`;
+  if (length < LIFE_PLAN_FIELD_MIN) return `${label} must be at least ${LIFE_PLAN_FIELD_MIN} characters`;
+  if (length > LIFE_PLAN_FIELD_MAX) return `${label} must be at most ${LIFE_PLAN_FIELD_MAX} characters`;
+  return null;
+}
+
 export function isDraftReady(draft: Pick<LifePlanDraft, 'title' | 'goal'>): boolean {
-  return draft.title.trim().length > 0 && draft.goal.trim().length > 0;
+  return (
+    validateLifePlanField('Title', draft.title) === null &&
+    validateLifePlanField('Goal', draft.goal) === null
+  );
 }
 
 export function isScheduleReady(schedule: StudySchedule): boolean {

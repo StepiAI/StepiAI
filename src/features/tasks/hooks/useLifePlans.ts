@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiError } from '../../../services/api/client';
-import { listLifePlans, LifePlanRecord } from '../../../services/lifePlan/client';
+import {
+  deleteLifePlan,
+  listLifePlans,
+  setLifePlanArchived,
+  LifePlanRecord,
+} from '../../../services/lifePlan/client';
 
 function describeError(err: unknown) {
   if (err instanceof ApiError) {
@@ -44,5 +49,42 @@ export function useLifePlans() {
 
   const refresh = useCallback(() => load('refresh'), [load]);
 
-  return { ...state, refresh };
+  const setArchived = useCallback(async (id: string, archived: boolean) => {
+    setState(prev => ({
+      ...prev,
+      plans: prev.plans.map(plan => (plan.id === id ? { ...plan, archived } : plan)),
+    }));
+
+    try {
+      await setLifePlanArchived(id, archived);
+    } catch (err) {
+      console.error('[LifePlan] failed to archive life plan:', err);
+      setState(prev => ({
+        ...prev,
+        plans: prev.plans.map(plan =>
+          plan.id === id ? { ...plan, archived: !archived } : plan,
+        ),
+      }));
+      throw err;
+    }
+  }, []);
+
+  const remove = useCallback(
+    async (id: string) => {
+      const snapshot = state.plans;
+
+      setState(prev => ({ ...prev, plans: prev.plans.filter(plan => plan.id !== id) }));
+
+      try {
+        await deleteLifePlan(id);
+      } catch (err) {
+        console.error('[LifePlan] failed to delete life plan:', err);
+        setState(prev => ({ ...prev, plans: snapshot }));
+        throw err;
+      }
+    },
+    [state.plans],
+  );
+
+  return { ...state, refresh, setArchived, remove };
 }
