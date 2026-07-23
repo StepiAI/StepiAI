@@ -80,3 +80,6 @@ bundle-check-assets/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+
+.vscode/*
