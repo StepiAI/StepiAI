@@ -44,6 +44,7 @@ export interface CreateGoogleCalendarEventInput {
   recurrence?: string[];
   latitude?: number;
   longitude?: number;
+  reminderMinutesBefore?: number | null;
 }
 
 export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | null> {
@@ -55,6 +56,11 @@ export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | nu
     forceCodeForRefreshToken: true,
   });
 
+  try {
+    await GoogleSignin.revokeAccess();
+  } catch {
+
+  }
   await GoogleSignin.signOut();
 
   let response;
