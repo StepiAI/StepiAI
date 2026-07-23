@@ -6,6 +6,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  RefreshControl,
   ScrollView,
   StatusBar,
   Text,
@@ -147,11 +148,13 @@ export function ChatScreen() {
   const {
     messages,
     loading,
+    refreshing,
     sending,
     error,
     sendError,
     send,
     refresh,
+    retry,
     clear,
     setProposalStatus,
   } = useChat();
@@ -228,7 +231,7 @@ export function ChatScreen() {
               {error}
             </Text>
             <TouchableOpacity
-              onPress={refresh}
+              onPress={retry}
               activeOpacity={0.8}
               className="mt-[16px] rounded-[10px] bg-light-accent px-[20px] py-[10px]"
             >
@@ -240,30 +243,48 @@ export function ChatScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-        ) : messages.length === 0 && !sending ? (
-          <EmptyState onSuggestion={send} />
         ) : (
           <ScrollView
             ref={scrollRef}
-            className="flex-1 px-[18px]"
-            contentContainerClassName="py-[18px]"
+            className="flex-1"
+            contentContainerClassName={
+              messages.length === 0 && !sending
+                ? 'flex-grow'
+                : 'px-[18px] py-[18px]'
+            }
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
+            alwaysBounceVertical
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={refresh}
+                tintColor="#2E7BE0"
+                colors={['#2E7BE0']}
+                progressBackgroundColor="#FFFFFF"
+              />
+            }
             onContentSizeChange={() =>
               scrollRef.current?.scrollToEnd({ animated: true })
             }
           >
-            {messages.map(message => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                onQuickReply={send}
-                onProposalStatusChange={setProposalStatus}
-                onProposalNeedsFollowUp={refresh}
-              />
-            ))}
+            {messages.length === 0 && !sending ? (
+              <EmptyState onSuggestion={send} />
+            ) : (
+              <>
+                {messages.map(message => (
+                  <MessageBubble
+                    key={message.id}
+                    message={message}
+                    onQuickReply={send}
+                    onProposalStatusChange={setProposalStatus}
+                    onProposalNeedsFollowUp={refresh}
+                  />
+                ))}
 
-            {sending ? <TypingIndicator /> : null}
+                {sending ? <TypingIndicator /> : null}
+              </>
+            )}
           </ScrollView>
         )}
 
