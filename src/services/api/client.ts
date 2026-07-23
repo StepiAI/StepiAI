@@ -53,23 +53,10 @@ async function authorizedFetch(path: string, init?: RequestInit) {
   return response;
 }
 
-async function requestBinary(
-  path: string,
-  init?: RequestInit,
-): Promise<ArrayBuffer> {
-  const response = await authorizedFetch(path, init);
-  return response.arrayBuffer();
-}
-
 export const apiClient = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, body?: unknown) =>
     request<T>(path, {
-      method: 'POST',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    }),
-  postBinary: (path: string, body?: unknown) =>
-    requestBinary(path, {
       method: 'POST',
       body: body !== undefined ? JSON.stringify(body) : undefined,
     }),
