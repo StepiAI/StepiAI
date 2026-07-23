@@ -222,8 +222,16 @@ export function VoiceAssistantScreen({
 
       setSpeaking(true);
       try {
-        await playVoiceSummary(nextResponse.speech.summary, () =>
-          setSpeaking(false),
+        await playVoiceSummary(
+          nextResponse.speech.summary,
+          () => setSpeaking(false),
+          playbackError => {
+            console.error(
+              '[Voice] TTS websocket playback failed:',
+              playbackError,
+            );
+            setAudioError(describeError(playbackError));
+          },
         );
       } catch (err) {
         console.error('[Voice] failed to synthesize or play response:', err);

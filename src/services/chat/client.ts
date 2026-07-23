@@ -240,10 +240,3 @@ export function sendVoiceMessage(content: string) {
     timezone: deviceTimeZone(),
   });
 }
-
-export function synthesizeVoice(
-  text: string,
-  voice = 'id-ID-Gadis:DragonHDLatestNeural',
-) {
-  return apiClient.postBinary('/voice/tts', { text, voice });
-}
