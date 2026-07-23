@@ -26,6 +26,7 @@
     "react-native-android-widget": "^0.21.0",
     "react-native-audio-api": "^0.13.2",
     "react-native-gesture-handler": "^3.1.0",
+    "react-native-linear-gradient": "^2.8.3",
     "react-native-safe-area-context": "^5.8.0",
     "react-native-screens": "^4.26.1",
     "react-native-svg": "^15.15.5",
