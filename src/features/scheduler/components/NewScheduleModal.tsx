@@ -28,7 +28,6 @@ import type { PlaceSuggestion } from '../../../services/weather/client';
 import { useCreateGoogleCalendarEvent } from '../hooks/useCreateGoogleCalendarEvent';
 import { usePlaceSearch } from '../hooks/usePlaceSearch';
 import { useScheduleWeather } from '../hooks/useScheduleWeather';
-import type { UploadedAttachment } from '../../../services/attachments/client';
 import { removeAttachment as removeUploadedAttachment } from '../../../services/attachments/client';
 import { useAttachments } from '../hooks/useAttachments';
 import { AttachmentList } from './AttachmentList';
@@ -55,10 +54,24 @@ import {
 
 const PLACEHOLDER_COLOR = '#C6C6CC';
 
+export interface ScheduleDraft {
+  id: string;
+  title: string;
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+  notesText: string;
+  existingAttachments: { name: string; url: string }[];
+  start: Date;
+  end: Date;
+}
+
 interface NewScheduleModalProps {
   visible: boolean;
   onClose: () => void;
   onCreated?: () => void;
+  draft?: ScheduleDraft | null;
+  onUpdated?: () => void;
 }
 
 function nextHour(date = new Date()) {
@@ -95,15 +108,13 @@ function resolveRange(
 
 function buildDescription(
   notes: string,
-  attachments: UploadedAttachment[],
+  links: { name: string; url: string }[],
 ): string | undefined {
-  if (attachments.length === 0) {
+  if (links.length === 0) {
     return notes || undefined;
   }
 
-  const list = attachments
-    .map(file => `• ${file.name}\n  ${file.signedUrl}`)
-    .join('\n');
+  const list = links.map(file => `• ${file.name}\n  ${file.url}`).join('\n');
 
   return [notes, `📎 Lampiran:\n${list}`].filter(Boolean).join('\n\n');
 }
@@ -122,9 +133,12 @@ export function NewScheduleModal({
   visible,
   onClose,
   onCreated,
+  draft,
+  onUpdated,
 }: NewScheduleModalProps) {
-  const { create, saving, error, reset } = useCreateGoogleCalendarEvent();
+  const { create, update, saving, error, reset } = useCreateGoogleCalendarEvent();
   const insets = useSafeAreaInsets();
+  const isEdit = Boolean(draft);
 
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
@@ -177,6 +191,37 @@ export function NewScheduleModal({
   useEffect(() => {
     if (!visible) return;
 
+    if (draft) {
+      setTitle(draft.title);
+      setLocation(draft.location ?? '');
+      setPlace(
+        draft.latitude != null && draft.longitude != null
+          ? {
+              name: draft.location ?? '',
+              context: null,
+              latitude: draft.latitude,
+              longitude: draft.longitude,
+            }
+          : null,
+      );
+      setLocationFocused(false);
+      setUrl('');
+      setNotes(draft.notesText);
+      setAllDay(false);
+      setStartDate(new Date(draft.start));
+      setStartTime(new Date(draft.start));
+      setEndDate(new Date(draft.end));
+      setEndTime(new Date(draft.end));
+      setRepeat('never');
+      setAlert('none');
+      setTravel('none');
+      clearAttachments();
+      setFormError(null);
+      setPicker(null);
+      reset();
+      return;
+    }
+
     const start = nextHour();
     const end = new Date(start.getTime() + 3_600_000);
     setTitle('');
@@ -198,7 +243,7 @@ export function NewScheduleModal({
     setFormError(null);
     setPicker(null);
     reset();
-  }, [visible, reset, clearAttachments]);
+  }, [visible, draft, reset, clearAttachments]);
 
   const submit = async () => {
     setFormError(null);
@@ -220,20 +265,28 @@ export function NewScheduleModal({
       return;
     }
 
-    const created = await create({
+    // pertahanin lampiran lama (mode edit) biar gak ke-timpa, lalu tambah yg baru
+    const links = [
+      ...(draft?.existingAttachments ?? []),
+      ...uploaded.map(a => ({ name: a.name, url: a.signedUrl })),
+    ];
+
+    const payload = {
       summary: title.trim(),
       location: location.trim() || undefined,
-      description: buildDescription(notes.trim(), uploaded),
+      description: buildDescription(notes.trim(), links),
       startDateTime: start.toISOString(),
       endDateTime: end.toISOString(),
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       recurrence: toRecurrence(repeat),
       latitude: place?.latitude,
       longitude: place?.longitude,
-    });
+    };
 
-    if (created) {
-      onCreated?.();
+    const ok = draft ? await update(draft.id, payload) : await create(payload);
+
+    if (ok) {
+      (draft ? onUpdated : onCreated)?.();
       onClose();
       return;
     }
@@ -272,7 +325,7 @@ export function NewScheduleModal({
                   className="text-[18px] text-light-inkStrong"
                   style={textStyle('bold')}
                 >
-                  New Schedule
+                  {isEdit ? 'Edit Schedule' : 'New Schedule'}
                 </Text>
 
                 <TouchableOpacity

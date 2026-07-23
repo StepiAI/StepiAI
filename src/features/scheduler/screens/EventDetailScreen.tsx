@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 import { Alert, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
@@ -6,6 +7,8 @@ import { ChevronLeft, ChevronUpDownIcon, LocationPinIcon } from '../../../shared
 import { textStyle } from '../../../shared/theme/typography';
 import { EventAttachments } from '../components/EventAttachments';
 import { EventDetailTimeline } from '../components/EventDetailTimeline';
+import { NewScheduleModal, ScheduleDraft } from '../components/NewScheduleModal';
+import { useCreateGoogleCalendarEvent } from '../hooks/useCreateGoogleCalendarEvent';
 import { EVENT_DETAIL_ACCENT } from '../theme';
 import { formatCoordinates } from '../utils/coordinates';
 import { parseEventNotes } from '../utils/eventNotes';
@@ -18,7 +21,7 @@ interface EventDetailScreenProps {
   event: TimelineEvent;
   day: Date;
   onBack: () => void;
-  onDelete?: (event: TimelineEvent) => void;
+  onChanged?: () => void;
 }
 
 function startOfDay(day: Date) {
@@ -38,8 +41,10 @@ function formatLength(minutes: number) {
   return rest === 0 ? `${hours}h` : `${hours}h ${rest}min`;
 }
 
-export function EventDetailScreen({ event, day, onBack, onDelete }: EventDetailScreenProps) {
+export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetailScreenProps) {
   const tabBarSpace = useTabBarSpace();
+  const { remove, saving } = useCreateGoogleCalendarEvent();
+  const [editing, setEditing] = useState(false);
 
   const { text: notesText, attachments } = parseEventNotes(event.notes);
 
@@ -53,15 +58,30 @@ export function EventDetailScreen({ event, day, onBack, onDelete }: EventDetailS
     year: 'numeric',
   });
 
+  const draft: ScheduleDraft = {
+    id: event.id,
+    title: event.title,
+    location: event.subtitle,
+    latitude: event.latitude,
+    longitude: event.longitude,
+    notesText,
+    existingAttachments: attachments.map(a => ({ name: a.name, url: a.url })),
+    start,
+    end,
+  };
+
   const handleDelete = () => {
     Alert.alert('Delete Event', `Hapus "${event.title}" dari kalender kamu?`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
-        onPress: () => {
-          onDelete?.(event);
-          onBack();
+        onPress: async () => {
+          const ok = await remove(event.id);
+          if (ok) {
+            onChanged?.();
+            onBack();
+          }
         },
       },
     ]);
@@ -71,16 +91,27 @@ export function EventDetailScreen({ event, day, onBack, onDelete }: EventDetailS
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       <StatusBar barStyle="dark-content" />
 
-      <View className="px-[12px] pt-[8px]">
+      <View className="flex-row items-center justify-between px-[12px] pt-[8px]">
         <TouchableOpacity
           onPress={onBack}
           activeOpacity={0.6}
           hitSlop={10}
-          className="flex-row items-center gap-[2px] self-start py-[4px]"
+          className="flex-row items-center gap-[2px] py-[4px]"
         >
           <ChevronLeft color={CALENDAR_DOT_COLOR} size={11} />
           <Text className="text-[16px] text-light-accent" style={textStyle('regular')}>
             {start.toLocaleDateString('en-US', { month: 'long' })}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setEditing(true)}
+          activeOpacity={0.6}
+          hitSlop={10}
+          className="px-[8px] py-[4px]"
+        >
+          <Text className="text-[16px] text-light-accent" style={textStyle('semibold')}>
+            Edit
           </Text>
         </TouchableOpacity>
       </View>
@@ -178,8 +209,10 @@ export function EventDetailScreen({ event, day, onBack, onDelete }: EventDetailS
 
         <TouchableOpacity
           onPress={handleDelete}
+          disabled={saving}
           activeOpacity={0.7}
           className="mt-[20px] items-center rounded-[16px] bg-light-fill py-[16px]"
+          style={saving ? { opacity: 0.5 } : undefined}
         >
           <Text
             className="text-[16px]"
@@ -191,6 +224,17 @@ export function EventDetailScreen({ event, day, onBack, onDelete }: EventDetailS
 
         <View style={{ height: tabBarSpace }} />
       </ScrollView>
+
+      <NewScheduleModal
+        visible={editing}
+        draft={draft}
+        onClose={() => setEditing(false)}
+        onUpdated={() => {
+          setEditing(false);
+          onChanged?.();
+          onBack();
+        }}
+      />
     </SafeAreaView>
   );
 }

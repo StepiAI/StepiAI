@@ -84,6 +84,22 @@ export function createGoogleCalendarEvent(input: CreateGoogleCalendarEventInput)
   return apiClient.post<GoogleCalendarEvent>(`${BASE_PATH}/events`, input);
 }
 
+export function updateGoogleCalendarEvent(
+  eventId: string,
+  input: CreateGoogleCalendarEventInput,
+) {
+  return apiClient.put<GoogleCalendarEvent>(
+    `${BASE_PATH}/events/${encodeURIComponent(eventId)}`,
+    input,
+  );
+}
+
+export function deleteGoogleCalendarEvent(eventId: string) {
+  return apiClient.delete<void>(
+    `${BASE_PATH}/events/${encodeURIComponent(eventId)}`,
+  );
+}
+
 export function rescheduleGoogleCalendarEvent(
   eventId: string,
   startDateTime: string,

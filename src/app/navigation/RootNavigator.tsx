@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -20,6 +20,7 @@ import { AdjustScheduleScreen } from '../../features/scheduler/screens/AdjustSch
 import { ChatScreen } from '../../features/chat/screens/ChatScreen';
 import { useAuthSession } from '../../features/auth/hooks/useAuthSession';
 import { TabBar } from './TabBar';
+import { TabBarVisibilityContext } from './TabBarVisibilityContext';
 import { MainTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -36,15 +37,21 @@ const FULL_SCREEN_ROUTES: (keyof MainTabParamList)[] = [
 
 function MainTabs() {
   const [addingSchedule, setAddingSchedule] = useState(false);
+  const [tabBarHidden, setTabBarHidden] = useState(false);
+
+  const tabBarVisibility = useMemo(
+    () => ({ hidden: tabBarHidden, setHidden: setTabBarHidden }),
+    [tabBarHidden],
+  );
 
   const renderTabBar = (props: BottomTabBarProps) => {
     const activeRoute = props.state.routes[props.state.index]?.name as keyof MainTabParamList;
-    if (FULL_SCREEN_ROUTES.includes(activeRoute)) return null;
+    if (tabBarHidden || FULL_SCREEN_ROUTES.includes(activeRoute)) return null;
     return <TabBar {...props} onAddPress={() => setAddingSchedule(true)} />;
   };
 
   return (
-    <>
+    <TabBarVisibilityContext.Provider value={tabBarVisibility}>
       <Tab.Navigator
         screenOptions={{ headerShown: false }}
         tabBar={renderTabBar}
@@ -73,7 +80,7 @@ function MainTabs() {
         visible={addingSchedule}
         onClose={() => setAddingSchedule(false)}
       />
-    </>
+    </TabBarVisibilityContext.Provider>
   );
 }
 
