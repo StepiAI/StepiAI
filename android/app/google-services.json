@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "89334771512",
+    "project_id": "stepiai",
+    "storage_bucket": "stepiai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:89334771512:android:d82e65cc7e1ee12d889bcd",
+        "android_client_info": {
+          "package_name": "com.stepiai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdo91828NbA5sVWP7uCxPINeKBYaTrSNo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
