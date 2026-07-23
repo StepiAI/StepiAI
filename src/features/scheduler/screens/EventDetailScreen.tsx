@@ -22,6 +22,7 @@ import { EVENT_DETAIL_ACCENT } from '../theme';
 import { alertLabel, alertValueFromMinutes } from '../utils/alert';
 import { formatCoordinates } from '../utils/coordinates';
 import { parseEventNotes } from '../utils/eventNotes';
+import { deleteSchedule } from '../../../services/schedules/client';
 import { TimelineEvent } from '../utils/timeline';
 
 const MINUTE_MS = 60_000;
@@ -94,9 +95,9 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
   const { text: notesText, attachments } = parseEventNotes(event.notes);
 
   // alert diambil dari reminder beneran di event-nya (bukan lagi hardcoded)
-  const reminders = event.reminderMinutes ?? [];
+  const reminders = event.reminderMinutesBefore ?? [];
   const primaryAlert = alertValueFromMinutes(reminders[0]);
-  const secondAlert = alertValueFromMinutes(reminders[1]);
+  // const secondAlert = alertValueFromMinutes(reminders[1]);
 
   const start = new Date(startOfDay(day).getTime() + event.startMinutes * MINUTE_MS);
   const end = new Date(start.getTime() + event.durationMinutes * MINUTE_MS);
@@ -119,6 +120,7 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
     start,
     end,
     alert: primaryAlert,
+    localSchedule: event.fromLifePlan,
   };
 
   const handleDelete = () => {
@@ -128,7 +130,20 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          const ok = await remove(event.id);
+          // sesi life plan hidup di DB STEPI, bukan Google — hapus lewat
+          // /schedules (id-nya bukan event Google, di sana bakal 404)
+          let ok: boolean;
+          if (event.fromLifePlan) {
+            ok = await deleteSchedule(event.id)
+              .then(() => true)
+              .catch(err => {
+                console.error('[Schedules] gagal hapus sesi:', err);
+                return false;
+              });
+          } else {
+            ok = await remove(event.id);
+          }
+
           if (ok) {
             onChanged?.();
             onBack();
@@ -148,12 +163,12 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
           onPress={onBack}
           activeOpacity={0.6}
           hitSlop={10}
-          className="flex-row items-center gap-[4px] rounded-full bg-white py-[8px] pl-[12px] pr-[16px]"
+          className="flex-row items-center gap-[4px] rounded-full bg-white p-[8px]"
         >
           <ChevronLeft color="#1C1C1E" size={11} />
-          <Text className="text-[16px] text-light-inkStrong" style={textStyle('medium')}>
+          {/* <Text className="text-[16px] text-light-inkStrong" style={textStyle('medium')}>
             {start.toLocaleDateString('en-US', { month: 'long' })}
-          </Text>
+          </Text> */}
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -235,8 +250,8 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
 
         <SectionCard>
           <InfoRow label="Alert" value={alertLabel(primaryAlert)} />
-          <RowDivider />
-          <InfoRow label="Second Alert" value={alertLabel(secondAlert)} />
+          {/* <RowDivider />
+          <InfoRow label="Second Alert" value={alertLabel(secondAlert)} /> */}
         </SectionCard>
 
         <SectionCard>
@@ -327,6 +342,6 @@ function InfoRow({
   );
 }
 
-function RowDivider() {
-  return <View className="ml-[16px] h-[1px] bg-light-line" />;
-}
+// function RowDivider() {
+//   return <View className="ml-[16px] h-[1px] bg-light-line" />;
+// }

@@ -41,6 +41,9 @@ export interface GoogleCalendarEvent {
   longitude?: number | null;
   start?: { dateTime?: string | null; date?: string | null } | null;
   end?: { dateTime?: string | null; date?: string | null } | null;
+  // true = jadwal lokal STEPI (sesi life plan), bukan event Google — edit/
+  // delete-nya harus lewat endpoint /schedules, bukan API Google
+  isLifePlanSession?: boolean;
   reminders?: {
     useDefault?: boolean | null;
     overrides?: Array<{ method?: string | null; minutes?: number | null }> | null;
@@ -57,8 +60,8 @@ export interface CreateGoogleCalendarEventInput {
   recurrence?: string[];
   latitude?: number;
   longitude?: number;
-  // menit-sebelum tiap reminder; [] = tanpa alert. dikirim tiap save (create/edit)
-  reminderMinutes?: number[];
+  // menit-sebelum reminder; null = tanpa alert. dikirim tiap save (create/edit)
+  reminderMinutesBefore?: number | null;
 }
 
 export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | null> {

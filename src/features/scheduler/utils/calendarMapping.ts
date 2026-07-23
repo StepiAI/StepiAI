@@ -78,7 +78,8 @@ export function toDayEvents(events: GoogleCalendarEvent[], day: Date): DayEvents
       startMinutes,
       durationMinutes: Math.max(endMinutes - startMinutes, 15),
       tone: toneIndexFor(eventColorSeed(event)),
-      reminderMinutes: reminderMinutesOf(event),
+      reminderMinutesBefore: reminderMinutesOf(event),
+      fromLifePlan: event.isLifePlanSession ?? false,
     });
   }
 

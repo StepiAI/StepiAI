@@ -26,6 +26,7 @@ import { TimePickerModal } from '../../tasks/components/TimePickerModal';
 import { formatDateLabel, formatTimeLabel } from '../../tasks/utils/dateTime';
 import type { PlaceSuggestion } from '../../../services/weather/client';
 import { useCreateGoogleCalendarEvent } from '../hooks/useCreateGoogleCalendarEvent';
+import { toWallClockUtcIso, updateSchedule } from '../../../services/schedules/client';
 import { usePlaceSearch } from '../hooks/usePlaceSearch';
 import { useScheduleWeather } from '../hooks/useScheduleWeather';
 import { removeAttachment as removeUploadedAttachment } from '../../../services/attachments/client';
@@ -66,6 +67,9 @@ export interface ScheduleDraft {
   start: Date;
   end: Date;
   alert?: AlertValue;
+  // true = jadwal lokal STEPI (sesi life plan): simpan lewat /schedules,
+  // bukan Google API (id-nya bukan event Google, bakal 404/502 di sana)
+  localSchedule?: boolean;
 }
 
 interface NewScheduleModalProps {
@@ -289,11 +293,30 @@ export function NewScheduleModal({
       recurrence: toRecurrence(repeat),
       latitude: place?.latitude,
       longitude: place?.longitude,
-      // selalu dikirim (termasuk [] kalau "None") biar edit bisa ngosongin alert
-      reminderMinutes: alertMinutes == null ? [] : [alertMinutes],
+      // null = "None" -> server matiin alert; angka = menit sebelum acara
+      reminderMinutesBefore: alertMinutes ?? null,
     };
 
-    const ok = draft ? await update(draft.id, payload) : await create(payload);
+    let ok: boolean;
+    if (draft?.localSchedule) {
+      // sesi life plan -> simpan ke DB STEPI dgn waktu wall-clock
+      try {
+        await updateSchedule(draft.id, {
+          summary: payload.summary,
+          description: payload.description,
+          location: payload.location,
+          startDateTime: toWallClockUtcIso(start),
+          endDateTime: toWallClockUtcIso(end),
+        });
+        ok = true;
+      } catch (err) {
+        console.error('[Schedules] gagal update jadwal lokal:', err);
+        setFormError('Could not save this session. Please try again.');
+        ok = false;
+      }
+    } else {
+      ok = draft ? await update(draft.id, payload) : await create(payload);
+    }
 
     if (ok) {
       (draft ? onUpdated : onCreated)?.();

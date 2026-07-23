@@ -10,7 +10,7 @@ import {
   LifePlanDraft,
   Weekday,
 } from '../types';
-import { formatDateOnly, formatTimeOnly } from './dateTime';
+import { formatDateOnly, formatTimeOnly, parseWallClock } from './dateTime';
 
 const WEEKDAY_TO_API: Record<Weekday, ApiWeekday> = {
   Monday: 'MONDAY',
@@ -165,13 +165,11 @@ export function getThisWeekSchedules(
   const start = startOfDay(new Date()).getTime();
   const end = start + 7 * 86_400_000;
 
-  const res = schedules.filter(schedule => {
-    console.log(`ON LOOP ${new Date(schedule.startDateTime).getTime()}`);
-    const scheduleStart = new Date(schedule.startDateTime).getTime();
-    return  scheduleStart <= end;
-  });
-  console.log(`RES: ${res}`);
-  return res;
+  // sengaja ikut nampilin sesi yg udah lewat (buat checkmark otomatis),
+  // batasnya cuma sampai 7 hari ke depan
+  return schedules.filter(
+    schedule => parseWallClock(schedule.startDateTime).getTime() <= end,
+  );
 }
 
 export function formatSessionDayLabel(date: Date): string {

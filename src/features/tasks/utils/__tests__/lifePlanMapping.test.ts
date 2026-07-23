@@ -207,7 +207,7 @@ describe('getThisWeekSchedules', () => {
     jest.useRealTimers();
   });
 
-  it('cuma ambil sesi dari hari ini sampai 7 hari ke depan', () => {
+  it('ambil sesi sampai 7 hari ke depan, termasuk yg udah lewat (buat checkmark otomatis)', () => {
     const schedules = [
       buildSchedule({
         id: 'yesterday',
@@ -229,6 +229,6 @@ describe('getThisWeekSchedules', () => {
 
     expect(
       getThisWeekSchedules(schedules).map(schedule => schedule.id),
-    ).toEqual(['today', 'in-6-days']);
+    ).toEqual(['yesterday', 'today', 'in-6-days']);
   });
 });
