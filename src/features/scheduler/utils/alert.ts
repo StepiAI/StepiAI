@@ -32,3 +32,13 @@ export const ALERT_MINUTES_BEFORE: Record<AlertValue, number | null> = {
 export function alertLabel(value: AlertValue): string {
   return ALERT_OPTIONS.find(option => option.value === value)?.label ?? 'None';
 }
+
+// kebalikan ALERT_MINUTES_BEFORE: dari menit-sebelum (reminder Google) balik ke
+// AlertValue. null/undefined -> 'none'. menit yg gak persis ada di opsi -> 'none'.
+export function alertValueFromMinutes(minutes: number | null | undefined): AlertValue {
+  if (minutes == null) return 'none';
+  const match = (Object.keys(ALERT_MINUTES_BEFORE) as AlertValue[]).find(
+    value => ALERT_MINUTES_BEFORE[value] === minutes,
+  );
+  return match ?? 'none';
+}

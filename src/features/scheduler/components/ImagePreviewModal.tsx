@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CloseIcon } from '../../../shared/components/Icons';
 
 interface ImagePreviewModalProps {
@@ -15,6 +15,11 @@ interface ImagePreviewModalProps {
 }
 
 export function ImagePreviewModal({ url, onClose }: ImagePreviewModalProps) {
+  // SafeAreaView ngukur posisi native-nya sendiri, dan di dalem Modal itu
+  // balikannya 0 — makanya tombol X-nya ketiban status bar/notch. Hook-nya
+  // baca dari context SafeAreaProvider, jadi tetep bener walau di Modal.
+  const insets = useSafeAreaInsets();
+
   return (
     <Modal
       visible={url !== null}
@@ -30,16 +35,22 @@ export function ImagePreviewModal({ url, onClose }: ImagePreviewModalProps) {
           ) : null}
         </Pressable>
 
-        <SafeAreaView className="absolute left-0 right-0 top-0" edges={['top']}>
+        {/* box-none biar area kosong di sekitar tombol gak nelen tap ke gambar */}
+        <View
+          className="absolute left-0 right-0 top-0 px-[12px]"
+          style={{ paddingTop: insets.top + 8 }}
+          pointerEvents="box-none"
+        >
           <TouchableOpacity
             onPress={onClose}
             hitSlop={12}
             activeOpacity={0.7}
-            className="m-[12px] h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-light-fill"
+            accessibilityLabel="Close preview"
+            className="h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-light-fill"
           >
             <CloseIcon size={11} />
           </TouchableOpacity>
-        </SafeAreaView>
+        </View>
       </View>
     </Modal>
   );

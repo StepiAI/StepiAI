@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
+  FlatList,
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -24,6 +25,7 @@ import {
   buildWeekWindow,
   chipKey,
   initialWeekIndex,
+  weekAnchor,
 } from '../utils/monthChips';
 
 const MONTHS_FULL = [
@@ -214,20 +216,26 @@ function MonthView({
   onOpenYear: () => void;
   onPickDay: (date: Date) => void;
 }) {
-  const scrollRef = useRef<ScrollView>(null);
-  const scrolledFor = useRef('');
+  const listRef = useRef<FlatList<CalendarWeek>>(null);
   const cellWidth = (width - 32) / 7;
 
   const weeks = useMemo(() => buildWeekWindow(month), [month]);
 
-  const tops = useMemo(() => {
-    const list: number[] = [];
+  // tinggi tiap baris beda2 (yg ada label bulannya lebih tinggi), jadi
+  // offset-nya dihitung sekali di sini biar bisa dipakai getItemLayout
+  const { tops, heights } = useMemo(() => {
+    const offsets: number[] = [];
+    const sizes: number[] = [];
     let y = 0;
+
     for (const week of weeks) {
-      list.push(y);
-      y += (week.monthLabel ? LABEL_HEIGHT : 0) + WEEK_HEIGHT;
+      const height = (week.monthLabel ? LABEL_HEIGHT : 0) + WEEK_HEIGHT;
+      offsets.push(y);
+      sizes.push(height);
+      y += height;
     }
-    return list;
+
+    return { tops: offsets, heights: sizes };
   }, [weeks]);
 
   const startIndex = useMemo(() => initialWeekIndex(weeks, month), [weeks, month]);
@@ -235,9 +243,13 @@ function MonthView({
   const [visibleMonth, setVisibleMonth] = useState(() => month);
   useEffect(() => setVisibleMonth(month), [month]);
 
-  const scrollToStart = () => {
-    scrollRef.current?.scrollTo({ y: tops[startIndex] ?? 0, animated: false });
-  };
+  // pas ganti bulan dari year view, lompat ke minggu pertama bulan itu
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      listRef.current?.scrollToIndex({ index: startIndex, animated: false });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [startIndex]);
 
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y + LABEL_HEIGHT;
@@ -246,8 +258,11 @@ function MonthView({
       if (tops[i] <= y) index = i;
       else break;
     }
-    const midDay = weeks[index]?.days[3];
-    if (midDay && (midDay.getMonth() !== visibleMonth.getMonth() || midDay.getFullYear() !== visibleMonth.getFullYear())) {
+    const week = weeks[index];
+    if (!week) return;
+
+    const midDay = weekAnchor(week.days);
+    if (midDay.getMonth() !== visibleMonth.getMonth() || midDay.getFullYear() !== visibleMonth.getFullYear()) {
       setVisibleMonth(new Date(midDay.getFullYear(), midDay.getMonth(), 1));
     }
   };
@@ -284,31 +299,34 @@ function MonthView({
         ))}
       </View>
 
-      <ScrollView
-        ref={scrollRef}
+      {/* setahun penuh = 52-53 baris, jadi pakai FlatList biar cuma yg
+          keliatan aja yg di-render */}
+      <FlatList
+        ref={listRef}
+        data={weeks}
+        keyExtractor={week => week.key}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
         onScroll={onScroll}
-        onContentSizeChange={() => {
-          const target = chipKey(month);
-          if (scrolledFor.current !== target) {
-            scrolledFor.current = target;
-            requestAnimationFrame(scrollToStart);
-          }
-        }}
+        initialScrollIndex={startIndex}
+        initialNumToRender={8}
+        windowSize={5}
+        getItemLayout={(_data, index) => ({
+          length: heights[index],
+          offset: tops[index],
+          index,
+        })}
         contentContainerStyle={styles.weekListContent}
-      >
-        {weeks.map(week => (
+        renderItem={({ item }) => (
           <WeekRow
-            key={week.key}
-            week={week}
+            week={item}
             selected={selected}
             cellWidth={cellWidth}
             dayChips={dayChips}
             onPickDay={onPickDay}
           />
-        ))}
-      </ScrollView>
+        )}
+      />
     </View>
   );
 }
@@ -327,6 +345,7 @@ function WeekRow({
   onPickDay: (date: Date) => void;
 }) {
   const today = new Date();
+  const anchorMonth = weekAnchor(week.days).getMonth();
 
   return (
     <View>
@@ -344,6 +363,8 @@ function WeekRow({
           const chips = dayChips.get(key) ?? [];
           const active = isSameDay(date, selected);
           const isToday = !active && isSameDay(date, today);
+          // tanggal nyasar dari bulan sebelah dibikin pudar biar batas bulannya keliatan
+          const outside = date.getMonth() !== anchorMonth;
           const visibleChips = chips.length > MAX_CHIPS ? chips.slice(0, MAX_CHIPS - 1) : chips;
           const overflow = chips.length - visibleChips.length;
 
@@ -363,7 +384,13 @@ function WeekRow({
                 >
                   <Text
                     className={`text-[13px] ${
-                      active ? 'text-white' : isToday ? 'text-light-accent' : 'text-light-ink'
+                      active
+                        ? 'text-white'
+                        : isToday
+                        ? 'text-light-accent'
+                        : outside
+                        ? 'text-light-disabled'
+                        : 'text-light-ink'
                     }`}
                     style={textStyle(active || isToday ? 'semibold' : 'regular')}
                   >
@@ -510,9 +537,9 @@ function MiniMonth({
                 >
                   <Text
                     className={`text-[8px] ${
-                      active ? 'text-white' : isToday ? 'text-light-accent' : 'text-light-hint'
+                      active ? 'text-white' : isToday ? 'text-light-accent' : 'text-light-ink'
                     }`}
-                    style={textStyle(active || isToday ? 'semibold' : 'regular')}
+                    style={textStyle(active || isToday ? 'semibold' : 'medium')}
                   >
                     {show ? cell.dayOfMonth : ''}
                   </Text>

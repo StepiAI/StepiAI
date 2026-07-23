@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiError } from '../../../services/api/client';
+import { bumpCalendarRevision } from '../../../services/googleCalendar/revision';
 import {
   deleteLifePlan,
   listLifePlans,
@@ -57,6 +58,8 @@ export function useLifePlans() {
 
     try {
       await setLifePlanArchived(id, archived);
+      // sesi plan ini ikut muncul/hilang di kalender -> minta kalender refetch
+      bumpCalendarRevision();
     } catch (err) {
       console.error('[LifePlan] failed to archive life plan:', err);
       setState(prev => ({
@@ -77,6 +80,7 @@ export function useLifePlans() {
 
       try {
         await deleteLifePlan(id);
+        bumpCalendarRevision();
       } catch (err) {
         console.error('[LifePlan] failed to delete life plan:', err);
         setState(prev => ({ ...prev, plans: snapshot }));

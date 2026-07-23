@@ -42,7 +42,7 @@ export function EventAttachments({ attachments }: EventAttachmentsProps) {
             key={`${attachment.url}-${index}`}
             activeOpacity={0.7}
             onPress={() => Linking.openURL(attachment.url)}
-            className="flex-row items-center gap-[10px] rounded-[12px] bg-white px-[12px] py-[12px]"
+            className="flex-row items-center gap-[10px] rounded-[12px] bg-light-fill px-[12px] py-[12px]"
           >
             <Text className="text-[16px]">📄</Text>
             <Text

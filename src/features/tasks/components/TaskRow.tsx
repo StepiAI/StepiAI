@@ -2,7 +2,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { CalendarIcon, CheckIcon } from '../../../shared/components/Icons';
 import { textStyle } from '../../../shared/theme/typography';
 import type { ScheduleRecord } from '../../../services/lifePlan/client';
-import { formatTimeLabel } from '../utils/dateTime';
+import { formatTimeLabel, parseWallClock } from '../utils/dateTime';
 import { formatSessionDayLabel } from '../utils/lifePlanMapping';
 
 interface TaskRowProps {
@@ -11,16 +11,28 @@ interface TaskRowProps {
   selected?: boolean;
   onPress?: () => void;
   onViewPress?: () => void;
+  onLongPress?: () => void;
 }
 
-export function TaskRow({ schedule, topic, selected = false, onPress, onViewPress }: TaskRowProps) {
-  const start = new Date(schedule.startDateTime);
-  const end = new Date(schedule.endDateTime);
+export function TaskRow({
+  schedule,
+  topic,
+  selected = false,
+  onPress,
+  onViewPress,
+  onLongPress,
+}: TaskRowProps) {
+  const start = parseWallClock(schedule.startDateTime);
+  const end = parseWallClock(schedule.endDateTime);
   const highlighted = selected;
+  // checkmark otomatis: sesi dianggap kelar begitu waktunya udah lewat,
+  // bukan dari klik manual
+  const completed = end.getTime() < Date.now();
 
   return (
     <TouchableOpacity
       onPress={onPress}
+      onLongPress={onLongPress}
       activeOpacity={0.7}
       className={`rounded-[16px] border bg-white p-[14px] ${
         highlighted ? 'border-light-accent' : 'border-light-line'
@@ -28,7 +40,7 @@ export function TaskRow({ schedule, topic, selected = false, onPress, onViewPres
     >
       <View className="flex-row items-start">
         <View className="mr-[12px] mt-[2px]">
-          <Checkbox checked={highlighted} />
+          <Checkbox checked={completed} />
         </View>
 
         <View className="flex-1">

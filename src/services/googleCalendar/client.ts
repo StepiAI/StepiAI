@@ -5,8 +5,17 @@ import {
 } from '@react-native-google-signin/google-signin';
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../../config/env';
 import { apiClient } from '../api/client';
+import { bumpCalendarRevision } from './revision';
 
 const BASE_PATH = '/integrations/google-calendar';
+
+// tiap mutasi sukses -> naikin revisi biar list event auto refresh
+function bumpAfter<T>(promise: Promise<T>): Promise<T> {
+  return promise.then(result => {
+    bumpCalendarRevision();
+    return result;
+  });
+}
 
 // scope id dari google, bukan url yg ditembak
 const CALENDAR_SCOPES = [
@@ -32,6 +41,13 @@ export interface GoogleCalendarEvent {
   longitude?: number | null;
   start?: { dateTime?: string | null; date?: string | null } | null;
   end?: { dateTime?: string | null; date?: string | null } | null;
+  // true = jadwal lokal STEPI (sesi life plan), bukan event Google — edit/
+  // delete-nya harus lewat endpoint /schedules, bukan API Google
+  isLifePlanSession?: boolean;
+  reminders?: {
+    useDefault?: boolean | null;
+    overrides?: Array<{ method?: string | null; minutes?: number | null }> | null;
+  } | null;
 }
 
 export interface CreateGoogleCalendarEventInput {
@@ -101,22 +117,28 @@ export function disconnectGoogleCalendar() {
 export function createGoogleCalendarEvent(
   input: CreateGoogleCalendarEventInput,
 ) {
-  return apiClient.post<GoogleCalendarEvent>(`${BASE_PATH}/events`, input);
+  return bumpAfter(
+    apiClient.post<GoogleCalendarEvent>(`${BASE_PATH}/events`, input),
+  );
 }
 
 export function updateGoogleCalendarEvent(
   eventId: string,
   input: CreateGoogleCalendarEventInput,
 ) {
-  return apiClient.put<GoogleCalendarEvent>(
-    `${BASE_PATH}/events/${encodeURIComponent(eventId)}`,
-    input,
+  return bumpAfter(
+    apiClient.put<GoogleCalendarEvent>(
+      `${BASE_PATH}/events/${encodeURIComponent(eventId)}`,
+      input,
+    ),
   );
 }
 
 export function deleteGoogleCalendarEvent(eventId: string) {
-  return apiClient.delete<void>(
-    `${BASE_PATH}/events/${encodeURIComponent(eventId)}`,
+  return bumpAfter(
+    apiClient.delete<void>(
+      `${BASE_PATH}/events/${encodeURIComponent(eventId)}`,
+    ),
   );
 }
 
@@ -125,9 +147,11 @@ export function rescheduleGoogleCalendarEvent(
   startDateTime: string,
   endDateTime: string,
 ) {
-  return apiClient.patch<GoogleCalendarEvent>(
-    `${BASE_PATH}/events/${encodeURIComponent(eventId)}`,
-    { startDateTime, endDateTime },
+  return bumpAfter(
+    apiClient.patch<GoogleCalendarEvent>(
+      `${BASE_PATH}/events/${encodeURIComponent(eventId)}`,
+      { startDateTime, endDateTime },
+    ),
   );
 }
 
@@ -136,9 +160,11 @@ export function pushGoogleCalendarEventsLater(
   toDateTime: string,
   delayMinutes: number,
 ) {
-  return apiClient.post<{ shifted: number; delayMinutes: number }>(
-    `${BASE_PATH}/events/push-later`,
-    { fromDateTime, toDateTime, delayMinutes },
+  return bumpAfter(
+    apiClient.post<{ shifted: number; delayMinutes: number }>(
+      `${BASE_PATH}/events/push-later`,
+      { fromDateTime, toDateTime, delayMinutes },
+    ),
   );
 }
 
