@@ -4,8 +4,13 @@ import {
   isSuccessResponse,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../../../config/env';
+import {
+  GOOGLE_WEB_CLIENT_ID,
+  GOOGLE_IOS_CLIENT_ID,
+} from '../../../config/env';
 import { supabase } from '../../../services/supabase/client';
+import type { InitializeNotificationsRequest } from '../../../services/notifications/client';
+import { initializeNotifications } from '../../../services/notifications/client';
 
 GoogleSignin.configure({
   webClientId: GOOGLE_WEB_CLIENT_ID,
@@ -21,7 +26,10 @@ export async function signInWithGoogle() {
   try {
     response = await GoogleSignin.signIn();
   } catch (error) {
-    if (isErrorWithCode(error) && error.code === statusCodes.SIGN_IN_CANCELLED) {
+    if (
+      isErrorWithCode(error) &&
+      error.code === statusCodes.SIGN_IN_CANCELLED
+    ) {
       return null;
     }
     throw error;
@@ -40,5 +48,23 @@ export async function signInWithGoogle() {
     throw error;
   }
 
+  const initializeNotificationServiceRequest: InitializeNotificationsRequest = {
+    userId: data.session?.user.id,
+  };
+  await initializeNotificationServices(initializeNotificationServiceRequest);
+
   return data.session;
+}
+
+async function initializeNotificationServices(
+  request: InitializeNotificationsRequest,
+) {
+  try {
+    const deviceRegistration = await initializeNotifications(request);
+    if (!deviceRegistration) {
+      return 'Device registration failed or permission denied.';
+    }
+  } catch (error) {
+    return error;
+  }
 }

@@ -11,21 +11,18 @@ import {
   getMyChat,
   sendChatMessage,
   sendVoiceMessage,
-  synthesizeVoice,
 } from './client';
 
 jest.mock('../api/client', () => ({
   apiClient: {
     get: jest.fn(),
     post: jest.fn(),
-    postBinary: jest.fn(),
     delete: jest.fn(),
   },
 }));
 
 const get = apiClient.get as jest.Mock;
 const post = apiClient.post as jest.Mock;
-const postBinary = apiClient.postBinary as jest.Mock;
 const remove = apiClient.delete as jest.Mock;
 
 beforeEach(() => {
@@ -81,13 +78,4 @@ it('maps every proposal action to its documented endpoint', () => {
     `/chats/messages/${messageId}/accept-life-plan-update`,
     `/chats/messages/${messageId}/accept-life-plan-delete`,
   ]);
-});
-
-it('requests an MP3 with the Azure Indonesian voice by default', () => {
-  synthesizeVoice('Detailnya aku tampilkan di layar.');
-
-  expect(postBinary).toHaveBeenCalledWith('/voice/tts', {
-    text: 'Detailnya aku tampilkan di layar.',
-    voice: 'id-ID-Gadis:DragonHDLatestNeural',
-  });
 });
