@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError } from '../../../services/api/client';
-import { clearChat, getMyChat, sendChatMessage } from '../../../services/chat/client';
+import {
+  clearChat,
+  getMyChat,
+  sendChatMessage,
+} from '../../../services/chat/client';
 import type { ChatMessage } from '../types';
 import { toChatMessage, toChatMessages } from '../utils/mapMessages';
 
@@ -60,9 +64,11 @@ export function useChat() {
 
       setMessages(current => [
         ...current.map(message =>
-          message.id === pendingId ? toChatMessage(response.userMessage) : message,
+          message.id === pendingId
+            ? toChatMessage(response.userMessage)
+            : message,
         ),
-        toChatMessage(response.assistantMessage),
+        toChatMessage(response.assistantMessage, response.parsed),
       ]);
     } catch (err) {
       console.error('[Chat] failed to send message:', err);
@@ -92,5 +98,29 @@ export function useChat() {
     }
   }, [messages]);
 
-  return { messages, loading, sending, error, sendError, send, refresh: load, clear };
+  const setProposalStatus = useCallback(
+    (
+      messageId: string,
+      proposalStatus: 'pending' | 'accepted' | 'dismissed',
+    ) => {
+      setMessages(current =>
+        current.map(message =>
+          message.id === messageId ? { ...message, proposalStatus } : message,
+        ),
+      );
+    },
+    [],
+  );
+
+  return {
+    messages,
+    loading,
+    sending,
+    error,
+    sendError,
+    send,
+    refresh: load,
+    clear,
+    setProposalStatus,
+  };
 }
