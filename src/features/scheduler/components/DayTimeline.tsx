@@ -19,8 +19,8 @@ import {
 } from '../utils/timeline';
 
 const GUTTER_WIDTH = 52;
-const MAX_INDENT = 0.16;
-const MAX_TOTAL_INDENT = 0.5;
+// jarak antar kartu yg tabrakan pas dibagi kolom bersebelahan
+const COLUMN_GAP = 6;
 
 // Tinggi kartu ngikut durasi, jadi event pendek (30 menitan) cuma dapet ~40px
 // — gak muat buat judul + jam sekaligus. Isinya dipangkas nyesuain tinggi:
@@ -80,9 +80,9 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
       <View className="absolute right-[8px] top-0" style={{ left: GUTTER_WIDTH }}>
         {positioned.map(({ event, top, height, columnIndex, columnCount }) => {
           const tone = EVENT_PALETTE[event.tone % EVENT_PALETTE.length];
-          const indentPerColumn = columnCount > 1 ? Math.min(MAX_INDENT, MAX_TOTAL_INDENT / (columnCount - 1)) : 0;
-          const leftPct = columnIndex * indentPerColumn * 100;
-          const isStacked = columnCount > 1;
+          // event yg bentrok dibagi rata jadi kolom bersebelahan (bukan numpuk)
+          const columnWidthPct = 100 / columnCount;
+          const leftPct = columnIndex * columnWidthPct;
 
           const showTime = height >= MIN_HEIGHT_FOR_TIME;
           const showLocation = Boolean(event.subtitle) && height >= MIN_HEIGHT_FOR_LOCATION;
@@ -93,21 +93,18 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
               activeOpacity={0.7}
               disabled={!onEventPress}
               onPress={onEventPress ? () => onEventPress(event) : undefined}
-              className="absolute right-0"
+              className="absolute"
               style={{
                 top,
                 height,
                 left: `${leftPct}%`,
-                zIndex: columnIndex,
-                elevation: columnIndex,
+                width: `${columnWidthPct}%`,
+                paddingRight: columnCount > 1 ? COLUMN_GAP : 0,
               }}
             >
               <View
                 className="flex-1 flex-row overflow-hidden rounded-[12px]"
-                style={[
-                  { backgroundColor: tone.background },
-                  isStacked && styles.stackedCard,
-                ]}
+                style={{ backgroundColor: tone.background }}
               >
                 <View style={[styles.accentBar, { backgroundColor: tone.text }]} />
 
@@ -175,12 +172,4 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
 
 const styles = StyleSheet.create({
   accentBar: { width: 5, marginLeft: 8, marginVertical: 8, borderRadius: 3 },
-  stackedCard: {
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: -1, height: 1 },
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-  },
 });

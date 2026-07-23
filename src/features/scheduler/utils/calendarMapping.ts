@@ -6,6 +6,16 @@ import { TimelineEvent } from './timeline';
 
 const MINUTES_PER_DAY = 24 * 60;
 
+// menit-sebelum tiap reminder yg di-set manual (override). urut naik, tanpa
+// duplikat. reminder "useDefault" gak dihitung karena Google gak kasih menitnya.
+export function reminderMinutesOf(event: GoogleCalendarEvent): number[] {
+  const overrides = event.reminders?.overrides ?? [];
+  const minutes = overrides
+    .map(o => o.minutes)
+    .filter((m): m is number => typeof m === 'number');
+  return Array.from(new Set(minutes)).sort((a, b) => a - b);
+}
+
 export interface DayEvents {
   timed: TimelineEvent[];
   allDay: GoogleCalendarEvent[];
@@ -68,6 +78,7 @@ export function toDayEvents(events: GoogleCalendarEvent[], day: Date): DayEvents
       startMinutes,
       durationMinutes: Math.max(endMinutes - startMinutes, 15),
       tone: toneIndexFor(eventColorSeed(event)),
+      reminderMinutes: reminderMinutesOf(event),
     });
   }
 

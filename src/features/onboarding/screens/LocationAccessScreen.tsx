@@ -5,8 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CarIcon,
   ChevronLeft,
@@ -31,7 +30,7 @@ export function LocationAccessScreen({
   onSkip,
 }: LocationAccessScreenProps) {
   const { status, requesting, request, openSettings } = useLocationPermission();
-  const tabBarSpace = useTabBarSpace();
+  const insets = useSafeAreaInsets();
 
   const blocked = status === 'blocked';
   const unavailable = status === 'unavailable';
@@ -49,10 +48,19 @@ export function LocationAccessScreen({
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
       <StatusBar barStyle="dark-content" />
 
-      <View className="flex-row items-center px-[18px] pt-[6px]">
-        <TouchableOpacity onPress={onBack} hitSlop={10} activeOpacity={0.6}>
-          <ChevronLeft />
-        </TouchableOpacity>
+      <View className="flex-row items-center px-[16px] pt-[6px]">
+        {onBack ? (
+          <TouchableOpacity
+            onPress={onBack}
+            activeOpacity={0.7}
+            accessibilityLabel="Back"
+            className="h-[46px] w-[46px] items-center justify-center rounded-full bg-white/70"
+          >
+            <ChevronLeft size={13} />
+          </TouchableOpacity>
+        ) : (
+          <View className="w-[46px]" />
+        )}
 
         <Text
           className="flex-1 text-center text-[21px] text-light-inkStrong"
@@ -61,7 +69,7 @@ export function LocationAccessScreen({
           Location Access
         </Text>
 
-        <View className="w-[24px]" />
+        <View className="w-[46px]" />
       </View>
 
       <Text
@@ -145,8 +153,7 @@ export function LocationAccessScreen({
         </TouchableOpacity>
       </View>
 
-      {/* navbar */}
-      <View className="px-[24px]" style={{ paddingBottom: tabBarSpace }}>
+      <View className="px-[24px]" style={{ paddingBottom: insets.bottom + 10 }}>
         <TouchableOpacity
           onPress={onSkip}
           disabled={requesting}

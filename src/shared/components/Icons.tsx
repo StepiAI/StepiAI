@@ -708,24 +708,21 @@ export function BookIcon({ color = STROKE }: { color?: string }) {
 
 export function CheckIcon({
   color = '#FFFFFF',
-  size = 12,
+  size = 14,
 }: {
   color?: string;
   size?: number;
 }) {
   return (
-    <View className="h-[22px] w-[22px] items-center justify-center">
-      <View
-        style={{
-          width: size * 0.55,
-          height: size * 0.3,
-          borderLeftWidth: 2,
-          borderBottomWidth: 2,
-          borderColor: color,
-          transform: [{ rotate: '-45deg' }, { translateY: -1 }],
-        }}
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M5 12.5l4.2 4.3L19 7"
+        stroke={color}
+        strokeWidth={2.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
-    </View>
+    </Svg>
   );
 }
 

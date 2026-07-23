@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError } from '../../../services/api/client';
 import {
   GoogleCalendarEvent,
   listGoogleCalendarEvents,
 } from '../../../services/googleCalendar/client';
+import { useCalendarRevision } from '../../../services/googleCalendar/revision';
 import { syncWidgetFromApp } from '../../widget/sync';
 
 const DEFAULT_RANGE_DAYS = 7;
@@ -104,6 +105,15 @@ export function useGoogleCalendarEvents({ from, to }: Options = {}) {
   useEffect(() => {
     load('initial');
   }, [load]);
+
+  // begitu ada mutasi (add/edit/delete) di mana pun, refetch diam-diam
+  const revision = useCalendarRevision();
+  const seenRevision = useRef(revision);
+  useEffect(() => {
+    if (seenRevision.current === revision) return;
+    seenRevision.current = revision;
+    load('refresh');
+  }, [revision, load]);
 
   const refresh = useCallback(() => load('refresh'), [load]);
 

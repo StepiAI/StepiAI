@@ -36,6 +36,7 @@ import { OptionPickerModal } from './OptionPickerModal';
 import { PlaceSuggestions } from './PlaceSuggestions';
 import { WeatherHint } from './WeatherHint';
 import {
+  ALERT_MINUTES_BEFORE,
   ALERT_OPTIONS,
   AlertValue,
   alertLabel,
@@ -64,6 +65,7 @@ export interface ScheduleDraft {
   existingAttachments: { name: string; url: string }[];
   start: Date;
   end: Date;
+  alert?: AlertValue;
 }
 
 interface NewScheduleModalProps {
@@ -170,6 +172,10 @@ export function NewScheduleModal({
   const [place, setPlace] = useState<PlaceSuggestion | null>(null);
   const [locationFocused, setLocationFocused] = useState(false);
 
+  const busy = saving || uploadingAttachments;
+  // centang aktif (biru) begitu title minimal keisi
+  const canSubmit = title.trim().length > 0;
+
   const { results: placeResults, loading: placesLoading } = usePlaceSearch(
     location,
     locationFocused && !place && !allDay,
@@ -213,7 +219,7 @@ export function NewScheduleModal({
       setEndDate(new Date(draft.end));
       setEndTime(new Date(draft.end));
       setRepeat('never');
-      setAlert('none');
+      setAlert(draft.alert ?? 'none');
       setTravel('none');
       clearAttachments();
       setFormError(null);
@@ -271,6 +277,8 @@ export function NewScheduleModal({
       ...uploaded.map(a => ({ name: a.name, url: a.signedUrl })),
     ];
 
+    const alertMinutes = ALERT_MINUTES_BEFORE[alert];
+
     const payload = {
       summary: title.trim(),
       location: location.trim() || undefined,
@@ -281,6 +289,8 @@ export function NewScheduleModal({
       recurrence: toRecurrence(repeat),
       latitude: place?.latitude,
       longitude: place?.longitude,
+      // selalu dikirim (termasuk [] kalau "None") biar edit bisa ngosongin alert
+      reminderMinutes: alertMinutes == null ? [] : [alertMinutes],
     };
 
     const ok = draft ? await update(draft.id, payload) : await create(payload);
@@ -316,9 +326,10 @@ export function NewScheduleModal({
                 <TouchableOpacity
                   onPress={onClose}
                   activeOpacity={0.7}
-                  className="h-[36px] w-[36px] items-center justify-center rounded-full bg-white"
+                  accessibilityLabel="Cancel"
+                  className="h-[40px] w-[40px] items-center justify-center rounded-full bg-white/70"
                 >
-                  <CloseIcon size={12} />
+                  <CloseIcon size={13} />
                 </TouchableOpacity>
 
                 <Text
@@ -330,14 +341,17 @@ export function NewScheduleModal({
 
                 <TouchableOpacity
                   onPress={submit}
-                  disabled={saving || uploadingAttachments}
+                  disabled={busy || !canSubmit}
                   activeOpacity={0.7}
-                  className="h-[36px] w-[36px] items-center justify-center rounded-full bg-light-disabled"
+                  accessibilityLabel="Save"
+                  className="h-[40px] w-[40px] items-center justify-center rounded-full bg-white/70"
                 >
-                  {saving || uploadingAttachments ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  {busy ? (
+                    <ActivityIndicator size="small" color="#2E7BE0" />
                   ) : (
-                    <CheckIcon size={14} />
+                    // ikonnya yg biru pas title udah keisi — bukan seluruh tombolnya,
+                    // biar bentuknya konsisten sama tombol back di layar lain
+                    <CheckIcon size={15} color={canSubmit ? '#2E7BE0' : '#C6C6CC'} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -424,13 +438,16 @@ export function NewScheduleModal({
                     >
                       All-day
                     </Text>
-                    <Switch
-                      value={allDay}
-                      onValueChange={setAllDay}
-                      trackColor={{ false: '#E5E5EA', true: '#2E7BE0' }}
-                      thumbColor="#FFFFFF"
-                      ios_backgroundColor="#E5E5EA"
-                    />
+                    {/* dibungkus + centered biar switch-nya gak ketarik ke atas */}
+                    <View className="items-center justify-center">
+                      <Switch
+                        value={allDay}
+                        onValueChange={setAllDay}
+                        trackColor={{ false: '#E5E5EA', true: '#2E7BE0' }}
+                        thumbColor="#FFFFFF"
+                        ios_backgroundColor="#E5E5EA"
+                      />
+                    </View>
                   </View>
 
                   <View className="ml-[18px] h-[1px] bg-light-rule" />

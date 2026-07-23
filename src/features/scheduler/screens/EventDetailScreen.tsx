@@ -1,6 +1,15 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Alert, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Linking,
+  Platform,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { ChevronLeft, ChevronUpDownIcon, LocationPinIcon } from '../../../shared/components/Icons';
@@ -10,12 +19,13 @@ import { EventDetailTimeline } from '../components/EventDetailTimeline';
 import { NewScheduleModal, ScheduleDraft } from '../components/NewScheduleModal';
 import { useCreateGoogleCalendarEvent } from '../hooks/useCreateGoogleCalendarEvent';
 import { EVENT_DETAIL_ACCENT } from '../theme';
+import { alertLabel, alertValueFromMinutes } from '../utils/alert';
 import { formatCoordinates } from '../utils/coordinates';
 import { parseEventNotes } from '../utils/eventNotes';
 import { TimelineEvent } from '../utils/timeline';
 
 const MINUTE_MS = 60_000;
-const CALENDAR_DOT_COLOR = '#2E7BE0';
+// const CALENDAR_DOT_COLOR = '#2E7BE0';
 
 interface EventDetailScreenProps {
   event: TimelineEvent;
@@ -49,12 +59,44 @@ function formatLength(minutes: number) {
   return rest === 0 ? `${hours}h` : `${hours}h ${rest}min`;
 }
 
+// buka lokasi di app maps: pakai koordinat kalau ada (lebih presisi), kalau
+// enggak pakai teks lokasinya. iOS -> Apple Maps, Android -> geo:, sisanya web.
+function openInMaps(label: string, latitude?: number, longitude?: number) {
+  const hasCoords = latitude != null && longitude != null;
+  const coords = hasCoords ? `${latitude},${longitude}` : '';
+  const query = encodeURIComponent(label);
+  const webUrl = `https://www.google.com/maps/search/?api=1&query=${
+    hasCoords ? coords : query
+  }`;
+
+  const nativeUrl = Platform.select({
+    ios: hasCoords
+      ? `maps://?ll=${coords}&q=${query || coords}`
+      : `maps://?q=${query}`,
+    android: hasCoords
+      ? `geo:${coords}?q=${coords}(${query})`
+      : `geo:0,0?q=${query}`,
+    default: webUrl,
+  }) as string;
+
+  Linking.openURL(nativeUrl).catch(() => {
+    Linking.openURL(webUrl).catch(() => {
+      Alert.alert('Tidak bisa membuka peta', 'Coba lagi sebentar ya.');
+    });
+  });
+}
+
 export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetailScreenProps) {
   const tabBarSpace = useTabBarSpace();
   const { remove, saving } = useCreateGoogleCalendarEvent();
   const [editing, setEditing] = useState(false);
 
   const { text: notesText, attachments } = parseEventNotes(event.notes);
+
+  // alert diambil dari reminder beneran di event-nya (bukan lagi hardcoded)
+  const reminders = event.reminderMinutes ?? [];
+  const primaryAlert = alertValueFromMinutes(reminders[0]);
+  const secondAlert = alertValueFromMinutes(reminders[1]);
 
   const start = new Date(startOfDay(day).getTime() + event.startMinutes * MINUTE_MS);
   const end = new Date(start.getTime() + event.durationMinutes * MINUTE_MS);
@@ -76,6 +118,7 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
     existingAttachments: attachments.map(a => ({ name: a.name, url: a.url })),
     start,
     end,
+    alert: primaryAlert,
   };
 
   const handleDelete = () => {
@@ -135,24 +178,30 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
         </Text>
 
         {event.subtitle ? (
-          <View className="mt-[8px] flex-row items-center gap-[6px]">
-            <LocationPinIcon color={EVENT_DETAIL_ACCENT} size={15} />
-            <Text
-              className="flex-1 text-[15px]"
-              style={[textStyle('medium'), { color: EVENT_DETAIL_ACCENT }]}
-            >
-              {event.subtitle}
-            </Text>
-          </View>
-        ) : null}
-
-        {event.latitude != null && event.longitude != null ? (
-          <Text
-            className="mt-[4px] text-[13px]"
-            style={[textStyle('regular'), { color: EVENT_DETAIL_ACCENT }]}
+          <TouchableOpacity
+            onPress={() => openInMaps(event.subtitle!, event.latitude, event.longitude)}
+            activeOpacity={0.6}
+            accessibilityLabel="Open location in Maps"
           >
-            {formatCoordinates(event.latitude, event.longitude)}
-          </Text>
+            <View className="mt-[8px] flex-row items-center gap-[6px]">
+              <LocationPinIcon color={EVENT_DETAIL_ACCENT} size={15} />
+              <Text
+                className="flex-1 text-[15px] underline"
+                style={[textStyle('medium'), { color: EVENT_DETAIL_ACCENT }]}
+              >
+                {event.subtitle}
+              </Text>
+            </View>
+
+            {event.latitude != null && event.longitude != null ? (
+              <Text
+                className="mt-[4px] text-[13px]"
+                style={[textStyle('regular'), { color: EVENT_DETAIL_ACCENT }]}
+              >
+                {formatCoordinates(event.latitude, event.longitude)}
+              </Text>
+            ) : null}
+          </TouchableOpacity>
         ) : null}
 
         <Text className="mt-[16px] text-[15px] text-light-inkStrong" style={textStyle('medium')}>
@@ -171,7 +220,7 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
           <EventDetailTimeline event={event} />
         </View>
 
-        <SectionCard>
+        {/* <SectionCard>
           <InfoRow
             label="Calendar"
             value="Home"
@@ -182,12 +231,12 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
               />
             }
           />
-        </SectionCard>
+        </SectionCard> */}
 
         <SectionCard>
-          <InfoRow label="Alert" value="Time to Leave" />
+          <InfoRow label="Alert" value={alertLabel(primaryAlert)} />
           <RowDivider />
-          <InfoRow label="Second Alert" value="None" />
+          <InfoRow label="Second Alert" value={alertLabel(secondAlert)} />
         </SectionCard>
 
         <SectionCard>

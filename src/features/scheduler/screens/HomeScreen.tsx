@@ -26,6 +26,7 @@ import { useCurrentLocation } from '../../settings/hooks/useCurrentLocation';
 import type { ScheduleAlert } from '../../../services/alerts/client';
 import { ALERT_TONE } from '../theme';
 import { toDayEvents } from '../utils/calendarMapping';
+import { analyzeMissingDetails, summarizeMissingDetails } from '../utils/missingDetails';
 import { startOfMonth } from '../utils/month';
 import { buildDayChips, buildWeekWindow } from '../utils/monthChips';
 import { TimelineEvent } from '../utils/timeline';
@@ -98,6 +99,15 @@ export function HomeScreen() {
 
   const dismissAlert = (alert: ScheduleAlert) =>
     setDismissed(prev => new Set(prev).add(alertKey(alert)));
+
+  const [missingBannerDismissed, setMissingBannerDismissed] = useState(false);
+  const missingSummary = useMemo(
+    () => summarizeMissingDetails(analyzeMissingDetails(events)),
+    [events],
+  );
+  // yg dipromosikan cuma yg wajib (missing location) — biar angkanya akurat &
+  // nyambung sama screen Missing Details yg default-nya tab Required
+  const missingCount = missingSummary.required;
 
   const metadata = (session?.user?.user_metadata ?? {}) as Record<string, string | undefined>;
   const firstName = (metadata.full_name ?? metadata.name ?? '').split(' ')[0] || 'there';
@@ -179,6 +189,14 @@ export function HomeScreen() {
             onDismiss={() => dismissAlert(alert)}
           />
         ))}
+
+        {missingCount > 0 && !missingBannerDismissed ? (
+          <MissingDetailsBanner
+            count={missingCount}
+            onReview={() => navigation.navigate('MissingDetails')}
+            onDismiss={() => setMissingBannerDismissed(true)}
+          />
+        ) : null}
 
         <View className="mt-[20px] h-[1px] bg-light-line" />
 
@@ -289,6 +307,54 @@ function AlertCard({
 
       <TouchableOpacity onPress={onDismiss} hitSlop={10}>
         <CloseIcon color={ALERT_TONE.body} size={10} />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+function MissingDetailsBanner({
+  count,
+  onReview,
+  onDismiss,
+}: {
+  count: number;
+  onReview: () => void;
+  onDismiss: () => void;
+}) {
+  const plural = count === 1 ? 'event is' : 'events are';
+  const body = `${count} ${plural} missing a location. Add it so STEPI can plan your travel time.`;
+
+  return (
+    <View
+      className="mt-[12px] flex-row items-start gap-[10px] rounded-[14px] p-[14px]"
+      style={{ backgroundColor: '#FFF4E5' }}
+    >
+      <Text className="mt-[1px] text-[15px]">🗓️</Text>
+
+      <View className="flex-1">
+        <Text className="text-[14px]" style={[textStyle('semibold'), { color: '#B26A00' }]}>
+          Some events are missing details
+        </Text>
+        <Text
+          className="mt-[4px] text-[12px] leading-[17px]"
+          style={[textStyle('regular'), { color: '#A5793C' }]}
+        >
+          {body}
+        </Text>
+
+        <TouchableOpacity
+          onPress={onReview}
+          activeOpacity={0.7}
+          className="mt-[10px] self-start rounded-full bg-white px-[14px] py-[6px]"
+        >
+          <Text className="text-[12px]" style={[textStyle('semibold'), { color: '#B26A00' }]}>
+            Add details
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity onPress={onDismiss} hitSlop={10}>
+        <CloseIcon color="#C79A55" size={10} />
       </TouchableOpacity>
     </View>
   );

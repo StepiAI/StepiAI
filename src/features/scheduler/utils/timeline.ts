@@ -13,6 +13,8 @@ export interface TimelineEvent {
   startMinutes: number;
   durationMinutes: number;
   tone: number;
+  // menit-sebelum tiap reminder (dari Google), urut naik. [] = tanpa alert
+  reminderMinutes?: number[];
 }
 
 export interface TimelineRange {
