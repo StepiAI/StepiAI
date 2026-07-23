@@ -116,6 +116,12 @@ export function countCompletedSessions(plan: LifePlanRecord): number {
   return count;
 }
 
+export function isLifePlanCompleted(plan: LifePlanRecord): boolean {
+  const totalSessions = countLifePlanSessions(plan);
+  if (totalSessions === 0) return false;
+  return countCompletedSessions(plan) >= totalSessions;
+}
+
 export function getLifePlanDurationDays(plan: LifePlanRecord): number {
   const start = new Date(plan.startDate);
   const end = new Date(plan.endDate);

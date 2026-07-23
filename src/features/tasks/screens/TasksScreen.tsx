@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
+import { useTabBarVisibility } from '../../../app/navigation/TabBarVisibilityContext';
 import { textStyle } from '../../../shared/theme/typography';
 import { PlanFilterTabs, PlanFilter } from '../components/PlanFilterTabs';
 import { LifePlanCard } from '../components/LifePlanCard';
@@ -23,6 +24,7 @@ import {
 import { LifePlanResolution, useCreateLifePlan } from '../hooks/useCreateLifePlan';
 import { useLifePlanDraft } from '../hooks/useLifePlanDraft';
 import { useLifePlans } from '../hooks/useLifePlans';
+import { isLifePlanCompleted } from '../utils/lifePlanMapping';
 import { CreateLifePlanScreen } from './CreateLifePlanScreen';
 import { CreatingLifePlanScreen } from './CreatingLifePlanScreen';
 import { LifePlanDetailScreen } from './LifePlanDetailScreen';
@@ -35,6 +37,13 @@ type CreationStep = 'goals' | 'schedule' | 'preferences' | 'review' | 'creating'
 export function TasksScreen() {
   const [step, setStep] = useState<CreationStep | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const { setHidden } = useTabBarVisibility();
+
+  useEffect(() => {
+    setHidden(step !== null);
+  }, [step, setHidden]);
+
+  useEffect(() => () => setHidden(false), [setHidden]);
   const {
     draft,
     setTitle,
@@ -55,7 +64,7 @@ export function TasksScreen() {
     canSubmitSchedule,
   } = useLifePlanDraft();
   const { create, saving } = useCreateLifePlan();
-  const { plans, loading, refreshing, error, refresh } = useLifePlans();
+  const { plans, loading, refreshing, error, refresh, setArchived, remove } = useLifePlans();
   const [conflict, setConflict] = useState<LifePlanConflictResult | null>(null);
 
   const exitCreation = () => {
@@ -68,22 +77,22 @@ export function TasksScreen() {
     setConflict(null);
     setStep('creating');
 
-    const result = await create(draft, resolution);
+    const outcome = await create(draft, resolution);
 
-    if (result?.created) {
+    if (outcome.type === 'created') {
       exitCreation();
       refresh();
       return;
     }
 
-    if (result && !result.created) {
-      setConflict(result.conflict);
+    if (outcome.type === 'conflict') {
+      setConflict(outcome.conflict);
       setStep('review');
       return;
     }
 
     setStep('review');
-    Alert.alert('Could not create the life plan', 'Please check your details and try again.');
+    Alert.alert('Could not create the life plan', outcome.message);
   };
 
   const handleSelectResolution = (option: LifePlanConflictOption) => {
@@ -186,13 +195,15 @@ export function TasksScreen() {
       onRefresh={refresh}
       onCreatePress={() => setStep('goals')}
       onPlanPress={setSelectedPlanId}
+      onSetArchived={setArchived}
+      onDeletePlan={remove}
     />
   );
 }
 
 function ScreenHeader() {
   return (
-    <Text className="mt-[6px] text-center text-[21px] text-light-inkStrong" style={textStyle('bold')}>
+    <Text className="mt-[20px] text-center text-[21px] text-light-inkStrong" style={textStyle('bold')}>
       Life Plan
     </Text>
   );
@@ -257,6 +268,8 @@ interface LifePlanListScreenProps {
   onRefresh: () => void;
   onCreatePress: () => void;
   onPlanPress: (planId: string) => void;
+  onSetArchived: (planId: string, archived: boolean) => Promise<void>;
+  onDeletePlan: (planId: string) => Promise<void>;
 }
 
 function LifePlanListScreen({
@@ -266,9 +279,36 @@ function LifePlanListScreen({
   onRefresh,
   onCreatePress,
   onPlanPress,
+  onSetArchived,
+  onDeletePlan,
 }: LifePlanListScreenProps) {
   const tabBarSpace = useTabBarSpace();
   const [filter, setFilter] = useState<PlanFilter>('all');
+
+  const shelvedPlans = plans.filter(plan => plan.archived || isLifePlanCompleted(plan));
+  const activePlans = plans.filter(plan => !shelvedPlans.includes(plan));
+  const listedPlans = filter === 'archived' ? shelvedPlans : activePlans;
+
+  const handleArchiveToggle = (plan: (typeof plans)[number]) => {
+    onSetArchived(plan.id, !plan.archived).catch(() => {
+      Alert.alert('Could not update', 'Please try again in a moment.');
+    });
+  };
+
+  const confirmDelete = (plan: (typeof plans)[number]) => {
+    Alert.alert('Delete life plan', `“${plan.title}” will be removed from your list.`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          onDeletePlan(plan.id).catch(() => {
+            Alert.alert('Could not delete', 'Please try again in a moment.');
+          });
+        },
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
@@ -285,26 +325,44 @@ function LifePlanListScreen({
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <TouchableOpacity
-          onPress={onCreatePress}
-          activeOpacity={0.7}
-          className="h-[64px] items-center justify-center rounded-[16px] border border-dashed border-light-hint"
-        >
-          <Text className="text-[14px] text-light-muted" style={textStyle('medium')}>
-            + Add a Life Plan
-          </Text>
-        </TouchableOpacity>
+        {filter === 'all' ? (
+          <>
+            <TouchableOpacity
+              onPress={onCreatePress}
+              activeOpacity={0.7}
+              className="h-[64px] items-center justify-center rounded-[16px] border border-dashed border-light-hint"
+            >
+              <Text className="text-[14px] text-light-muted" style={textStyle('medium')}>
+                + Add a Life Plan
+              </Text>
+            </TouchableOpacity>
 
-        <View className="h-[16px]" />
+            <View className="h-[16px]" />
+          </>
+        ) : null}
 
-        {filter === 'archived' ? (
-          <Notice title="No archived plans" caption="Plans you archive will show up here." />
-        ) : error ? (
+        {error ? (
           <Notice title="Something went wrong" caption={error} />
+        ) : listedPlans.length === 0 ? (
+          filter === 'archived' ? (
+            <Notice
+              title="No archived plans"
+              caption="Completed plans and plans you archive will show up here."
+            />
+          ) : (
+            <Notice title="No active plans" caption="Create a new life plan to get started." />
+          )
         ) : (
           <View className="gap-[14px]">
-            {plans.map(plan => (
-              <LifePlanCard key={plan.id} plan={plan} onPress={() => onPlanPress(plan.id)} />
+            {listedPlans.map(plan => (
+              <LifePlanCard
+                key={plan.id}
+                plan={plan}
+                archived={plan.archived}
+                onPress={() => onPlanPress(plan.id)}
+                onArchiveToggle={() => handleArchiveToggle(plan)}
+                onDelete={() => confirmDelete(plan)}
+              />
             ))}
           </View>
         )}

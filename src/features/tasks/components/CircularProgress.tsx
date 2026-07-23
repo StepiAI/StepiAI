@@ -1,38 +1,59 @@
 import { Text, View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { textStyle } from '../../../shared/theme/typography';
 
 interface CircularProgressProps {
   progress: number;
   size?: number;
-  strokeWidth?: number;
+  outerStrokeWidth?: number;
+  arcStrokeWidth?: number;
+  outerInset?: number;
+  gap?: number;
 }
 
-export function CircularProgress({ progress, size = 92, strokeWidth = 10 }: CircularProgressProps) {
+export function CircularProgress({
+  progress,
+  size = 122,
+  outerStrokeWidth = 14,
+  arcStrokeWidth = 16,
+  outerInset = 3,
+  gap = 2,
+}: CircularProgressProps) {
   const clamped = Math.max(0, Math.min(100, progress));
   const center = size / 2;
-  const radius = center - strokeWidth / 2;
-  const circumference = 2 * Math.PI * radius;
+
+  const outerRadius = center - outerInset - outerStrokeWidth / 2;
+  const outerInnerEdge = outerRadius - outerStrokeWidth / 2;
+
+  const arcRadius = outerInnerEdge - gap - arcStrokeWidth / 2;
+  const circumference = 2 * Math.PI * arcRadius;
   const dashOffset = circumference * (1 - clamped / 100);
 
   return (
     <View style={{ width: size, height: size }} className="items-center justify-center">
       <Svg width={size} height={size} style={{ position: 'absolute' }}>
-        <Circle cx={center} cy={center} r={radius - strokeWidth / 2} fill="#FFFFFF" />
+        <Defs>
+          <LinearGradient id="progressGradient" x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0" stopColor="#2E7BE0" />
+            <Stop offset="1" stopColor="#7B61FF" />
+          </LinearGradient>
+        </Defs>
+
         <Circle
           cx={center}
           cy={center}
-          r={radius}
-          stroke="#E4EEFF"
-          strokeWidth={strokeWidth}
+          r={outerRadius}
+          stroke="#FFFFFF"
+          strokeWidth={outerStrokeWidth}
           fill="none"
         />
+
         <Circle
           cx={center}
           cy={center}
-          r={radius}
-          stroke="#2E5FE0"
-          strokeWidth={strokeWidth}
+          r={arcRadius}
+          stroke="url(#progressGradient)"
+          strokeWidth={arcStrokeWidth}
           strokeLinecap="round"
           strokeDasharray={`${circumference} ${circumference}`}
           strokeDashoffset={dashOffset}
@@ -41,9 +62,9 @@ export function CircularProgress({ progress, size = 92, strokeWidth = 10 }: Circ
         />
       </Svg>
 
-      <Text className="text-[24px] text-light-inkStrong" style={textStyle('bold')}>
+      <Text className="text-[26px]" style={[textStyle('bold'), { color: '#2E6FE3' }]}>
         {Math.round(clamped)}
-        <Text className="text-[14px]" style={textStyle('bold')}>
+        <Text className="text-[15px]" style={[textStyle('bold'), { color: '#6E63E8' }]}>
           %
         </Text>
       </Text>

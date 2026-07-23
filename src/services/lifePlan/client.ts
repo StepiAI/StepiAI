@@ -49,6 +49,7 @@ export interface LifePlanRecord {
   endTime: string;
   difficultyLevel: ApiDifficultyLevel;
   focusPreferences: ApiFocusPreference;
+  archived: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -122,4 +123,12 @@ export function listLifePlans() {
 
 export function getLifePlan(id: string) {
   return apiClient.get<LifePlanDetail>(`${BASE_PATH}/${id}`);
+}
+
+export function setLifePlanArchived(id: string, archived: boolean) {
+  return apiClient.patch<LifePlanRecord>(`${BASE_PATH}/${id}/archive`, { archived });
+}
+
+export function deleteLifePlan(id: string) {
+  return apiClient.delete<{ deleted: true }>(`${BASE_PATH}/${id}`);
 }

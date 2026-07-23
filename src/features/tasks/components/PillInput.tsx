@@ -9,9 +9,10 @@ interface PillInputProps {
   onChangeText: (value: string) => void;
   placeholder?: string;
   autoFocus?: boolean;
+  maxLength?: number;
 }
 
-export function PillInput({ value, onChangeText, placeholder, autoFocus }: PillInputProps) {
+export function PillInput({ value, onChangeText, placeholder, autoFocus, maxLength }: PillInputProps) {
   return (
     <View className="h-[54px] flex-row items-center rounded-full bg-white px-[18px]">
       <TextInput
@@ -20,6 +21,7 @@ export function PillInput({ value, onChangeText, placeholder, autoFocus }: PillI
         placeholder={placeholder}
         placeholderTextColor={PLACEHOLDER_COLOR}
         autoFocus={autoFocus}
+        maxLength={maxLength}
         className="flex-1 text-[15px] text-light-ink"
         style={textStyle('medium')}
       />
