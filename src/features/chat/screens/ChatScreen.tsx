@@ -311,6 +311,7 @@ export function ChatScreen() {
         topInset={insets.top}
         bottomInset={insets.bottom}
         onConversationChanged={refresh}
+        onProposalStatusChange={setProposalStatus}
       />
     </SafeAreaView>
   );

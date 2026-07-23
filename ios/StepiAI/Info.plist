@@ -46,6 +46,10 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Need Location access</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>StepiAI needs microphone access to turn your speech into text.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>StepiAI needs speech recognition access to understand your voice commands.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
