@@ -4,22 +4,14 @@ import {
   isSuccessResponse,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import {
-  GOOGLE_WEB_CLIENT_ID,
-  GOOGLE_IOS_CLIENT_ID,
-} from '../../../config/env';
 import { supabase } from '../../../services/supabase/client';
 import type { InitializeNotificationsRequest } from '../../../services/notifications/client';
 import { initializeNotifications } from '../../../services/notifications/client';
-
-GoogleSignin.configure({
-  webClientId: GOOGLE_WEB_CLIENT_ID,
-  iosClientId: GOOGLE_IOS_CLIENT_ID,
-  offlineAccess: true, // return serverAuthCode buat api.
-});
+import { configureGoogleSignin } from './googleSigninConfig';
 
 // flow ny: google account picker -> idToken -> session ambil dari Supabase
 export async function signInWithGoogle() {
+  configureGoogleSignin();
   await GoogleSignin.hasPlayServices();
 
   let response;
