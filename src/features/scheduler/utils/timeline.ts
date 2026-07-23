@@ -99,6 +99,67 @@ export function blockPosition(event: TimelineEvent, range: TimelineRange) {
   };
 }
 
+export interface PositionedEvent {
+  event: TimelineEvent;
+  top: number;
+  height: number;
+  columnIndex: number;
+  columnCount: number;
+}
+
+export function layoutEvents(
+  events: TimelineEvent[],
+  range: TimelineRange,
+): PositionedEvent[] {
+  const sorted = [...events].sort((a, b) => {
+    if (a.startMinutes !== b.startMinutes) return a.startMinutes - b.startMinutes;
+    return b.durationMinutes - a.durationMinutes;
+  });
+
+  const result: PositionedEvent[] = [];
+  const eventEnd = (e: TimelineEvent) => e.startMinutes + e.durationMinutes;
+
+  let cluster: { event: TimelineEvent; column: number }[] = [];
+  let clusterEnd = -Infinity;
+  let columnEnds: number[] = [];
+
+  const flush = () => {
+    if (cluster.length === 0) return;
+    const columnCount = Math.max(...cluster.map(item => item.column)) + 1;
+    for (const item of cluster) {
+      const { top, height } = blockPosition(item.event, range);
+      result.push({
+        event: item.event,
+        top,
+        height,
+        columnIndex: item.column,
+        columnCount,
+      });
+    }
+    cluster = [];
+    columnEnds = [];
+    clusterEnd = -Infinity;
+  };
+
+  for (const event of sorted) {
+    if (event.startMinutes >= clusterEnd) flush();
+
+    let column = columnEnds.findIndex(end => end <= event.startMinutes);
+    if (column === -1) {
+      column = columnEnds.length;
+      columnEnds.push(eventEnd(event));
+    } else {
+      columnEnds[column] = eventEnd(event);
+    }
+
+    cluster.push({ event, column });
+    clusterEnd = Math.max(clusterEnd, eventEnd(event));
+  }
+  flush();
+
+  return result;
+}
+
 export function minutesNow(date = new Date()) {
   return date.getHours() * 60 + date.getMinutes();
 }

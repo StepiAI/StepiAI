@@ -16,9 +16,23 @@ import { PillInput } from '../components/PillInput';
 import { ProgressSteps } from '../components/ProgressSteps';
 import { TopicRow } from '../components/TopicRow';
 import { LIFE_PLAN_GRADIENT, LIFE_PLAN_TOTAL_STEPS } from '../theme';
+import { LIFE_PLAN_FIELD_MAX, validateLifePlanField } from '../utils/lifePlanDraft';
 import type { LifePlanTopic } from '../types';
 
 const CURRENT_STEP = 1;
+
+function fieldHint(label: string, value: string): string | null {
+  return value.trim().length > 0 ? validateLifePlanField(label, value) : null;
+}
+
+function FieldError({ message }: { message: string | null }) {
+  if (!message) return null;
+  return (
+    <Text className="mt-[6px] px-[8px] text-[12px] text-danger" style={textStyle('regular')}>
+      {message}
+    </Text>
+  );
+}
 
 interface CreateLifePlanScreenProps {
   title: string;
@@ -92,8 +106,10 @@ export function CreateLifePlanScreen({
             value={title}
             onChangeText={onTitleChange}
             placeholder="e.g. Learning React"
+            maxLength={LIFE_PLAN_FIELD_MAX}
             autoFocus
           />
+          <FieldError message={fieldHint('Title', title)} />
 
           <View className="h-[20px]" />
 
@@ -102,7 +118,9 @@ export function CreateLifePlanScreen({
             value={goal}
             onChangeText={onGoalChange}
             placeholder="e.g. Build one project"
+            maxLength={LIFE_PLAN_FIELD_MAX}
           />
+          <FieldError message={fieldHint('Goal', goal)} />
 
           <View className="h-[20px]" />
 

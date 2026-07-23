@@ -43,7 +43,13 @@ describe('isDraftReady', () => {
     expect(isDraftReady({ title: '   ', goal: '   ' })).toBe(false);
   });
 
-  it('siap begitu title dan goal keisi', () => {
+  it('nolak kalau title atau goal kurang dari 5 karakter (samain sama backend)', () => {
+    expect(isDraftReady({ title: 'abc', goal: 'Build one project' })).toBe(false);
+    expect(isDraftReady({ title: 'Learning React', goal: 'go' })).toBe(false);
+  });
+
+  it('siap begitu title dan goal minimal 5 karakter', () => {
+    expect(isDraftReady({ title: 'Learn', goal: 'Build' })).toBe(true);
     expect(isDraftReady({ title: 'Learning React', goal: 'Build one project' })).toBe(true);
   });
 });

@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { MoreIcon } from '../../../shared/components/Icons';
 import { textStyle } from '../../../shared/theme/typography';
@@ -8,26 +9,74 @@ import {
   countCompletedSessions,
   countLifePlanSessions,
   getLifePlanDurationDays,
+  isLifePlanCompleted,
 } from '../utils/lifePlanMapping';
+import { CardMenuAnchor, LifePlanCardMenu } from './LifePlanCardMenu';
 
 interface LifePlanCardProps {
   plan: LifePlanRecord;
+  archived?: boolean;
   onPress: () => void;
+  onArchiveToggle?: () => void;
+  onDelete?: () => void;
 }
 
-export function LifePlanCard({ plan, onPress }: LifePlanCardProps) {
+export function LifePlanCard({
+  plan,
+  archived = false,
+  onPress,
+  onArchiveToggle,
+  onDelete,
+}: LifePlanCardProps) {
   const totalSessions = countLifePlanSessions(plan);
   const durationDays = getLifePlanDurationDays(plan);
   const completedSessions = countCompletedSessions(plan);
   const progressRatio = totalSessions > 0 ? completedSessions / totalSessions : 0;
+  const completed = isLifePlanCompleted(plan);
+
+  const triggerRef = useRef<View>(null);
+  const [menuAnchor, setMenuAnchor] = useState<CardMenuAnchor | null>(null);
+
+  const hasMenu = Boolean(onArchiveToggle || onDelete);
+
+  const openMenu = () => {
+    triggerRef.current?.measureInWindow((x, y, width, height) => {
+      setMenuAnchor({ x: x + width, y: y + height });
+    });
+  };
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8} className="rounded-[16px] bg-white p-[18px]">
       <View className="flex-row items-start justify-between">
-        <Text className="flex-1 pr-[10px] text-[16px] text-light-inkStrong" style={textStyle('bold')}>
-          {plan.title}
-        </Text>
-        <MoreIcon />
+        <View className="flex-1 flex-row items-center pr-[10px]">
+          <Text
+            className="shrink text-[16px] text-light-inkStrong"
+            style={textStyle('bold')}
+            numberOfLines={1}
+          >
+            {plan.title}
+          </Text>
+          {completed ? (
+            <View className="ml-[8px] rounded-full bg-light-accentSoft px-[10px] py-[3px]">
+              <Text className="text-[11px] text-light-accent" style={textStyle('semibold')}>
+                Completed
+              </Text>
+            </View>
+          ) : null}
+        </View>
+
+        {hasMenu ? (
+          <TouchableOpacity
+            ref={triggerRef}
+            onPress={openMenu}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            className="pl-[4px]"
+          >
+            <MoreIcon />
+          </TouchableOpacity>
+        ) : (
+          <MoreIcon />
+        )}
       </View>
 
       <Text className="mt-[4px] text-[13px] text-light-muted" style={textStyle('regular')}>
@@ -52,6 +101,15 @@ export function LifePlanCard({ plan, onPress }: LifePlanCardProps) {
           style={{ marginLeft: `${progressRatio * 100}%` }}
         />
       </View>
+
+      <LifePlanCardMenu
+        visible={menuAnchor !== null}
+        anchor={menuAnchor}
+        archived={archived}
+        onClose={() => setMenuAnchor(null)}
+        onArchiveToggle={() => onArchiveToggle?.()}
+        onDelete={() => onDelete?.()}
+      />
     </TouchableOpacity>
   );
 }

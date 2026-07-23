@@ -26,6 +26,7 @@ function buildRecord(overrides: Partial<LifePlanRecord> = {}): LifePlanRecord {
     endTime: '21:00',
     difficultyLevel: 'INTERMEDIATE',
     focusPreferences: 'BALANCED',
+    archived: false,
     createdAt: '2026-07-20T00:00:00.000Z',
     updatedAt: '2026-07-20T00:00:00.000Z',
     ...overrides,

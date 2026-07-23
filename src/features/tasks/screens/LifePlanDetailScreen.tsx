@@ -15,6 +15,7 @@ import {
   countLifePlanSessions,
   getSessionTopic,
   getThisWeekSchedules,
+  isSessionToday,
 } from '../utils/lifePlanMapping';
 import { NewTaskScreen } from './NewTaskScreen';
 
@@ -32,6 +33,15 @@ export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScree
     () => (plan ? getThisWeekSchedules(plan.schedules) : []),
     [plan],
   );
+
+  const defaultSelectedId = useMemo(
+    () =>
+      thisWeekSchedules.find(schedule => isSessionToday(new Date(schedule.startDateTime)))?.id ??
+      null,
+    [thisWeekSchedules],
+  );
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const effectiveSelectedId = selectedTaskId ?? defaultSelectedId;
 
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
@@ -109,7 +119,14 @@ export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScree
 
           <View className="gap-[12px]">
             {thisWeekSchedules.map((schedule, index) => (
-              <TaskRow key={schedule.id} schedule={schedule} topic={getSessionTopic(plan, index)} />
+              <TaskRow
+                key={schedule.id}
+                schedule={schedule}
+                topic={getSessionTopic(plan, index)}
+                selected={schedule.id === effectiveSelectedId}
+                onPress={() => setSelectedTaskId(schedule.id)}
+                onViewPress={() => {}}
+              />
             ))}
           </View>
 
