@@ -32,6 +32,8 @@ async function authorizedFetch(path: string, init?: RequestInit) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
+  
+  console.log("debug bearer: ", session?.access_token);
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: {

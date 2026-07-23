@@ -79,15 +79,31 @@ const MONTHS_FULL = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-export function buildWeekWindow(month: Date, weeksBefore = 3, weeksAfter = 11): CalendarWeek[] {
-  const first = startOfWeek(new Date(month.getFullYear(), month.getMonth(), 1));
-  const start = new Date(first);
-  start.setDate(start.getDate() - weeksBefore * 7);
+// minggu mulai Senin, jadi index 3 = Kamis alias tengah minggu
+export function weekAnchor(days: Date[]) {
+  return days[3];
+}
 
-  const total = weeksBefore + weeksAfter;
+/**
+ * Bikin semua minggu dalam SATU TAHUN penuh (Januari–Desember) dari tahun yg
+ * lagi dibuka, bukan cuma beberapa minggu di sekitar bulannya. Mulainya dari
+ * Senin di minggu 1 Januari, berhentinya di minggu yg masih nyentuh 31
+ * Desember — jadi ada 52-53 minggu dan user bisa scroll Jan sampai Des.
+ */
+export function buildWeekWindow(month: Date): CalendarWeek[] {
+  const year = month.getFullYear();
+  const start = startOfWeek(new Date(year, 0, 1));
+  const lastDay = new Date(year, 11, 31);
+
   const weeks: CalendarWeek[] = [];
+  let labelledMonth: number | null = null;
 
-  for (let w = 0; w < total; w++) {
+  for (let w = 0; ; w++) {
+    // minggu ini mulainya kapan; kalau udah lewat 31 Des, berhenti
+    const weekStart = new Date(start);
+    weekStart.setDate(start.getDate() + w * 7);
+    if (weekStart > lastDay) break;
+
     const days: Date[] = [];
     for (let d = 0; d < 7; d++) {
       const date = new Date(start);
@@ -95,11 +111,18 @@ export function buildWeekWindow(month: Date, weeksBefore = 3, weeksAfter = 11): 
       days.push(date);
     }
 
-    const firstOfMonth = days.find(d => d.getDate() === 1);
+    // Label-nya nempel di minggu yg MAYORITAS-nya bulan itu (patokannya hari
+    // Kamis), bukan minggu yg kebetulan ada tanggal 1-nya. Kalau pakai tanggal
+    // 1, minggu peralihan kayak 27 Jul–2 Agu bakal kelempar ke heading
+    // "August", jadi tanggal 27-31 keliatan ilang dari bagian July.
+    const anchorMonth = weekAnchor(days).getMonth();
+    const startsNewMonth = anchorMonth !== labelledMonth;
+    labelledMonth = anchorMonth;
+
     weeks.push({
       key: chipKey(days[0]),
       days,
-      monthLabel: firstOfMonth ? MONTHS_FULL[firstOfMonth.getMonth()] : null,
+      monthLabel: startsNewMonth ? MONTHS_FULL[anchorMonth] : null,
     });
   }
 
@@ -107,8 +130,12 @@ export function buildWeekWindow(month: Date, weeksBefore = 3, weeksAfter = 11): 
 }
 
 export function initialWeekIndex(weeks: CalendarWeek[], month: Date) {
-  const idx = weeks.findIndex(week =>
-    week.days.some(d => d.getMonth() === month.getMonth() && d.getDate() === 1),
-  );
+  const idx = weeks.findIndex(week => {
+    const anchor = weekAnchor(week.days);
+    return (
+      anchor.getMonth() === month.getMonth() &&
+      anchor.getFullYear() === month.getFullYear()
+    );
+  });
   return idx < 0 ? 0 : idx;
 }

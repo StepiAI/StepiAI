@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
 import { textStyle } from '../../../shared/theme/typography';
-import { LocationPinIcon } from '../../../shared/components/Icons';
+import { ClockGlyph, LocationPinIcon } from '../../../shared/components/Icons';
 import { EVENT_PALETTE } from '../eventColors';
 import { NOW_INDICATOR_COLOR } from '../theme';
 import {
@@ -23,20 +22,11 @@ const GUTTER_WIDTH = 52;
 const MAX_INDENT = 0.16;
 const MAX_TOTAL_INDENT = 0.5;
 
-function ClockGlyph({ color, size = 12 }: { color: string; size?: number }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Circle cx={12} cy={12} r={9} stroke={color} strokeWidth={2} />
-      <Path
-        d="M12 7.5V12l2.8 1.8"
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
-}
+// Tinggi kartu ngikut durasi, jadi event pendek (30 menitan) cuma dapet ~40px
+// — gak muat buat judul + jam sekaligus. Isinya dipangkas nyesuain tinggi:
+// yang penting judulnya kebaca, jamnya udah keliatan dari posisi di timeline.
+const MIN_HEIGHT_FOR_TIME = 54;
+const MIN_HEIGHT_FOR_LOCATION = 74;
 
 interface DayTimelineProps {
   events: TimelineEvent[];
@@ -94,6 +84,9 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
           const leftPct = columnIndex * indentPerColumn * 100;
           const isStacked = columnCount > 1;
 
+          const showTime = height >= MIN_HEIGHT_FOR_TIME;
+          const showLocation = Boolean(event.subtitle) && height >= MIN_HEIGHT_FOR_LOCATION;
+
           return (
             <TouchableOpacity
               key={event.id}
@@ -118,7 +111,11 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
               >
                 <View style={[styles.accentBar, { backgroundColor: tone.text }]} />
 
-                <View className="flex-1 px-[12px] py-[8px]">
+                <View
+                  className={`flex-1 px-[12px] ${
+                    showTime ? 'py-[8px]' : 'justify-center py-[4px]'
+                  }`}
+                >
                   <Text
                     className="text-[14px] text-light-inkStrong"
                     style={textStyle('bold')}
@@ -127,7 +124,7 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
                     {event.title}
                   </Text>
 
-                  {event.subtitle ? (
+                  {showLocation ? (
                     <View className="mt-[4px] flex-row items-center gap-[5px]">
                       <LocationPinIcon color={tone.text} size={12} />
                       <Text
@@ -140,16 +137,18 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
                     </View>
                   ) : null}
 
-                  <View className="mt-[3px] flex-row items-center gap-[5px]">
-                    <ClockGlyph color={tone.text} size={12} />
-                    <Text
-                      className="text-[12px]"
-                      style={[textStyle('regular'), { color: tone.text }]}
-                      numberOfLines={1}
-                    >
-                      {formatClockRange(event.startMinutes, event.durationMinutes)}
-                    </Text>
-                  </View>
+                  {showTime ? (
+                    <View className="mt-[3px] flex-row items-center gap-[5px]">
+                      <ClockGlyph color={tone.text} size={12} />
+                      <Text
+                        className="text-[12px]"
+                        style={[textStyle('regular'), { color: tone.text }]}
+                        numberOfLines={1}
+                      >
+                        {formatClockRange(event.startMinutes, event.durationMinutes)}
+                      </Text>
+                    </View>
+                  ) : null}
                 </View>
               </View>
             </TouchableOpacity>

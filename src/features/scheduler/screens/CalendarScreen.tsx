@@ -18,7 +18,7 @@ import { WeekStrip } from '../components/WeekStrip';
 import { useGoogleCalendarEvents } from '../hooks/useGoogleCalendarEvents';
 import { TONE_PURPLE } from '../eventColors';
 import { toDayEvents } from '../utils/calendarMapping';
-import { buildWeek, formatWeekRange, startOfWeek } from '../utils/week';
+import { addWeeks, buildWeek, formatWeekRange, startOfWeek } from '../utils/week';
 
 export function CalendarScreen() {
   const [selected, setSelected] = useState(() => new Date());
@@ -64,7 +64,13 @@ export function CalendarScreen() {
         </TouchableOpacity>
 
         <View className="mt-[14px]">
-          <WeekStrip week={week} selected={selected} onSelect={setSelected} />
+          <WeekStrip
+            week={week}
+            selected={selected}
+            onSelect={setSelected}
+            onPrevWeek={() => setSelected(current => addWeeks(current, -1))}
+            onNextWeek={() => setSelected(current => addWeeks(current, 1))}
+          />
         </View>
       </View>
 

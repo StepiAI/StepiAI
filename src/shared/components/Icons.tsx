@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import Svg, { Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 const STROKE = '#1C1C1E';
 
@@ -233,6 +233,22 @@ export function EditIcon({
         d="M18.4 3.4a1.8 1.8 0 0 1 2.5 2.5L13.4 13.4l-3 .8.8-3z"
         stroke={color}
         strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+// jam versi SVG, dipakai di kartu event (DayTimeline & EventDetailTimeline)
+export function ClockGlyph({ color, size = 12 }: { color: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx={12} cy={12} r={9} stroke={color} strokeWidth={2} />
+      <Path
+        d="M12 7.5V12l2.8 1.8"
+        stroke={color}
+        strokeWidth={2}
         strokeLinecap="round"
         strokeLinejoin="round"
       />

@@ -30,8 +30,16 @@ function startOfDay(day: Date) {
   return result;
 }
 
+// format 12 jam kayak kalender iOS: "1.30 PM", tapi yg pas jam bulat "5 PM"
 function formatClock(date: Date) {
-  return `${String(date.getHours()).padStart(2, '0')}.${String(date.getMinutes()).padStart(2, '0')}`;
+  const hour24 = date.getHours();
+  const minute = date.getMinutes();
+  const suffix = hour24 < 12 ? 'AM' : 'PM';
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+
+  return minute === 0
+    ? `${hour12} ${suffix}`
+    : `${hour12}.${String(minute).padStart(2, '0')} ${suffix}`;
 }
 
 function formatLength(minutes: number) {
@@ -88,18 +96,19 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
       <StatusBar barStyle="dark-content" />
 
-      <View className="flex-row items-center justify-between px-[12px] pt-[8px]">
+      {/* tombolnya dibikin pill putih biar nempel di atas background abu2 */}
+      <View className="flex-row items-center justify-between px-[16px] pt-[8px]">
         <TouchableOpacity
           onPress={onBack}
           activeOpacity={0.6}
           hitSlop={10}
-          className="flex-row items-center gap-[2px] py-[4px]"
+          className="flex-row items-center gap-[4px] rounded-full bg-white py-[8px] pl-[12px] pr-[16px]"
         >
-          <ChevronLeft color={CALENDAR_DOT_COLOR} size={11} />
-          <Text className="text-[16px] text-light-accent" style={textStyle('regular')}>
+          <ChevronLeft color="#1C1C1E" size={11} />
+          <Text className="text-[16px] text-light-inkStrong" style={textStyle('medium')}>
             {start.toLocaleDateString('en-US', { month: 'long' })}
           </Text>
         </TouchableOpacity>
@@ -108,9 +117,9 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
           onPress={() => setEditing(true)}
           activeOpacity={0.6}
           hitSlop={10}
-          className="px-[8px] py-[4px]"
+          className="rounded-full bg-white px-[18px] py-[8px]"
         >
-          <Text className="text-[16px] text-light-accent" style={textStyle('semibold')}>
+          <Text className="text-[16px] text-light-inkStrong" style={textStyle('medium')}>
             Edit
           </Text>
         </TouchableOpacity>
@@ -149,12 +158,14 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
         <Text className="mt-[16px] text-[15px] text-light-inkStrong" style={textStyle('medium')}>
           {dateLabel}
         </Text>
-        <Text className="mt-[2px] text-[15px] text-light-muted" style={textStyle('regular')}>
-          {formatClock(start)} – {formatClock(end)}
-        </Text>
-        <Text className="mt-[2px] text-[13px] text-light-faint" style={textStyle('regular')}>
-          {formatLength(event.durationMinutes)}
-        </Text>
+        <View className="mt-[2px] flex-row items-center gap-[8px]">
+          <Text className="text-[15px] text-light-inkStrong" style={textStyle('regular')}>
+            {formatClock(start)} – {formatClock(end)}
+          </Text>
+          <Text className="text-[13px] text-light-faint" style={textStyle('regular')}>
+            {formatLength(event.durationMinutes)}
+          </Text>
+        </View>
 
         <View className="mt-[20px]">
           <EventDetailTimeline event={event} />
@@ -181,11 +192,8 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
 
         <SectionCard>
           <View className="px-[16px] py-[14px]">
-            <Text
-              className="text-[12px] tracking-[0.5px] text-light-muted"
-              style={textStyle('semibold')}
-            >
-              NOTES
+            <Text className="text-[15px] text-light-inkStrong" style={textStyle('medium')}>
+              Notes
             </Text>
             {notesText ? (
               <Text
@@ -211,7 +219,7 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
           onPress={handleDelete}
           disabled={saving}
           activeOpacity={0.7}
-          className="mt-[20px] items-center rounded-[16px] bg-light-fill py-[16px]"
+          className="mt-[20px] items-center rounded-[16px] bg-white py-[16px]"
           style={saving ? { opacity: 0.5 } : undefined}
         >
           <Text
@@ -241,7 +249,7 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
 
 function SectionCard({ children }: { children: ReactNode }) {
   return (
-    <View className="mt-[16px] overflow-hidden rounded-[16px] bg-light-fill">{children}</View>
+    <View className="mt-[16px] overflow-hidden rounded-[16px] bg-white">{children}</View>
   );
 }
 

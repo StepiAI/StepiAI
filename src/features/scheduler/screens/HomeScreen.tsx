@@ -29,7 +29,7 @@ import { toDayEvents } from '../utils/calendarMapping';
 import { startOfMonth } from '../utils/month';
 import { buildDayChips, buildWeekWindow } from '../utils/monthChips';
 import { TimelineEvent } from '../utils/timeline';
-import { buildWeek, startOfWeek } from '../utils/week';
+import { addWeeks, buildWeek, startOfWeek } from '../utils/week';
 import { EventDetailScreen } from './EventDetailScreen';
 
 function greetingForHour(hour: number) {
@@ -87,6 +87,8 @@ export function HomeScreen() {
     setPickerOpen(true);
   };
 
+  const shiftWeek = (delta: number) => setSelected(current => addWeeks(current, delta));
+
   const { location } = useCurrentLocation();
   const { alerts } = useScheduleAlerts(location, events);
   const visibleAlerts = useMemo(
@@ -130,13 +132,19 @@ export function HomeScreen() {
             </Text>
           </TouchableOpacity>
 
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} className="h-[40px] w-[40px] rounded-full" />
-          ) : (
-            <View className="h-[40px] w-[40px] items-center justify-center rounded-full bg-light-fill">
-              <PersonIcon color="#8E8E93" />
-            </View>
-          )}
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Profile')}
+            activeOpacity={0.7}
+            accessibilityLabel="Open profile"
+          >
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} className="h-[40px] w-[40px] rounded-full" />
+            ) : (
+              <View className="h-[40px] w-[40px] items-center justify-center rounded-full bg-light-fill">
+                <PersonIcon color="#8E8E93" />
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
 
         <Text className="mt-[14px] text-[22px] text-light-inkStrong" style={textStyle('bold')}>
@@ -147,7 +155,13 @@ export function HomeScreen() {
         </Text>
 
         <View className="mt-[16px]">
-          <WeekStrip week={week} selected={selected} onSelect={setSelected} />
+          <WeekStrip
+            week={week}
+            selected={selected}
+            onSelect={setSelected}
+            onPrevWeek={() => shiftWeek(-1)}
+            onNextWeek={() => shiftWeek(1)}
+          />
         </View>
       </View>
 
