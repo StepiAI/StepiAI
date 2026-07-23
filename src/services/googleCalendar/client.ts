@@ -60,7 +60,6 @@ export interface CreateGoogleCalendarEventInput {
   recurrence?: string[];
   latitude?: number;
   longitude?: number;
-  // menit-sebelum reminder; null = tanpa alert. dikirim tiap save (create/edit)
   reminderMinutesBefore?: number | null;
 }
 
@@ -73,6 +72,11 @@ export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | nu
     forceCodeForRefreshToken: true,
   });
 
+  try {
+    await GoogleSignin.revokeAccess();
+  } catch {
+
+  }
   await GoogleSignin.signOut();
 
   let response;

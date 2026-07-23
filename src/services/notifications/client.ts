@@ -3,6 +3,7 @@ import messaging, {
 } from '@react-native-firebase/messaging';
 import { Platform } from 'react-native';
 import { apiClient } from '../api/client';
+import { supabase } from '../supabase/client';
 
 export interface InitializeNotificationsRequest {
   userId: string;
@@ -29,17 +30,18 @@ export async function initializeNotifications(
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    if (enabled) {
-      const token = await messaging().getToken();
-      const registerDeviceRequest: RegisterDeviceRequest = {
-        userId: request.userId,
-        deviceToken: token,
-      };
-
-      return await registerDevice(registerDeviceRequest);
-    } else {
+    if (!enabled) {
       return null;
     }
+
+    const token = await messaging().getToken();
+
+    const registerDeviceRequest: RegisterDeviceRequest = {
+      userId: request.userId,
+      deviceToken: token,
+    };
+
+    return await registerDevice(registerDeviceRequest);
   } catch (error) {
     return null;
   }
@@ -54,7 +56,7 @@ async function registerDevice(
   );
 }
 
-export async function setupNotificationListeners() {
+export function setupNotificationListeners() {
   // Handle foreground messages
   const unsubscribeForeground = messaging().onMessage(
     async (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
@@ -81,10 +83,20 @@ export async function setupNotificationListeners() {
       console.error('Error getting initial notification:', error);
     });
 
-  // Handle token refresh
-  const unsubscribeTokenRefresh = messaging().onTokenRefresh(token => {
-    console.log('New FCM token:', token);
-    // Send new token to backend
+  // Handle token refresh — daftarin ulang token baru ke backend
+  const unsubscribeTokenRefresh = messaging().onTokenRefresh(async token => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const userId = session?.user.id;
+
+      if (userId) {
+        await registerDevice({ userId, deviceToken: token });
+      }
+    } catch (error) {
+      console.error('Failed to re-register refreshed FCM token:', error);
+    }
   });
 
   return () => {

@@ -160,7 +160,7 @@ export function NewScheduleModal({
   const [formError, setFormError] = useState<string | null>(null);
   const [picker, setPicker] = useState<PickerTarget>(null);
   const [repeat, setRepeat] = useState<RepeatValue>('never');
-  const [alert, setAlert] = useState<AlertValue>('none');
+  const [alert, setAlert] = useState<AlertValue>('at_time');
   const [travel, setTravel] = useState<TravelTimeValue>('none');
 
   const {
@@ -223,7 +223,7 @@ export function NewScheduleModal({
       setEndDate(new Date(draft.end));
       setEndTime(new Date(draft.end));
       setRepeat('never');
-      setAlert(draft.alert ?? 'none');
+      setAlert('at_time');
       setTravel('none');
       clearAttachments();
       setFormError(null);
@@ -247,7 +247,7 @@ export function NewScheduleModal({
     setEndDate(new Date(end));
     setEndTime(end);
     setRepeat('never');
-    setAlert('none');
+    setAlert('at_time');
     setTravel('none');
     clearAttachments();
     setFormError(null);
