@@ -33,6 +33,9 @@ export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScree
     [plan],
   );
 
+  console.log('[LifePlanDetailScreen] thisWeekSchedules:', plan?.schedules, );
+  console.log('[Plan] plan DUAR:', thisWeekSchedules.map(s => s.startDateTime));
+
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
       <StatusBar barStyle="dark-content" />

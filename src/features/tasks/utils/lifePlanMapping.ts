@@ -4,7 +4,12 @@ import {
   ScheduleRecord,
   LifePlanRecord,
 } from '../../../services/lifePlan/client';
-import { DifficultyLevel, FocusPreference, LifePlanDraft, Weekday } from '../types';
+import {
+  DifficultyLevel,
+  FocusPreference,
+  LifePlanDraft,
+  Weekday,
+} from '../types';
 import { formatDateOnly, formatTimeOnly } from './dateTime';
 
 const WEEKDAY_TO_API: Record<Weekday, ApiWeekday> = {
@@ -17,23 +22,33 @@ const WEEKDAY_TO_API: Record<Weekday, ApiWeekday> = {
   Sunday: 'SUNDAY',
 };
 
-const FOCUS_PREFERENCE_TO_API: Record<FocusPreference, CreateLifePlanRequest['focusPreferences']> = {
+const FOCUS_PREFERENCE_TO_API: Record<
+  FocusPreference,
+  CreateLifePlanRequest['focusPreferences']
+> = {
   'deep-focus': 'DEEP_FOCUS',
   balanced: 'BALANCED',
   pomodoro: 'PODOMORO',
 };
 
-const DIFFICULTY_LEVEL_TO_API: Record<DifficultyLevel, CreateLifePlanRequest['difficultyLevel']> = {
+const DIFFICULTY_LEVEL_TO_API: Record<
+  DifficultyLevel,
+  CreateLifePlanRequest['difficultyLevel']
+> = {
   beginner: 'BEGINNER',
   intermediate: 'INTERMEDIATE',
   advanced: 'ADVANCED',
 };
 
-export function toCreateLifePlanRequest(draft: LifePlanDraft): CreateLifePlanRequest {
+export function toCreateLifePlanRequest(
+  draft: LifePlanDraft,
+): CreateLifePlanRequest {
   return {
     title: draft.title.trim(),
     goal: draft.goal.trim(),
-    topic: draft.topics.map(topic => topic.label.trim()).filter(label => label.length > 0),
+    topic: draft.topics
+      .map(topic => topic.label.trim())
+      .filter(label => label.length > 0),
     startDate: formatDateOnly(draft.schedule.startDate),
     endDate: formatDateOnly(draft.schedule.endDate),
     availableDays: draft.schedule.availableDays.map(day => WEEKDAY_TO_API[day]),
@@ -55,7 +70,9 @@ const API_WEEKDAY_TO_DAY_INDEX: Record<ApiWeekday, number> = {
 };
 
 export function countLifePlanSessions(plan: LifePlanRecord): number {
-  const availableDayIndexes = new Set(plan.availableDays.map(day => API_WEEKDAY_TO_DAY_INDEX[day]));
+  const availableDayIndexes = new Set(
+    plan.availableDays.map(day => API_WEEKDAY_TO_DAY_INDEX[day]),
+  );
   if (availableDayIndexes.size === 0) return 0;
 
   const cursor = new Date(plan.startDate);
@@ -73,7 +90,9 @@ export function countLifePlanSessions(plan: LifePlanRecord): number {
 }
 
 export function countCompletedSessions(plan: LifePlanRecord): number {
-  const availableDayIndexes = new Set(plan.availableDays.map(day => API_WEEKDAY_TO_DAY_INDEX[day]));
+  const availableDayIndexes = new Set(
+    plan.availableDays.map(day => API_WEEKDAY_TO_DAY_INDEX[day]),
+  );
   if (availableDayIndexes.size === 0) return 0;
 
   const now = new Date();
@@ -85,7 +104,10 @@ export function countCompletedSessions(plan: LifePlanRecord): number {
 
   while (cursor.getTime() <= end.getTime()) {
     // session nya keitung kelar klo udh lewat hari ini (sesuai perkataan jacq)
-    if (availableDayIndexes.has(cursor.getUTCDay()) && cursor.getTime() < todayStart) {
+    if (
+      availableDayIndexes.has(cursor.getUTCDay()) &&
+      cursor.getTime() < todayStart
+    ) {
       count++;
     }
     cursor.setUTCDate(cursor.getUTCDate() + 1);
@@ -97,7 +119,10 @@ export function countCompletedSessions(plan: LifePlanRecord): number {
 export function getLifePlanDurationDays(plan: LifePlanRecord): number {
   const start = new Date(plan.startDate);
   const end = new Date(plan.endDate);
-  return Math.max(1, Math.round((end.getTime() - start.getTime()) / 86_400_000));
+  return Math.max(
+    1,
+    Math.round((end.getTime() - start.getTime()) / 86_400_000),
+  );
 }
 
 export function computeElapsedProgress(plan: LifePlanRecord): number {
@@ -110,7 +135,10 @@ export function computeElapsedProgress(plan: LifePlanRecord): number {
   return Math.round(Math.max(0, Math.min(1, ratio)) * 100);
 }
 
-export function getSessionTopic(plan: LifePlanRecord, index: number): string | null {
+export function getSessionTopic(
+  plan: LifePlanRecord,
+  index: number,
+): string | null {
   if (plan.topics.length === 0) return null;
   return plan.topics[index % plan.topics.length];
 }
@@ -125,14 +153,19 @@ export function isSessionToday(date: Date): boolean {
   return startOfDay(date).getTime() === startOfDay(new Date()).getTime();
 }
 
-export function getThisWeekSchedules(schedules: ScheduleRecord[]): ScheduleRecord[] {
+export function getThisWeekSchedules(
+  schedules: ScheduleRecord[],
+): ScheduleRecord[] {
   const start = startOfDay(new Date()).getTime();
   const end = start + 7 * 86_400_000;
 
-  return schedules.filter(schedule => {
+  const res = schedules.filter(schedule => {
+    console.log(`ON LOOP ${new Date(schedule.startDateTime).getTime()}`);
     const scheduleStart = new Date(schedule.startDateTime).getTime();
-    return scheduleStart >= start && scheduleStart < end;
+    return  scheduleStart <= end;
   });
+  console.log(`RES: ${res}`);
+  return res;
 }
 
 export function formatSessionDayLabel(date: Date): string {
