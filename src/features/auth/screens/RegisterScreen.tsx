@@ -6,7 +6,11 @@ import { GoogleLogo } from '../../../shared/components/GoogleLogo';
 import { textStyle } from '../../../shared/theme/typography';
 import { signInWithGoogle } from '../services/googleAuth';
 
-export function RegisterScreen() {
+interface RegisterScreenProps {
+  onBackToOnboarding?: () => void;
+}
+
+export function RegisterScreen({ onBackToOnboarding }: RegisterScreenProps) {
   const [signingIn, setSigningIn] = useState(false);
 
   async function handleGoogleSignIn() {
@@ -24,6 +28,15 @@ export function RegisterScreen() {
     <MeshGradient>
       <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
       <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1 }}>
+        {onBackToOnboarding && (
+          <View className="h-12 px-6 justify-center">
+            <TouchableOpacity activeOpacity={0.7} onPress={onBackToOnboarding} hitSlop={12}>
+              <Text className="text-[15px] text-white/80" style={textStyle('medium')}>
+                ‹ Features
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <View className="flex-1 justify-end px-7 pb-14">
           <View className="items-center mb-11">
             <Text className="text-[30px] tracking-[0.2px] text-white" style={textStyle('bold')}>
