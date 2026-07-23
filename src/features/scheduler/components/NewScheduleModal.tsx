@@ -47,6 +47,11 @@ import {
   repeatLabel,
   toRecurrence,
 } from '../utils/recurrence';
+import {
+  TRAVEL_TIME_OPTIONS,
+  TravelTimeValue,
+  travelTimeLabel,
+} from '../utils/travelTime';
 
 const PLACEHOLDER_COLOR = '#C6C6CC';
 
@@ -110,6 +115,7 @@ type PickerTarget =
   | 'endTime'
   | 'repeat'
   | 'alert'
+  | 'travel'
   | null;
 
 export function NewScheduleModal({
@@ -135,6 +141,7 @@ export function NewScheduleModal({
   const [picker, setPicker] = useState<PickerTarget>(null);
   const [repeat, setRepeat] = useState<RepeatValue>('never');
   const [alert, setAlert] = useState<AlertValue>('none');
+  const [travel, setTravel] = useState<TravelTimeValue>('none');
 
   const {
     files: attachments,
@@ -186,6 +193,7 @@ export function NewScheduleModal({
     setEndTime(end);
     setRepeat('never');
     setAlert('none');
+    setTravel('none');
     clearAttachments();
     setFormError(null);
     setPicker(null);
@@ -220,6 +228,8 @@ export function NewScheduleModal({
       endDateTime: end.toISOString(),
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       recurrence: toRecurrence(repeat),
+      latitude: place?.latitude,
+      longitude: place?.longitude,
     });
 
     if (created) {
@@ -418,23 +428,11 @@ export function NewScheduleModal({
 
                   <View className="ml-[18px] h-[1px] bg-light-rule" />
 
-                  <View className="h-[54px] flex-row items-center justify-between px-[18px]">
-                    <Text
-                      className="text-[15px] text-light-ink"
-                      style={textStyle('medium')}
-                    >
-                      Travel Time
-                    </Text>
-                    <View className="flex-row items-center gap-[4px]">
-                      <Text
-                        className="text-[15px] text-light-faint"
-                        style={textStyle('regular')}
-                      >
-                        None
-                      </Text>
-                      <ChevronUpDownIcon />
-                    </View>
-                  </View>
+                  <SelectRow
+                    label="Travel Time"
+                    value={travelTimeLabel(travel)}
+                    onPress={() => setPicker('travel')}
+                  />
                 </View>
 
                 <View className="mt-[16px] overflow-hidden rounded-[18px] bg-white">
@@ -539,6 +537,14 @@ export function NewScheduleModal({
         selected={alert}
         onClose={() => setPicker(null)}
         onSelect={setAlert}
+      />
+
+      <OptionPickerModal
+        visible={picker === 'travel'}
+        options={TRAVEL_TIME_OPTIONS}
+        selected={travel}
+        onClose={() => setPicker(null)}
+        onSelect={setTravel}
       />
 
       <TimePickerModal

@@ -18,6 +18,9 @@ export interface GoogleCalendarEvent {
   id?: string | null;
   summary?: string | null;
   location?: string | null;
+  description?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   start?: { dateTime?: string | null; date?: string | null } | null;
   end?: { dateTime?: string | null; date?: string | null } | null;
 }
@@ -30,6 +33,8 @@ export interface CreateGoogleCalendarEventInput {
   endDateTime: string;
   timeZone?: string;
   recurrence?: string[];
+  latitude?: number;
+  longitude?: number;
 }
 
 export async function connectGoogleCalendar(): Promise<GoogleCalendarStatus | null> {
@@ -77,6 +82,28 @@ export function disconnectGoogleCalendar() {
 
 export function createGoogleCalendarEvent(input: CreateGoogleCalendarEventInput) {
   return apiClient.post<GoogleCalendarEvent>(`${BASE_PATH}/events`, input);
+}
+
+export function rescheduleGoogleCalendarEvent(
+  eventId: string,
+  startDateTime: string,
+  endDateTime: string,
+) {
+  return apiClient.patch<GoogleCalendarEvent>(
+    `${BASE_PATH}/events/${encodeURIComponent(eventId)}`,
+    { startDateTime, endDateTime },
+  );
+}
+
+export function pushGoogleCalendarEventsLater(
+  fromDateTime: string,
+  toDateTime: string,
+  delayMinutes: number,
+) {
+  return apiClient.post<{ shifted: number; delayMinutes: number }>(
+    `${BASE_PATH}/events/push-later`,
+    { fromDateTime, toDateTime, delayMinutes },
+  );
 }
 
 export function listGoogleCalendarEvents(timeMin?: string, timeMax?: string) {

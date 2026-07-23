@@ -1,4 +1,4 @@
-export const heroGradient = ['#43CAFF', '#FFAEE8', '#7E77FF'];
+export const heroGradient = ['#43CAFF', '#FFAEE8', '#8E91E8'];
 export const softGradient = ['#94E1FF', '#E4CDFF'];
 
 export const heroGradientCss = `linear-gradient(120deg, ${heroGradient[0]} 0%, ${heroGradient[1]} 50%, ${heroGradient[2]} 100%)`;

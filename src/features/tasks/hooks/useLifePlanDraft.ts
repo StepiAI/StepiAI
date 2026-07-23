@@ -1,9 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
-import { DifficultyLevel, FocusPreference, StudyPlanDraft, Weekday } from '../types';
-import { createEmptyDraft, createTopic, isDraftReady, isScheduleReady } from '../utils/studyPlanDraft';
+import { DifficultyLevel, FocusPreference, LifePlanDraft, Weekday } from '../types';
+import { createEmptyDraft, createTopic, isDraftReady, isScheduleReady } from '../utils/lifePlanDraft';
 
-export function useStudyPlanDraft() {
-  const [draft, setDraft] = useState<StudyPlanDraft>(createEmptyDraft);
+export function useLifePlanDraft() {
+  const [draft, setDraft] = useState<LifePlanDraft>(createEmptyDraft);
 
   // counter lokal biar id topic gak kembar walau ditambah beruntun
   const nextTopicId = useRef(0);

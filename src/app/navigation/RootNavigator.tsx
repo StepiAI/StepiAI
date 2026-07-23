@@ -16,6 +16,7 @@ import { RegisterScreen } from '../../features/auth/screens/RegisterScreen';
 import { PersonalizeDayScreen } from '../../features/onboarding/screens/PersonalizeDayScreen';
 import { LocationAccessScreen } from '../../features/onboarding/screens/LocationAccessScreen';
 import { CalendarScreen } from '../../features/scheduler/screens/CalendarScreen';
+import { AdjustScheduleScreen } from '../../features/scheduler/screens/AdjustScheduleScreen';
 import { ChatScreen } from '../../features/chat/screens/ChatScreen';
 import { useAuthSession } from '../../features/auth/hooks/useAuthSession';
 import { TabBar } from './TabBar';
@@ -33,6 +34,7 @@ const FULL_SCREEN_ROUTES: (keyof MainTabParamList)[] = [
   'Accessibility',
   'Notifications',
   'HelpCenter',
+  'AdjustSchedule',
 ];
 
 function MainTabs() {
@@ -64,6 +66,7 @@ function MainTabs() {
         <Tab.Screen name="HelpCenter" component={HelpCenterScreen} />
 
         <Tab.Screen name="Calendar" component={CalendarScreen} />
+        <Tab.Screen name="AdjustSchedule" component={AdjustScheduleScreen} />
         <Tab.Screen name="Summary" component={SummaryScreen} />
         <Tab.Screen name="Personalize" component={PersonalizeDayScreen} />
         <Tab.Screen name="Location" component={LocationAccessScreen} />

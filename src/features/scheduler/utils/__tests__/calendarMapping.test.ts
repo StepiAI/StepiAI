@@ -1,4 +1,5 @@
 import type { GoogleCalendarEvent } from '../../../../services/googleCalendar/client';
+import { eventColorSeed, toneIndexFor } from '../../eventColors';
 import { toDayEvents } from '../calendarMapping';
 
 const DAY = new Date(2026, 6, 19);
@@ -55,16 +56,16 @@ describe('toDayEvents', () => {
     expect(result.map(event => event.title)).toEqual(['Pagi', 'Siang']);
   });
 
-  it('yang paling awal dikasih warna biru, sisanya ungu', () => {
-    const { timed: result } = toDayEvents(
-      [
-        timed('Kedua', at(2026, 6, 19, 14), at(2026, 6, 19, 15)),
-        timed('Pertama', at(2026, 6, 19, 8), at(2026, 6, 19, 9)),
-      ],
-      DAY,
-    );
+  it('warnanya konsisten per event, ngikut hash id (biar sama kek di month view)', () => {
+    const kedua = timed('Kedua', at(2026, 6, 19, 14), at(2026, 6, 19, 15));
+    const pertama = timed('Pertama', at(2026, 6, 19, 8), at(2026, 6, 19, 9));
 
-    expect(result.map(event => event.tone)).toEqual(['blue', 'purple']);
+    const { timed: result } = toDayEvents([kedua, pertama], DAY);
+
+    expect(result.map(event => event.tone)).toEqual([
+      toneIndexFor(eventColorSeed(pertama)),
+      toneIndexFor(eventColorSeed(kedua)),
+    ]);
   });
 
   it('event yang mulai kemarin dipotong di jam 00.00', () => {

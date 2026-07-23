@@ -28,7 +28,7 @@ interface TabItem {
 
 const LEFT_TABS: TabItem[] = [
   { name: 'Home', label: 'Home', Icon: HomeIcon },
-  { name: 'Tasks', label: 'Study Plan', Icon: ListIcon },
+  { name: 'Tasks', label: 'Life Plan', Icon: ListIcon },
 ];
 
 const RIGHT_TABS: TabItem[] = [

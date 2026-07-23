@@ -1,20 +1,24 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import { MoreIcon } from '../../../shared/components/Icons';
 import { textStyle } from '../../../shared/theme/typography';
-import type { StudyPlanRecord } from '../../../services/studyPlan/client';
+import type { LifePlanRecord } from '../../../services/lifePlan/client';
 import { PROGRESS_TRACK_COLOR } from '../theme';
 import { formatDateLabel } from '../utils/dateTime';
-import { countStudyPlanSessions, getStudyPlanDurationDays } from '../utils/studyPlanMapping';
+import {
+  countCompletedSessions,
+  countLifePlanSessions,
+  getLifePlanDurationDays,
+} from '../utils/lifePlanMapping';
 
-interface StudyPlanCardProps {
-  plan: StudyPlanRecord;
+interface LifePlanCardProps {
+  plan: LifePlanRecord;
   onPress: () => void;
 }
 
-export function StudyPlanCard({ plan, onPress }: StudyPlanCardProps) {
-  const totalSessions = countStudyPlanSessions(plan);
-  const durationDays = getStudyPlanDurationDays(plan);
-  const completedSessions = 0;
+export function LifePlanCard({ plan, onPress }: LifePlanCardProps) {
+  const totalSessions = countLifePlanSessions(plan);
+  const durationDays = getLifePlanDurationDays(plan);
+  const completedSessions = countCompletedSessions(plan);
   const progressRatio = totalSessions > 0 ? completedSessions / totalSessions : 0;
 
   return (
