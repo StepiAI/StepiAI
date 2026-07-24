@@ -73,19 +73,16 @@ describe('toCreateLifePlanRequest', () => {
 });
 
 describe('countLifePlanSessions', () => {
-  it('ngitung jumlah hari yang cocok sama available days dalam rentang tanggal', () => {
+  it('ngitung jumlah sesi dari panjang schedules', () => {
     const plan = buildRecord({
-      startDate: '2026-07-20T00:00:00.000Z',
-      endDate: '2026-07-27T00:00:00.000Z',
-      availableDays: ['SATURDAY', 'SUNDAY'],
+      schedules: [buildSchedule({ id: 's1' }), buildSchedule({ id: 's2' })],
     });
 
-    // 20 Jul 2026 (Senin) - 27 Jul 2026 (Senin): yang cocok cuma Sabtu 25 & Minggu 26
     expect(countLifePlanSessions(plan)).toBe(2);
   });
 
-  it('balikin 0 kalau gak ada available days', () => {
-    expect(countLifePlanSessions(buildRecord({ availableDays: [] }))).toBe(0);
+  it('balikin 0 kalau gak ada schedules', () => {
+    expect(countLifePlanSessions(buildRecord({ schedules: [] }))).toBe(0);
   });
 });
 

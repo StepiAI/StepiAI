@@ -112,7 +112,6 @@ export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScree
   );
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const effectiveSelectedId = selectedTaskId ?? defaultSelectedId;
-
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
       <StatusBar barStyle="dark-content" />
