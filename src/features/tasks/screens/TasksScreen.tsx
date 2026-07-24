@@ -212,7 +212,7 @@ function ScreenHeader() {
 function LifePlanLoadingScreen() {
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       <ScreenHeader />
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator />
@@ -226,7 +226,7 @@ function LifePlanEmptyState({ onCreatePress }: { onCreatePress: () => void }) {
 
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       <ScreenHeader />
 
       <View
@@ -312,7 +312,7 @@ function LifePlanListScreen({
 
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       <ScreenHeader />
 
       <View className="mt-[18px] px-[20px]">

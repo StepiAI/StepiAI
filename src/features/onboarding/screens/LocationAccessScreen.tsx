@@ -46,7 +46,7 @@ export function LocationAccessScreen({
 
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <View className="flex-row items-center px-[16px] pt-[6px]">
         {onBack ? (

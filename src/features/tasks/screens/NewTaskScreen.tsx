@@ -98,7 +98,7 @@ export function NewTaskScreen({ visible, onClose }: NewTaskScreenProps) {
         className="flex-1 bg-light-canvas"
         style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
       >
-        <StatusBar barStyle="dark-content" />
+        <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
         <KeyboardAvoidingView
           className="flex-1"

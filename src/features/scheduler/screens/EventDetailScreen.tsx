@@ -155,7 +155,7 @@ export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetail
 
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       {/* tombolnya dibikin pill putih biar nempel di atas background abu2 */}
       <View className="flex-row items-center justify-between px-[16px] pt-[8px]">

@@ -223,7 +223,7 @@ export function NewScheduleModal({
       setEndDate(new Date(draft.end));
       setEndTime(new Date(draft.end));
       setRepeat('never');
-      setAlert('at_time');
+      setAlert(draft.alert ?? 'at_time');
       setTravel('none');
       clearAttachments();
       setFormError(null);

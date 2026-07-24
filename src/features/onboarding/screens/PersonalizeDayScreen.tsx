@@ -83,7 +83,7 @@ export function PersonalizeDayScreen({ onBack, onContinue }: PersonalizeDayScree
 
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <KeyboardAvoidingView
         className="flex-1"
