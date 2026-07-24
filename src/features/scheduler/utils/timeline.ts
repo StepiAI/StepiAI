@@ -13,6 +13,10 @@ export interface TimelineEvent {
   startMinutes: number;
   durationMinutes: number;
   tone: number;
+  // menit-sebelum tiap reminder (dari Google), urut naik. [] = tanpa alert
+  reminderMinutesBefore?: number[];
+  // true = jadwal lokal STEPI (sesi life plan) -> edit/delete lewat /schedules
+  fromLifePlan?: boolean;
 }
 
 export interface TimelineRange {

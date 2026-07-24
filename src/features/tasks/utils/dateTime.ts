@@ -63,3 +63,15 @@ export function buildTimeSlots(): Date[] {
 
   return slots;
 }
+
+/**
+ * Jadwal life plan disimpan sebagai "wall clock": FE kirim jam lokal (mis.
+ * "19:00"), BE simpan apa adanya dalam kontainer UTC ("...T19:00:00Z").
+ * Jadi pas dibaca, komponen UTC-nya HARUS diperlakukan sebagai jam lokal —
+ * kalau di-parse langsung pakai new Date(iso), jamnya geser +7 (WIB) dan
+ * sesinya "pindah" ke jam 2 pagi hari berikutnya.
+ */
+export function parseWallClock(iso: string): Date {
+  // buang 'Z'/millis -> di-parse JS sebagai waktu lokal
+  return new Date(iso.slice(0, 19));
+}

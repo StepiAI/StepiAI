@@ -92,14 +92,19 @@ export function LifePlanCard({
         </Text>
       </View>
 
+      {/* bar terisi biru sesuai progres + titik penanda di ujungnya */}
       <View
-        className="mt-[10px] h-[4px] flex-row items-center rounded-full"
+        className="mt-[10px] h-[6px] justify-center rounded-full"
         style={{ backgroundColor: PROGRESS_TRACK_COLOR }}
       >
         <View
-          className="h-[8px] w-[8px] rounded-full bg-light-accent"
-          style={{ marginLeft: `${progressRatio * 100}%` }}
-        />
+          className="h-[6px] flex-row items-center justify-end rounded-full bg-light-accent"
+          style={{ width: `${Math.max(progressRatio * 100, progressRatio > 0 ? 4 : 0)}%` }}
+        >
+          {progressRatio > 0 ? (
+            <View className="mr-[-1px] h-[10px] w-[10px] rounded-full border-[2px] border-white bg-light-accent" />
+          ) : null}
+        </View>
       </View>
 
       <LifePlanCardMenu

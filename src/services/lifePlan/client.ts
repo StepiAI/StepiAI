@@ -1,4 +1,5 @@
 import { apiClient } from '../api/client';
+import { bumpCalendarRevision } from '../googleCalendar/revision';
 
 const BASE_PATH = '/life-plans';
 
@@ -115,7 +116,13 @@ export type CreateLifePlanResult =
   | { created: false; conflict: LifePlanConflictResult };
 
 export function createLifePlan(request: CreateLifePlanRequest) {
-  return apiClient.post<CreateLifePlanResult>(BASE_PATH, request);
+  return apiClient
+    .post<CreateLifePlanResult>(BASE_PATH, request)
+    .then(result => {
+      // sesi plan baru langsung nongol di kalender tanpa harus refresh manual
+      if (result.created) bumpCalendarRevision();
+      return result;
+    });
 }
 
 export function listLifePlans() {

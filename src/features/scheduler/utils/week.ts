@@ -24,6 +24,13 @@ export function startOfWeek(date: Date) {
   return result;
 }
 
+// geser tanggalnya, bukan cuma minggunya, jadi hari yg kepilih tetap sama
+export function addWeeks(date: Date, delta: number) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + delta * 7);
+  return result;
+}
+
 export function buildWeek(date: Date): WeekDay[] {
   const monday = startOfWeek(date);
 

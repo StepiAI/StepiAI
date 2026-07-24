@@ -26,10 +26,11 @@ import { useCurrentLocation } from '../../settings/hooks/useCurrentLocation';
 import type { ScheduleAlert } from '../../../services/alerts/client';
 import { ALERT_TONE } from '../theme';
 import { toDayEvents } from '../utils/calendarMapping';
+import { analyzeMissingDetails, summarizeMissingDetails } from '../utils/missingDetails';
 import { startOfMonth } from '../utils/month';
 import { buildDayChips, buildWeekWindow } from '../utils/monthChips';
 import { TimelineEvent } from '../utils/timeline';
-import { buildWeek, startOfWeek } from '../utils/week';
+import { addWeeks, buildWeek, startOfWeek } from '../utils/week';
 import { EventDetailScreen } from './EventDetailScreen';
 
 function greetingForHour(hour: number) {
@@ -87,6 +88,8 @@ export function HomeScreen() {
     setPickerOpen(true);
   };
 
+  const shiftWeek = (delta: number) => setSelected(current => addWeeks(current, delta));
+
   const { location } = useCurrentLocation();
   const { alerts } = useScheduleAlerts(location, events);
   const visibleAlerts = useMemo(
@@ -96,6 +99,15 @@ export function HomeScreen() {
 
   const dismissAlert = (alert: ScheduleAlert) =>
     setDismissed(prev => new Set(prev).add(alertKey(alert)));
+
+  const [missingBannerDismissed, setMissingBannerDismissed] = useState(false);
+  const missingSummary = useMemo(
+    () => summarizeMissingDetails(analyzeMissingDetails(events)),
+    [events],
+  );
+  // yg dipromosikan cuma yg wajib (missing location) — biar angkanya akurat &
+  // nyambung sama screen Missing Details yg default-nya tab Required
+  const missingCount = missingSummary.required;
 
   const metadata = (session?.user?.user_metadata ?? {}) as Record<string, string | undefined>;
   const firstName = (metadata.full_name ?? metadata.name ?? '').split(' ')[0] || 'there';
@@ -130,13 +142,19 @@ export function HomeScreen() {
             </Text>
           </TouchableOpacity>
 
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} className="h-[40px] w-[40px] rounded-full" />
-          ) : (
-            <View className="h-[40px] w-[40px] items-center justify-center rounded-full bg-light-fill">
-              <PersonIcon color="#8E8E93" />
-            </View>
-          )}
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Profile')}
+            activeOpacity={0.7}
+            accessibilityLabel="Open profile"
+          >
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} className="h-[40px] w-[40px] rounded-full" />
+            ) : (
+              <View className="h-[40px] w-[40px] items-center justify-center rounded-full bg-light-fill">
+                <PersonIcon color="#8E8E93" />
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
 
         <Text className="mt-[14px] text-[22px] text-light-inkStrong" style={textStyle('bold')}>
@@ -147,7 +165,13 @@ export function HomeScreen() {
         </Text>
 
         <View className="mt-[16px]">
-          <WeekStrip week={week} selected={selected} onSelect={setSelected} />
+          <WeekStrip
+            week={week}
+            selected={selected}
+            onSelect={setSelected}
+            onPrevWeek={() => shiftWeek(-1)}
+            onNextWeek={() => shiftWeek(1)}
+          />
         </View>
       </View>
 
@@ -165,6 +189,14 @@ export function HomeScreen() {
             onDismiss={() => dismissAlert(alert)}
           />
         ))}
+
+        {missingCount > 0 && !missingBannerDismissed ? (
+          <MissingDetailsBanner
+            count={missingCount}
+            onReview={() => navigation.navigate('MissingDetails')}
+            onDismiss={() => setMissingBannerDismissed(true)}
+          />
+        ) : null}
 
         <View className="mt-[20px] h-[1px] bg-light-line" />
 
@@ -275,6 +307,54 @@ function AlertCard({
 
       <TouchableOpacity onPress={onDismiss} hitSlop={10}>
         <CloseIcon color={ALERT_TONE.body} size={10} />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+function MissingDetailsBanner({
+  count,
+  onReview,
+  onDismiss,
+}: {
+  count: number;
+  onReview: () => void;
+  onDismiss: () => void;
+}) {
+  const plural = count === 1 ? 'event is' : 'events are';
+  const body = `${count} ${plural} missing a location. Add it so STEPI can plan your travel time.`;
+
+  return (
+    <View
+      className="mt-[12px] flex-row items-start gap-[10px] rounded-[14px] p-[14px]"
+      style={{ backgroundColor: '#FFF4E5' }}
+    >
+      <Text className="mt-[1px] text-[15px]">🗓️</Text>
+
+      <View className="flex-1">
+        <Text className="text-[14px]" style={[textStyle('semibold'), { color: '#B26A00' }]}>
+          Some events are missing details
+        </Text>
+        <Text
+          className="mt-[4px] text-[12px] leading-[17px]"
+          style={[textStyle('regular'), { color: '#A5793C' }]}
+        >
+          {body}
+        </Text>
+
+        <TouchableOpacity
+          onPress={onReview}
+          activeOpacity={0.7}
+          className="mt-[10px] self-start rounded-full bg-white px-[14px] py-[6px]"
+        >
+          <Text className="text-[12px]" style={[textStyle('semibold'), { color: '#B26A00' }]}>
+            Add details
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity onPress={onDismiss} hitSlop={10}>
+        <CloseIcon color="#C79A55" size={10} />
       </TouchableOpacity>
     </View>
   );

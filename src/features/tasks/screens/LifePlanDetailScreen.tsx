@@ -1,13 +1,29 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import type { ReactNode } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { MainTabParamList } from '../../../app/navigation/types';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { ChevronLeft, ClipboardCheckIcon, ClipboardIcon } from '../../../shared/components/Icons';
 import { textStyle } from '../../../shared/theme/typography';
+import { deleteSchedule } from '../../../services/schedules/client';
+import type { ScheduleRecord } from '../../../services/lifePlan/client';
+import { eventColorSeed, toneIndexFor } from '../../scheduler/eventColors';
+import type { TimelineEvent } from '../../scheduler/utils/timeline';
 import { CircularProgress } from '../components/CircularProgress';
 import { TaskRow } from '../components/TaskRow';
 import { useLifePlanDetail } from '../hooks/useLifePlanDetail';
+import { parseWallClock } from '../utils/dateTime';
 import { LIFE_PLAN_PROGRESS_GRADIENT } from '../theme';
 import {
   computeElapsedProgress,
@@ -19,15 +35,69 @@ import {
 } from '../utils/lifePlanMapping';
 import { NewTaskScreen } from './NewTaskScreen';
 
+// bentuk sesi life plan jadi TimelineEvent biar bisa dibuka di halaman detail
+// kalender (route EventDetail) — sama kayak event Google di Home
+function toTimelineEvent(schedule: ScheduleRecord): TimelineEvent {
+  const start = parseWallClock(schedule.startDateTime);
+  const end = parseWallClock(schedule.endDateTime);
+  const startMinutes = start.getHours() * 60 + start.getMinutes();
+  const durationMinutes = Math.max(
+    Math.round((end.getTime() - start.getTime()) / 60_000),
+    15,
+  );
+
+  return {
+    id: schedule.id,
+    title: schedule.summary,
+    subtitle: schedule.location ?? undefined,
+    notes: schedule.description ?? undefined,
+    startMinutes,
+    durationMinutes,
+    tone: toneIndexFor(eventColorSeed({ id: schedule.id, summary: schedule.summary })),
+    fromLifePlan: true,
+  };
+}
+
 interface LifePlanDetailScreenProps {
   lifePlanId: string;
   onBack: () => void;
 }
 
 export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScreenProps) {
-  const { plan, loading, error } = useLifePlanDetail(lifePlanId);
+  const { plan, loading, error, refresh } = useLifePlanDetail(lifePlanId);
   const tabBarSpace = useTabBarSpace();
+  const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const [addingTask, setAddingTask] = useState(false);
+
+  const openInCalendar = (schedule: ScheduleRecord) => {
+    navigation.navigate('EventDetail', {
+      event: toTimelineEvent(schedule),
+      dayIso: parseWallClock(schedule.startDateTime).toISOString(),
+    });
+  };
+
+  const confirmRemoveTask = (schedule: ScheduleRecord) => {
+    Alert.alert(
+      'Remove this task?',
+      'Sesi ini juga akan hilang dari kalender kamu.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteSchedule(schedule.id);
+              refresh();
+            } catch (err) {
+              console.error('[LifePlan] gagal hapus sesi:', err);
+              Alert.alert('Could not remove', 'Please try again in a moment.');
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const thisWeekSchedules = useMemo(
     () => (plan ? getThisWeekSchedules(plan.schedules) : []),
@@ -36,7 +106,7 @@ export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScree
 
   const defaultSelectedId = useMemo(
     () =>
-      thisWeekSchedules.find(schedule => isSessionToday(new Date(schedule.startDateTime)))?.id ??
+      thisWeekSchedules.find(schedule => isSessionToday(parseWallClock(schedule.startDateTime)))?.id ??
       null,
     [thisWeekSchedules],
   );
@@ -124,7 +194,8 @@ export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScree
                 topic={getSessionTopic(plan, index)}
                 selected={schedule.id === effectiveSelectedId}
                 onPress={() => setSelectedTaskId(schedule.id)}
-                onViewPress={() => {}}
+                onViewPress={() => openInCalendar(schedule)}
+                onLongPress={() => confirmRemoveTask(schedule)}
               />
             ))}
           </View>
