@@ -2,12 +2,7 @@ import Voice, {
   type SpeechErrorEvent,
   type SpeechResultsEvent,
 } from '@react-native-voice/voice';
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -40,15 +35,13 @@ import {
 import { textStyle } from '../../../shared/theme/typography';
 import { ProposalCard } from '../components/ProposalCard';
 import { readChatProposal } from '../utils/parseAssistantContent';
-import {
-  playVoiceSummary,
-  stopVoicePlayback,
-} from '../utils/voicePlayback';
+import { playVoiceSummary, stopVoicePlayback } from '../utils/voicePlayback';
 
 const ANDROID_COMPLETE_SILENCE_MS = 1800;
 const ANDROID_POSSIBLE_SILENCE_MS = 1200;
 
 const FINAL_RESULT_GRACE_MS = 450;
+const TRANSCRIPT_SILENCE_FALLBACK_MS = 1600;
 const MANUAL_STOP_GRACE_MS = 600;
 const EMPTY_TURN_RETRY_MS = 900;
 const INITIAL_LISTEN_DELAY_MS = 500;
@@ -56,12 +49,7 @@ const INITIAL_LISTEN_DELAY_MS = 500;
 const NEXT_TURN_DELAY_MS = Platform.OS === 'ios' ? 750 : 450;
 const PLAYBACK_WATCHDOG_MS = 90_000;
 
-type VoicePhase =
-  | 'idle'
-  | 'listening'
-  | 'processing'
-  | 'speaking'
-  | 'proposal';
+type VoicePhase = 'idle' | 'listening' | 'processing' | 'speaking' | 'proposal';
 
 interface VoiceAssistantScreenProps {
   visible: boolean;
@@ -111,12 +99,11 @@ export function VoiceAssistantScreen({
   const finalTranscriptRef = useRef('');
   const speechEndedRef = useRef(false);
 
-  const endTurnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
-  const nextTurnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
+  const endTurnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nextTurnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const transcriptSilenceTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   /*
    * These refs break the circular dependency:
@@ -131,21 +118,19 @@ export function VoiceAssistantScreen({
 
   const [phase, setPhase] = useState<VoicePhase>('idle');
   const [transcript, setTranscript] = useState('');
-  const [response, setResponse] =
-    useState<SendVoiceMessageResponse | null>(null);
+  const [response, setResponse] = useState<SendVoiceMessageResponse | null>(
+    null,
+  );
 
   const [error, setError] = useState<string | null>(null);
   const [speechError, setSpeechError] = useState<string | null>(null);
   const [audioError, setAudioError] = useState<string | null>(null);
 
-  const proposal =
-    response
-      ? (readChatProposal(
-          response.popup?.kind === 'proposal'
-            ? response.popup.data
-            : null,
-        ) ?? readChatProposal(response.parsed))
-      : null;
+  const proposal = response
+    ? readChatProposal(
+        response.popup?.kind === 'proposal' ? response.popup.data : null,
+      ) ?? readChatProposal(response.parsed)
+    : null;
 
   const setVoicePhase = useCallback((nextPhase: VoicePhase) => {
     phaseRef.current = nextPhase;
@@ -170,10 +155,20 @@ export function VoiceAssistantScreen({
     nextTurnTimerRef.current = null;
   }, []);
 
+  const clearTranscriptSilenceTimer = useCallback(() => {
+    if (!transcriptSilenceTimerRef.current) {
+      return;
+    }
+
+    clearTimeout(transcriptSilenceTimerRef.current);
+    transcriptSilenceTimerRef.current = null;
+  }, []);
+
   const clearVoiceTimers = useCallback(() => {
     clearEndTurnTimer();
     clearNextTurnTimer();
-  }, [clearEndTurnTimer, clearNextTurnTimer]);
+    clearTranscriptSilenceTimer();
+  }, [clearEndTurnTimer, clearNextTurnTimer, clearTranscriptSilenceTimer]);
 
   const clearTranscript = useCallback(() => {
     transcriptRef.current = '';
@@ -185,10 +180,7 @@ export function VoiceAssistantScreen({
 
   const stopPlayback = useCallback(() => {
     void stopVoicePlayback().catch(playbackError => {
-      console.warn(
-        '[Voice] failed to stop playback cleanly:',
-        playbackError,
-      );
+      console.warn('[Voice] failed to stop playback cleanly:', playbackError);
     });
   }, []);
 
@@ -237,14 +229,12 @@ export function VoiceAssistantScreen({
   const scheduleRecognitionFinish = useCallback(
     (delay = FINAL_RESULT_GRACE_MS) => {
       clearEndTurnTimer();
+      clearTranscriptSilenceTimer();
 
       endTurnTimerRef.current = setTimeout(() => {
         endTurnTimerRef.current = null;
 
-        if (
-          !visibleRef.current ||
-          phaseRef.current !== 'listening'
-        ) {
+        if (!visibleRef.current || phaseRef.current !== 'listening') {
           return;
         }
 
@@ -265,10 +255,36 @@ export function VoiceAssistantScreen({
     },
     [
       clearEndTurnTimer,
+      clearTranscriptSilenceTimer,
       scheduleNextTurn,
       setVoicePhase,
     ],
   );
+
+  const scheduleTranscriptSilenceFallback = useCallback(() => {
+    clearTranscriptSilenceTimer();
+
+    transcriptSilenceTimerRef.current = setTimeout(() => {
+      transcriptSilenceTimerRef.current = null;
+
+      if (!visibleRef.current || phaseRef.current !== 'listening') {
+        return;
+      }
+
+      const content = (
+        finalTranscriptRef.current ||
+        partialTranscriptRef.current ||
+        transcriptRef.current
+      ).trim();
+
+      if (!content) {
+        return;
+      }
+
+      speechEndedRef.current = true;
+      scheduleRecognitionFinish(0);
+    }, TRANSCRIPT_SILENCE_FALLBACK_MS);
+  }, [clearTranscriptSilenceTimer, scheduleRecognitionFinish]);
 
   const requestMicrophonePermission =
     useCallback(async (): Promise<boolean> => {
@@ -276,11 +292,9 @@ export function VoiceAssistantScreen({
         return true;
       }
 
-      const permission =
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO;
+      const permission = PermissionsAndroid.PERMISSIONS.RECORD_AUDIO;
 
-      const alreadyGranted =
-        await PermissionsAndroid.check(permission);
+      const alreadyGranted = await PermissionsAndroid.check(permission);
 
       if (alreadyGranted) {
         return true;
@@ -288,8 +302,7 @@ export function VoiceAssistantScreen({
 
       const result = await PermissionsAndroid.request(permission, {
         title: 'Microphone permission',
-        message:
-          'StepiAI needs microphone access to understand your speech.',
+        message: 'StepiAI needs microphone access to understand your speech.',
         buttonPositive: 'Allow',
         buttonNegative: 'Cancel',
       });
@@ -323,18 +336,14 @@ export function VoiceAssistantScreen({
       const hasPermission = await requestMicrophonePermission();
 
       if (!hasPermission) {
-        setSpeechError(
-          'Microphone permission is required to use voice input.',
-        );
+        setSpeechError('Microphone permission is required to use voice input.');
         return;
       }
 
       const available = await Voice.isAvailable();
 
       if (!available) {
-        setSpeechError(
-          'Speech recognition is not available on this device.',
-        );
+        setSpeechError('Speech recognition is not available on this device.');
         return;
       }
 
@@ -370,10 +379,7 @@ export function VoiceAssistantScreen({
           : undefined,
       );
     } catch (startError) {
-      console.error(
-        '[Voice] failed to start speech recognition:',
-        startError,
-      );
+      console.error('[Voice] failed to start speech recognition:', startError);
 
       setVoicePhase('idle');
       setSpeechError(describeError(startError));
@@ -391,6 +397,7 @@ export function VoiceAssistantScreen({
     }
 
     clearEndTurnTimer();
+    clearTranscriptSilenceTimer();
     speechEndedRef.current = true;
 
     try {
@@ -401,20 +408,21 @@ export function VoiceAssistantScreen({
        */
       await Voice.stop();
     } catch (stopError) {
-      console.error(
-        '[Voice] failed to stop speech recognition:',
-        stopError,
-      );
+      console.error('[Voice] failed to stop speech recognition:', stopError);
 
       setSpeechError(describeError(stopError));
     } finally {
       scheduleRecognitionFinish(MANUAL_STOP_GRACE_MS);
     }
-  }, [clearEndTurnTimer, scheduleRecognitionFinish]);
+  }, [
+    clearEndTurnTimer,
+    clearTranscriptSilenceTimer,
+    scheduleRecognitionFinish,
+  ]);
 
   /**
-   * Keeps the assistant in speaking mode until the websocket has ended and
-   * every queued native audio buffer has finished playing.
+   * Keeps the assistant in speaking mode until the websocket audio has been
+   * received, decoded, and played by the native audio engine.
    */
   const playAssistantTurn = useCallback(
     async (summary: string): Promise<void> => {
@@ -438,10 +446,7 @@ export function VoiceAssistantScreen({
           }),
         ]);
       } catch (playbackError) {
-        console.error(
-          '[Voice] TTS websocket playback failed:',
-          playbackError,
-        );
+        console.error('[Voice] TTS websocket playback failed:', playbackError);
 
         await stopVoicePlayback().catch(stopError => {
           console.error(
@@ -553,10 +558,7 @@ export function VoiceAssistantScreen({
         setVoicePhase('idle');
         scheduleNextTurn();
       } catch (submitError) {
-        console.error(
-          '[Voice] failed to send transcript:',
-          submitError,
-        );
+        console.error('[Voice] failed to send transcript:', submitError);
 
         if (!visibleRef.current) {
           return;
@@ -608,10 +610,7 @@ export function VoiceAssistantScreen({
    */
   useEffect(() => {
     Voice.onSpeechStart = () => {
-      if (
-        !visibleRef.current ||
-        phaseRef.current !== 'listening'
-      ) {
+      if (!visibleRef.current || phaseRef.current !== 'listening') {
         return;
       }
 
@@ -619,13 +618,8 @@ export function VoiceAssistantScreen({
       setSpeechError(null);
     };
 
-    Voice.onSpeechPartialResults = (
-      event: SpeechResultsEvent,
-    ) => {
-      if (
-        !visibleRef.current ||
-        phaseRef.current !== 'listening'
-      ) {
+    Voice.onSpeechPartialResults = (event: SpeechResultsEvent) => {
+      if (!visibleRef.current || phaseRef.current !== 'listening') {
         return;
       }
 
@@ -640,13 +634,11 @@ export function VoiceAssistantScreen({
 
       setTranscript(content);
       setSpeechError(null);
+      scheduleTranscriptSilenceFallback();
     };
 
     Voice.onSpeechResults = (event: SpeechResultsEvent) => {
-      if (
-        !visibleRef.current ||
-        phaseRef.current !== 'listening'
-      ) {
+      if (!visibleRef.current || phaseRef.current !== 'listening') {
         return;
       }
 
@@ -658,6 +650,7 @@ export function VoiceAssistantScreen({
 
         setTranscript(content);
         setSpeechError(null);
+        scheduleTranscriptSilenceFallback();
       }
 
       if (speechEndedRef.current) {
@@ -666,10 +659,7 @@ export function VoiceAssistantScreen({
     };
 
     Voice.onSpeechEnd = () => {
-      if (
-        !visibleRef.current ||
-        phaseRef.current !== 'listening'
-      ) {
+      if (!visibleRef.current || phaseRef.current !== 'listening') {
         return;
       }
 
@@ -687,10 +677,7 @@ export function VoiceAssistantScreen({
        * Voice.cancel() can emit an error after the app has already
        * changed to processing or speaking. Ignore those expected errors.
        */
-      if (
-        !visibleRef.current ||
-        phaseRef.current !== 'listening'
-      ) {
+      if (!visibleRef.current || phaseRef.current !== 'listening') {
         return;
       }
 
@@ -726,6 +713,7 @@ export function VoiceAssistantScreen({
     clearEndTurnTimer,
     scheduleNextTurn,
     scheduleRecognitionFinish,
+    scheduleTranscriptSilenceFallback,
     setVoicePhase,
   ]);
 
@@ -737,10 +725,7 @@ export function VoiceAssistantScreen({
     visibleRef.current = visible;
 
     if (visible) {
-      if (
-        phaseRef.current === 'idle' &&
-        !proposalVisibleRef.current
-      ) {
+      if (phaseRef.current === 'idle' && !proposalVisibleRef.current) {
         scheduleNextTurn(INITIAL_LISTEN_DELAY_MS);
       }
 
@@ -751,10 +736,7 @@ export function VoiceAssistantScreen({
     stopPlayback();
 
     void Voice.cancel().catch(cancelError => {
-      console.warn(
-        '[Voice] failed to cancel speech recognition:',
-        cancelError,
-      );
+      console.warn('[Voice] failed to cancel speech recognition:', cancelError);
     });
 
     proposalVisibleRef.current = false;
@@ -806,10 +788,7 @@ export function VoiceAssistantScreen({
     stopPlayback();
 
     void Voice.cancel().catch(cancelError => {
-      console.warn(
-        '[Voice] failed to cancel speech recognition:',
-        cancelError,
-      );
+      console.warn('[Voice] failed to cancel speech recognition:', cancelError);
     });
 
     clearTranscript();
@@ -821,44 +800,24 @@ export function VoiceAssistantScreen({
     setAudioError(null);
 
     onClose();
-  }, [
-    clearTranscript,
-    clearVoiceTimers,
-    onClose,
-    setVoicePhase,
-    stopPlayback,
-  ]);
+  }, [clearTranscript, clearVoiceTimers, onClose, setVoicePhase, stopPlayback]);
 
   const handleVoiceProposalStatusChange = useCallback(
-    (
-      messageId: string,
-      status: 'pending' | 'accepted' | 'dismissed',
-    ) => {
+    (messageId: string, status: 'pending' | 'accepted' | 'dismissed') => {
       onProposalStatusChange?.(messageId, status);
 
       const shouldRefresh =
-        status !== 'dismissed' ||
-        proposal?.type === 'schedule_proposal';
+        status !== 'dismissed' || proposal?.type === 'schedule_proposal';
 
       close();
 
       if (shouldRefresh) {
-        void Promise.resolve(onConversationChanged?.()).catch(
-          refreshError => {
-            console.error(
-              '[Voice] failed to refresh chat:',
-              refreshError,
-            );
-          },
-        );
+        void Promise.resolve(onConversationChanged?.()).catch(refreshError => {
+          console.error('[Voice] failed to refresh chat:', refreshError);
+        });
       }
     },
-    [
-      close,
-      onConversationChanged,
-      onProposalStatusChange,
-      proposal?.type,
-    ],
+    [close, onConversationChanged, onProposalStatusChange, proposal?.type],
   );
 
   const listening = phase === 'listening';
@@ -866,28 +825,25 @@ export function VoiceAssistantScreen({
 
   const trimmedTranscript = transcript.trim();
 
-  const canSend =
-    trimmedTranscript.length > 0 && phase === 'idle';
+  const canSend = trimmedTranscript.length > 0 && phase === 'idle';
 
   const inputEditable = phase === 'idle';
 
   const buttonDisabled =
-    phase === 'processing' ||
-    phase === 'speaking' ||
-    phase === 'proposal';
+    phase === 'processing' || phase === 'speaking' || phase === 'proposal';
 
   const statusText =
     phase === 'processing'
       ? 'StepiAI is thinking…'
       : phase === 'listening'
-        ? 'Listening…'
-        : phase === 'speaking'
-          ? 'StepiAI is speaking…'
-          : phase === 'proposal'
-            ? 'Review the proposal'
-            : trimmedTranscript
-              ? 'Ready to send'
-              : 'Preparing your next turn…';
+      ? 'Listening…'
+      : phase === 'speaking'
+      ? 'StepiAI is speaking…'
+      : phase === 'proposal'
+      ? 'Review the proposal'
+      : trimmedTranscript
+      ? 'Ready to send'
+      : 'Preparing your next turn…';
 
   return (
     <Modal
@@ -929,9 +885,7 @@ export function VoiceAssistantScreen({
         <ScrollView
           className="flex-1"
           contentContainerClassName={`items-center px-[24px] pb-[24px] ${
-            proposal
-              ? 'flex-grow justify-center pt-[30px]'
-              : ''
+            proposal ? 'flex-grow justify-center pt-[30px]' : ''
           }`}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -979,8 +933,7 @@ export function VoiceAssistantScreen({
                 } text-[14px] leading-[20px] text-light-ink`}
                 style={textStyle('medium')}
               >
-                {response.popup?.message ??
-                  response.speech.summary}
+                {response.popup?.message ?? response.speech.summary}
               </Text>
             </View>
           ) : null}
@@ -1008,8 +961,8 @@ export function VoiceAssistantScreen({
               className="mt-[8px] text-center text-[12px] text-light-muted"
               style={textStyle('regular')}
             >
-              The response is shown above, but audio playback
-              failed: {audioError}
+              The response is shown above, but audio playback failed:{' '}
+              {audioError}
             </Text>
           ) : null}
         </ScrollView>
@@ -1063,8 +1016,8 @@ export function VoiceAssistantScreen({
               listening
                 ? 'Stop voice input'
                 : canSend
-                  ? 'Send voice transcript'
-                  : 'Start voice input'
+                ? 'Send voice transcript'
+                : 'Start voice input'
             }
             className={`h-[56px] w-[56px] items-center justify-center rounded-full ${
               listening ? 'bg-[#E85D75]' : ''

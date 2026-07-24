@@ -1,11 +1,12 @@
 import { AudioContext } from 'react-native-audio-api';
 
 const STREAMING_TTS_URL =
-  'wss://azurefoundryttsapi-production.up.railway.app/ws/tts';
+  'wss://azure-datafoundry-sdk-production.up.railway.app/ws/tts';
 const STREAMING_SAMPLE_RATE = 24000;
 const STREAMING_CHANNELS = 1;
 const FIRST_AUDIO_TIMEOUT_MS = 15000;
 const AUDIO_IDLE_TIMEOUT_MS = 500;
+const PLAYBACK_DRAIN_GRACE_MS = 700;
 const STREAMING_END_MARKER = '**END_OF_AUDIO**';
 
 type AudioContextInstance = InstanceType<typeof AudioContext>;
@@ -41,6 +42,7 @@ export async function stopVoicePlayback() {
   playbackGeneration += 1;
   const cancel = activeCancel;
   activeCancel = null;
+
   if (cancel) {
     await cancel();
     return;
@@ -61,8 +63,9 @@ export async function stopVoicePlayback() {
       queueSource.stop();
       queueSource.clearBuffers();
     } catch {
-      // The source may already be stopped or detached.
+      // The source may not have started yet or may already be stopped.
     }
+    queueSource.disconnect();
   }
 
   if (context) {
@@ -85,18 +88,25 @@ export async function playVoiceSummary(text: string) {
 
   const queueSource = context.createBufferQueueSource();
   const socket = new WebSocket(STREAMING_TTS_URL);
+  const startedAt = Date.now();
   const riffState: RiffParserState = {
     mode: 'detecting',
     pending: new Uint8Array(new ArrayBuffer(0)),
   };
-  let queuedBuffers = 0;
-  let endedBuffers = 0;
+
+  let socketOpened = false;
+  let receivedAudio = false;
   let streamEnded = false;
   let started = false;
   let finished = false;
   let carryByte: number | null = null;
-  let pendingBinaryMessages = 0;
+  let queuedBuffers = 0;
+  let endedBuffers = 0;
+  let queuedSamples = 0;
+  let playbackStartedAt = 0;
+  let pendingAudioMessages = 0;
   let audioIdleTimer: ReturnType<typeof setTimeout> | null = null;
+  let drainFallbackTimer: ReturnType<typeof setTimeout> | null = null;
   let messageQueue = Promise.resolve();
 
   let resolveCompletion!: () => void;
@@ -131,8 +141,6 @@ export async function playVoiceSummary(text: string) {
       activeContext = null;
       activeCancel = null;
     }
-
-    return wasActive;
   };
 
   const clearAudioIdleTimer = () => {
@@ -141,33 +149,45 @@ export async function playVoiceSummary(text: string) {
     audioIdleTimer = null;
   };
 
-  const finishPlayback = (error?: Error) => {
-    if (finished) return Promise.resolve();
-    finished = true;
+  const clearDrainFallbackTimer = () => {
+    if (!drainFallbackTimer) return;
+    clearTimeout(drainFallbackTimer);
+    drainFallbackTimer = null;
+  };
+
+  const cleanup = async (stopQueue: boolean) => {
     clearTimeout(firstAudioTimer);
     clearAudioIdleTimer();
+    clearDrainFallbackTimer();
     clearActivePlayback();
     closeSocket(socket);
 
     try {
       queueSource.onBufferEnded = null;
-      queueSource.stop();
-      queueSource.clearBuffers();
+      if (stopQueue) {
+        queueSource.stop();
+        queueSource.clearBuffers();
+      }
     } catch {
-      // The queue may already have completed.
+      // The queue may already be stopped or drained.
     }
+    queueSource.disconnect();
 
-    return context
-      .close()
-      .catch(() => undefined)
-      .finally(() => {
-        settleCompletion(error);
-      });
+    await context.close().catch(() => undefined);
+  };
+
+  const finishPlayback = (error?: Error, stopQueue = false) => {
+    if (finished) return;
+    finished = true;
+
+    const cleanupPromise = cleanup(stopQueue).finally(() => {
+      settleCompletion(error);
+    });
+    cleanupPromise.catch(() => undefined);
   };
 
   const failPlayback = (error: Error) => {
-    if (finished) return;
-    finishPlayback(error);
+    finishPlayback(error, true);
   };
 
   const finishIfReady = () => {
@@ -181,25 +201,45 @@ export async function playVoiceSummary(text: string) {
     finishPlayback();
   };
 
+  const scheduleDrainFallback = () => {
+    clearDrainFallbackTimer();
+
+    if (!streamEnded || !started || queuedSamples <= 0) return;
+
+    const estimatedPlaybackMs =
+      (queuedSamples / STREAMING_SAMPLE_RATE) * 1000 + PLAYBACK_DRAIN_GRACE_MS;
+    const delay = Math.max(
+      PLAYBACK_DRAIN_GRACE_MS,
+      playbackStartedAt + estimatedPlaybackMs - Date.now(),
+    );
+
+    drainFallbackTimer = setTimeout(() => {
+      drainFallbackTimer = null;
+      endedBuffers = queuedBuffers;
+      finishIfReady();
+    }, delay);
+  };
+
   const endIncomingStream = () => {
     if (finished || streamEnded) return;
     streamEnded = true;
     clearAudioIdleTimer();
     closeSocket(socket);
+    scheduleDrainFallback();
     finishIfReady();
   };
 
   const scheduleAudioIdleEnd = () => {
     clearAudioIdleTimer();
 
-    if (finished || streamEnded || !started || pendingBinaryMessages > 0) {
+    if (finished || streamEnded || !receivedAudio || pendingAudioMessages > 0) {
       return;
     }
 
     audioIdleTimer = setTimeout(() => {
       audioIdleTimer = null;
 
-      if (finished || streamEnded || pendingBinaryMessages > 0) {
+      if (finished || streamEnded || pendingAudioMessages > 0) {
         return;
       }
 
@@ -208,8 +248,13 @@ export async function playVoiceSummary(text: string) {
   };
 
   const firstAudioTimer = setTimeout(() => {
+    const elapsedMs = Date.now() - startedAt;
     failPlayback(
-      new Error('Timed out waiting for audio from the TTS websocket.'),
+      new Error(
+        socketOpened
+          ? `The TTS websocket opened but returned no audio within ${elapsedMs}ms.`
+          : `Timed out opening the TTS websocket after ${elapsedMs}ms.`,
+      ),
     );
   }, FIRST_AUDIO_TIMEOUT_MS);
 
@@ -222,37 +267,47 @@ export async function playVoiceSummary(text: string) {
   activeContext = context;
   activeQueueSource = queueSource;
   activeSocket = socket;
-  activeCancel = () => finishPlayback();
+  activeCancel = async () => {
+    finishPlayback(undefined, true);
+    await completionPromise.catch(() => undefined);
+  };
 
   (socket as WebSocket & { binaryType: 'arraybuffer' }).binaryType =
     'arraybuffer';
 
   socket.onopen = () => {
     if (generation !== playbackGeneration || finished) return;
+    socketOpened = true;
+    console.info('[Voice] TTS websocket opened', {
+      elapsedMs: Date.now() - startedAt,
+      textLength: content.length,
+    });
     socket.send(content);
   };
 
   socket.onmessage = event => {
-    if (generation !== playbackGeneration || finished) return;
-    const isBinaryMessage = typeof event.data !== 'string';
+    if (generation !== playbackGeneration || finished || streamEnded) return;
 
-    if (isBinaryMessage) {
-      pendingBinaryMessages += 1;
-      clearAudioIdleTimer();
+    const data = event.data;
+    if (typeof data === 'string' && isStreamingEndMarker(data)) {
+      endIncomingStream();
+      return;
     }
+
+    pendingAudioMessages += 1;
+    clearAudioIdleTimer();
 
     messageQueue = messageQueue
       .then(async () => {
-        if (generation !== playbackGeneration || finished) return;
-        const data = event.data;
-
-        if (typeof data === 'string') {
-          if (!isStreamingEndMarker(data)) return;
-          endIncomingStream();
+        if (generation !== playbackGeneration || finished || streamEnded) {
           return;
         }
 
-        const bytes = await readBinaryMessage(data);
+        const bytes =
+          typeof data === 'string'
+            ? binaryStringToArrayBuffer(data)
+            : await readBinaryMessage(data);
+
         const pcmBytes = extractPcmBytes(bytes, riffState);
         if (pcmBytes.byteLength === 0) return;
 
@@ -268,20 +323,29 @@ export async function playVoiceSummary(text: string) {
         buffer.copyToChannel(result.samples, 0);
         queueSource.enqueueBuffer(buffer);
         queuedBuffers += 1;
+        queuedSamples += result.samples.length;
+
+        if (!receivedAudio) {
+          receivedAudio = true;
+          clearTimeout(firstAudioTimer);
+          console.info('[Voice] TTS first audio chunk received', {
+            elapsedMs: Date.now() - startedAt,
+            byteLength: pcmBytes.byteLength,
+          });
+        }
 
         if (!started) {
           await context.resume();
           if (generation !== playbackGeneration || finished) return;
           // v0.13 defaults the queue offset to -1 and rejects it; pass zero.
           queueSource.start(context.currentTime, 0);
+          playbackStartedAt = Date.now();
           started = true;
-          clearTimeout(firstAudioTimer);
         }
       })
       .catch(error => failPlayback(describePlaybackError(error)))
       .finally(() => {
-        if (!isBinaryMessage) return;
-        pendingBinaryMessages = Math.max(0, pendingBinaryMessages - 1);
+        pendingAudioMessages = Math.max(0, pendingAudioMessages - 1);
         scheduleAudioIdleEnd();
       });
   };
@@ -326,7 +390,37 @@ async function readBinaryMessage(data: unknown): Promise<ArrayBuffer> {
     return blob.arrayBuffer();
   }
 
+  if (typeof FileReader !== 'undefined') {
+    return readBlobWithFileReader(data);
+  }
+
   throw new Error('Received an unsupported TTS audio chunk.');
+}
+
+function readBlobWithFileReader(data: unknown) {
+  return new Promise<ArrayBuffer>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (reader.result instanceof ArrayBuffer) {
+        resolve(reader.result);
+        return;
+      }
+
+      reject(new Error('Received an unsupported TTS audio chunk.'));
+    };
+    reader.onerror = () => {
+      reject(new Error('Could not read the TTS audio chunk.'));
+    };
+    reader.readAsArrayBuffer(data as Blob);
+  });
+}
+
+function binaryStringToArrayBuffer(value: string) {
+  const bytes = new Uint8Array(new ArrayBuffer(value.length));
+  for (let index = 0; index < value.length; index += 1) {
+    bytes[index] = value.charCodeAt(index) % 256;
+  }
+  return bytes.buffer;
 }
 
 function extractPcmBytes(
