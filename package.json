@@ -6,7 +6,7 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
-    "postinstall": "node scripts/patch-react-native-voice.js",
+    "postinstall": "node scripts/patch-react-native-voice.js && node scripts/patch-react-native-audio-api.js",
     "start": "react-native start",
     "test": "jest"
   },
