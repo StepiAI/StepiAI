@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { ChevronLeft, ChevronUpDownIcon, LocationPinIcon } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { EventAttachments } from '../components/EventAttachments';
 import { EventDetailTimeline } from '../components/EventDetailTimeline';
 import { NewScheduleModal, ScheduleDraft } from '../components/NewScheduleModal';
@@ -41,16 +41,11 @@ function startOfDay(day: Date) {
   return result;
 }
 
-// format 12 jam kayak kalender iOS: "1.30 PM", tapi yg pas jam bulat "5 PM"
+// format 24-jam / military: "13:30"
 function formatClock(date: Date) {
   const hour24 = date.getHours();
   const minute = date.getMinutes();
-  const suffix = hour24 < 12 ? 'AM' : 'PM';
-  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
-
-  return minute === 0
-    ? `${hour12} ${suffix}`
-    : `${hour12}.${String(minute).padStart(2, '0')} ${suffix}`;
+  return `${String(hour24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 }
 
 function formatLength(minutes: number) {
@@ -88,6 +83,8 @@ function openInMaps(label: string, latitude?: number, longitude?: number) {
 }
 
 export function EventDetailScreen({ event, day, onBack, onChanged }: EventDetailScreenProps) {
+  const textStyle = useTextStyle();
+
   const tabBarSpace = useTabBarSpace();
   const { remove, saving } = useCreateGoogleCalendarEvent();
   const [editing, setEditing] = useState(false);
@@ -326,6 +323,8 @@ function InfoRow({
   value: string;
   leading?: ReactNode;
 }) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="flex-row items-center justify-between px-[16px] py-[14px]">
       <Text className="text-[15px] text-light-inkStrong" style={textStyle('regular')}>

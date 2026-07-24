@@ -69,6 +69,7 @@ export interface ScheduleRecord {
   startDateTime: string;
   endDateTime: string;
   status: ApiScheduleStatus;
+  googleCalendarEventId: string | null;
   createdAt: string;
   updatedAt: string;
 }

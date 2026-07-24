@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 interface CircularProgressProps {
   progress: number;
@@ -19,6 +19,8 @@ export function CircularProgress({
   outerInset = 3,
   gap = 2,
 }: CircularProgressProps) {
+  const textStyle = useTextStyle();
+
   const clamped = Math.max(0, Math.min(100, progress));
   const center = size / 2;
 

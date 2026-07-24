@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import { CheckBadge } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { ChatMessage } from '../types';
 import { ProposalCard } from './ProposalCard';
 
@@ -20,6 +20,8 @@ export function MessageBubble({
   onProposalStatusChange,
   onProposalNeedsFollowUp,
 }: MessageBubbleProps) {
+  const textStyle = useTextStyle();
+
   if (message.role === 'user') {
     return (
       <View className="mb-[14px] max-w-[78%] self-end">

@@ -2,7 +2,7 @@ import { ScrollView, StatusBar, Switch, Text, TouchableOpacity, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { ChevronLeft, HourglassIcon, ScaleIcon, TargetIcon } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { FieldLabel } from '../components/FieldLabel';
 import { FocusOptionCard } from '../components/FocusOptionCard';
 import { ProgressSteps } from '../components/ProgressSteps';
@@ -35,6 +35,8 @@ export function LifePlanPreferencesScreen({
   onBack,
   onSubmit,
 }: LifePlanPreferencesScreenProps) {
+  const textStyle = useTextStyle();
+
   const tabBarSpace = useTabBarSpace();
 
   return (

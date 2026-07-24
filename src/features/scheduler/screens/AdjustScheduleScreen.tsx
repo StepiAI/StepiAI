@@ -6,7 +6,7 @@ import type { RouteProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from '../../../app/navigation/types';
 import { ChevronLeft } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { AdjustOptionCard } from '../components/AdjustOptionCard';
 import { TimePickerModal } from '../../tasks/components/TimePickerModal';
 import {
@@ -19,23 +19,32 @@ import {
   PushLaterIcon,
   SparkleIcon,
 } from '../components/adjustIcons';
+import type { AlertWeather } from '../../../services/alerts/client';
 
 // fallback kalau screen dibuka tanpa data alert (mis. dari dev tab).
 const RECOMMENDATION = {
-  recommended: { time: '08:05 AM', onTime: '91% on-time' },
-  previous: { time: '08:20 AM', onTime: '42% on-time' },
+  recommended: { time: '08:05', onTime: '91% on-time' },
+  previous: { time: '08:20', onTime: '42% on-time' },
 };
 
 type Recommendation = typeof RECOMMENDATION;
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isUnsyncedLocalEventId(eventId: string) {
+  return UUID_PATTERN.test(eventId);
+}
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
   });
 }
 
-type OptionId = 'ai' | 'earlier' | 'push' | 'move';
+type OptionId = 'ai' | 'earlier' | 'umbrella' | 'push' | 'move';
 
 interface AdjustOption {
   id: OptionId;
@@ -49,11 +58,15 @@ const CTA_GRADIENT = 'linear-gradient(90deg, #2E7BE0 0%, #6C5CE7 100%)';
 const PUSH_DELAY_MIN = 15;
 
 export function AdjustScheduleScreen() {
+  const textStyle = useTextStyle();
+
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const route = useRoute<RouteProp<MainTabParamList, 'AdjustSchedule'>>();
-  // heavy traffic, klo mo tes, bikin aja jadwal workhour, cb ke bandara soekarno hatta jam 8-9 pagi
   const alert = route.params?.alert;
   const traffic = alert?.traffic;
+  const weather = alert?.weather;
+
+  const isWeatherOnly = !traffic && !!weather;
   const eventSummary = alert?.summary ?? null;
   const recommendation: Recommendation = traffic
     ? {
@@ -68,14 +81,41 @@ export function AdjustScheduleScreen() {
       }
     : RECOMMENDATION;
 
-  const options = useMemo<AdjustOption[]>(
-    () => [
+  const options = useMemo<AdjustOption[]>(() => {
+    if (isWeatherOnly) {
+      return [
+        {
+          id: 'umbrella',
+          icon: <Text style={{ fontSize: 20 }}>☔</Text>,
+          title: 'Bawa payung',
+          description: weather?.condition
+            ? `${weather.condition} diperkirakan pas perjalanan kamu`
+            : 'Hujan diperkirakan pas perjalanan kamu',
+        },
+        {
+          id: 'push',
+          icon: <PushLaterIcon />,
+          title: 'Push everything later',
+          description: `Delay all events by ${PUSH_DELAY_MIN} min`,
+        },
+        {
+          id: 'move',
+          icon: <MoveMeetingIcon />,
+          title: 'Move this meeting',
+          description: eventSummary
+            ? `Reschedule “${eventSummary}”`
+            : 'Pilih jam baru buat meeting ini',
+        },
+      ];
+    }
+
+    return [
       {
         id: 'ai',
         icon: <SparkleIcon />,
         title: 'Let AI optimize',
-        onTime: '94% on-time',
-        description: 'AI will find the best schedule',
+        onTime: recommendation.recommended.onTime,
+        description: `Auto-apply: leave at ${recommendation.recommended.time}`,
       },
       {
         id: 'earlier',
@@ -101,11 +141,12 @@ export function AdjustScheduleScreen() {
           ? `Reschedule “${eventSummary}”`
           : 'Pilih jam baru buat meeting ini',
       },
-    ],
-    [recommendation, eventSummary, traffic],
-  );
+    ];
+  }, [isWeatherOnly, weather, recommendation, eventSummary, traffic]);
 
-  const [selected, setSelected] = useState<OptionId>(traffic ? 'earlier' : 'push');
+  const [selected, setSelected] = useState<OptionId>(
+    traffic ? 'earlier' : isWeatherOnly ? 'umbrella' : 'push',
+  );
   const [pickerOpen, setPickerOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -127,9 +168,26 @@ export function AdjustScheduleScreen() {
     );
   };
 
+  const applyUmbrellaReminder = () => {
+    const forEvent = eventSummary ? ` buat "${eventSummary}"` : '';
+    const cond = weather?.condition ? weather.condition.toLowerCase() : 'hujan';
+    Alert.alert(
+      'Siapin payung',
+      `Oke - jangan lupa bawa payung${forEvent}, diperkirakan ${cond} pas kamu berangkat.`,
+      [{ text: 'Siap', onPress: goBack }],
+    );
+  };
+
   const startMoveMeeting = () => {
     if (!alert?.eventId || !alert.eventStart || !alert.eventEnd) {
       Alert.alert('Nggak bisa pindah', 'Buka Adjust dari kartu alert dulu ya.');
+      return;
+    }
+    if (isUnsyncedLocalEventId(alert.eventId)) {
+      Alert.alert(
+        'Belum bisa dipindah',
+        'Acara ini dari Life Plan dan belum kesinkron ke Google Calendar. Coba lagi sebentar lagi, atau pindahin lewat menu Life Plan.',
+      );
       return;
     }
     setPickerOpen(true);
@@ -160,6 +218,7 @@ export function AdjustScheduleScreen() {
       const label = newStart.toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
+        hour12: false,
       });
       Alert.alert(
         'Meeting dipindah',
@@ -177,6 +236,13 @@ export function AdjustScheduleScreen() {
   const applyPushLater = async () => {
     if (!alert?.eventStart) {
       Alert.alert('Nggak bisa geser', 'Buka Adjust dari kartu alert dulu ya.');
+      return;
+    }
+    if (alert.eventId && isUnsyncedLocalEventId(alert.eventId)) {
+      Alert.alert(
+        'Belum bisa digeser',
+        'Acara ini dari Life Plan dan belum kesinkron ke Google Calendar, jadi belum ikut kegeser. Coba lagi sebentar lagi.',
+      );
       return;
     }
     if (busy) return;
@@ -211,6 +277,10 @@ export function AdjustScheduleScreen() {
       applyLeaveEarlier();
       return;
     }
+    if (selected === 'umbrella') {
+      applyUmbrellaReminder();
+      return;
+    }
     if (selected === 'move') {
       startMoveMeeting();
       return;
@@ -219,7 +289,14 @@ export function AdjustScheduleScreen() {
       applyPushLater();
       return;
     }
-    // TODO(integrate): opsi "Let AI optimize" belum di-apply — tahap berikutnya
+    if (selected === 'ai') {
+      if (traffic) {
+        applyLeaveEarlier();
+      } else {
+        Alert.alert('Belum ada rekomendasi', 'Buka Adjust dari kartu alert dulu ya.');
+      }
+      return;
+    }
     goBack();
   };
 
@@ -253,7 +330,11 @@ export function AdjustScheduleScreen() {
         contentContainerClassName="pb-[24px] pt-[10px]"
         showsVerticalScrollIndicator={false}
       >
-        <RecommendationCard recommendation={recommendation} />
+        {isWeatherOnly && weather ? (
+          <WeatherCard weather={weather} />
+        ) : (
+          <RecommendationCard recommendation={recommendation} />
+        )}
 
         <Text
           className="mb-[14px] mt-[24px] text-[17px] text-light-inkStrong"
@@ -306,6 +387,8 @@ function RecommendationCard({
 }: {
   recommendation: Recommendation;
 }) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="rounded-[18px] bg-white px-[18px] pb-[18px] pt-[16px]">
       <Text className="text-[15px] text-light-inkStrong" style={textStyle('semibold')}>
@@ -338,6 +421,42 @@ function RecommendationCard({
   );
 }
 
+function WeatherCard({ weather }: { weather: AlertWeather }) {
+  const textStyle = useTextStyle();
+
+  const subtitle =
+    weather.precipitationProbability !== null
+      ? `${Math.round(weather.precipitationProbability)}% chance of rain`
+      : weather.wetDuringCommute
+        ? 'Rain expected during your commute'
+        : 'Rain expected around this event';
+
+  return (
+    <View className="rounded-[18px] bg-white px-[18px] pb-[18px] pt-[16px]">
+      <Text className="text-[15px] text-light-inkStrong" style={textStyle('semibold')}>
+        Rain Expected
+      </Text>
+
+      <View className="my-[14px] h-[1px] bg-light-line" />
+
+      <View className="flex-row items-center">
+        <Text className="text-[30px]">🌧️</Text>
+        <View className="ml-[12px] flex-1">
+          <Text className="text-[16px] text-light-inkStrong" style={textStyle('bold')}>
+            {weather.condition}
+          </Text>
+          <Text
+            className="mt-[2px] text-[12px] text-light-muted"
+            style={textStyle('regular')}
+          >
+            {subtitle}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 function TimeColumn({
   dotColor,
   label,
@@ -355,6 +474,8 @@ function TimeColumn({
   onTime: string;
   onTimeClass: string;
 }) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="flex-1">
       <View className="flex-row items-center">

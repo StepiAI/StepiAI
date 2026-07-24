@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StatusBar,
   Text,
@@ -9,7 +8,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { textStyle } from '../../../shared/theme/typography';
+import { KEYBOARD_AVOIDING_BEHAVIOR } from '../../../shared/keyboard';
+import { useTextStyle } from '../../../shared/theme/typography';
 import {
   ChevronDown,
   ChevronLeft,
@@ -56,6 +56,8 @@ interface PersonalizeDayScreenProps {
 }
 
 export function PersonalizeDayScreen({ onBack, onContinue }: PersonalizeDayScreenProps) {
+  const textStyle = useTextStyle();
+
   const insets = useSafeAreaInsets();
 
   const [wakeTime, setWakeTime] = useState(() => timeAt(7));
@@ -87,7 +89,7 @@ export function PersonalizeDayScreen({ onBack, onContinue }: PersonalizeDayScree
 
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={KEYBOARD_AVOIDING_BEHAVIOR}
       >
         <View className="flex-row items-center px-[16px] pt-[6px]">
           {onBack ? (

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TextInput, TouchableOpacity, View } from 'react-native';
 import { MicIcon, SendIcon } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { softGradientCss } from '../../../shared/theme/gradient';
 
 // dipakai sebagai prop, bukan className, jadi gak bisa ambil token tailwind
@@ -13,6 +13,8 @@ interface ChatComposerProps {
 }
 
 export function ChatComposer({ onSend, onVoicePress }: ChatComposerProps) {
+  const textStyle = useTextStyle();
+
   const [draft, setDraft] = useState('');
 
   const trimmed = draft.trim();

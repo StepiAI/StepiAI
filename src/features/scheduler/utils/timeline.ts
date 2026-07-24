@@ -60,9 +60,7 @@ export function timelineHeight(range: TimelineRange) {
 
 export function formatHourLabel(hour: number) {
   const normalized = hour % 24;
-  const suffix = normalized < 12 ? 'AM' : 'PM';
-  const display = normalized % 12 === 0 ? 12 : normalized % 12;
-  return `${display}${suffix}`;
+  return `${String(normalized).padStart(2, '0')}:00`;
 }
 
 export function formatEventTime(startMinutes: number) {
@@ -75,9 +73,7 @@ export function formatClockTime(minutes: number) {
   const normalized = ((minutes % (24 * 60)) + 24 * 60) % (24 * 60);
   const hour24 = Math.floor(normalized / 60);
   const minute = normalized % 60;
-  const suffix = hour24 < 12 ? 'AM' : 'PM';
-  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
-  return `${String(hour12).padStart(2, '0')}:${String(minute).padStart(2, '0')} ${suffix}`;
+  return `${String(hour24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 }
 
 export function formatClockRange(startMinutes: number, durationMinutes: number) {

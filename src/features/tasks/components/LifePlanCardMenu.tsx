@@ -1,5 +1,5 @@
 import { Modal, Pressable, Text, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 export interface CardMenuAnchor {
   x: number;
@@ -25,6 +25,8 @@ export function LifePlanCardMenu({
   onArchiveToggle,
   onDelete,
 }: LifePlanCardMenuProps) {
+  const textStyle = useTextStyle();
+
   const left = anchor ? Math.max(12, anchor.x - MENU_WIDTH) : 0;
   const top = anchor ? anchor.y + 8 : 0;
 

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 interface FocusOptionCardProps {
   icon: ReactNode;
@@ -11,6 +11,8 @@ interface FocusOptionCardProps {
 }
 
 export function FocusOptionCard({ icon, title, description, selected, onSelect }: FocusOptionCardProps) {
+  const textStyle = useTextStyle();
+
   return (
     <TouchableOpacity
       onPress={onSelect}

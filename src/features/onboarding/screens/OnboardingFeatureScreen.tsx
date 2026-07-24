@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -130,6 +130,8 @@ interface OnboardingFeatureScreenProps {
 export function OnboardingFeatureScreen({
   onFinish,
 }: OnboardingFeatureScreenProps) {
+  const textStyle = useTextStyle();
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList<StepItem>>(null);
 

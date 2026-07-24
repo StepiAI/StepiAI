@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { ChevronRight } from '../../../shared/components/Icons';
 import { DayTimeline } from '../components/DayTimeline';
 import { MonthPickerModal } from '../components/MonthPickerModal';
@@ -21,6 +21,8 @@ import { toDayEvents } from '../utils/calendarMapping';
 import { addWeeks, buildWeek, formatWeekRange, startOfWeek } from '../utils/week';
 
 export function CalendarScreen() {
+  const textStyle = useTextStyle();
+
   const [selected, setSelected] = useState(() => new Date());
   const [pickerOpen, setPickerOpen] = useState(false);
   const tabBarSpace = useTabBarSpace();
@@ -146,6 +148,8 @@ export function CalendarScreen() {
 }
 
 function Notice({ title, caption }: { title: string; caption: string }) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="items-center px-[20px] py-[24px]">
       <Text className="text-[15px] text-light-ink" style={textStyle('medium')}>

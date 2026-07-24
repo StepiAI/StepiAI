@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import { CloseIcon } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import type { PickedFile } from '../../../services/attachments/client';
 
 function formatSize(bytes: number | null) {
@@ -21,6 +21,8 @@ export function AttachmentList({
   onRemove,
   disabled,
 }: AttachmentListProps) {
+  const textStyle = useTextStyle();
+
   if (files.length === 0) {
     return null;
   }

@@ -1,6 +1,5 @@
 import {
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StatusBar,
   Text,
@@ -10,7 +9,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { ChevronLeft } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { KEYBOARD_AVOIDING_BEHAVIOR } from '../../../shared/keyboard';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { FieldLabel } from '../components/FieldLabel';
 import { PillInput } from '../components/PillInput';
 import { ProgressSteps } from '../components/ProgressSteps';
@@ -26,6 +26,8 @@ function fieldHint(label: string, value: string): string | null {
 }
 
 function FieldError({ message }: { message: string | null }) {
+  const textStyle = useTextStyle();
+
   if (!message) return null;
   return (
     <Text className="mt-[6px] px-[8px] text-[12px] text-danger" style={textStyle('regular')}>
@@ -61,6 +63,8 @@ export function CreateLifePlanScreen({
   onBack,
   onNext,
 }: CreateLifePlanScreenProps) {
+  const textStyle = useTextStyle();
+
   const tabBarSpace = useTabBarSpace();
 
   return (
@@ -69,7 +73,7 @@ export function CreateLifePlanScreen({
 
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={KEYBOARD_AVOIDING_BEHAVIOR}
       >
         <View className="flex-row items-center px-[18px] pt-[6px]">
           <TouchableOpacity onPress={onBack} hitSlop={10} activeOpacity={0.6}>

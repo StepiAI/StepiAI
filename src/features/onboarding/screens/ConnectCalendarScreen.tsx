@@ -13,7 +13,7 @@ import {
   ClockIcon,
   LockIcon,
 } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { BenefitRow } from '../components/BenefitRow';
 
 const ICON_ACCENT = '#2E7BE0';
@@ -35,6 +35,8 @@ export function ConnectCalendarScreen({
   onConnect,
   onBack,
 }: ConnectCalendarScreenProps) {
+  const textStyle = useTextStyle();
+
   const insets = useSafeAreaInsets();
 
   return (

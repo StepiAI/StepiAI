@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MeshGradient } from '../../../shared/components/MeshGradient';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { LifePlanLogo } from '../components/LifePlanLogo';
 import { PROGRESS_TRACK_COLOR, LIFE_PLAN_GRADIENT } from '../theme';
 
 const FILL_DURATION_MS = 1600;
 
 export function CreatingLifePlanScreen() {
+  const textStyle = useTextStyle();
+
   const progress = useRef(new Animated.Value(0)).current;
   const [trackWidth, setTrackWidth] = useState(0);
 

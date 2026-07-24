@@ -1,6 +1,6 @@
 import { TextInput, TouchableOpacity, View } from 'react-native';
 import { ClearIcon } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 const PLACEHOLDER_COLOR = '#B0B0B8';
 
@@ -13,6 +13,8 @@ interface PillInputProps {
 }
 
 export function PillInput({ value, onChangeText, placeholder, autoFocus, maxLength }: PillInputProps) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="h-[54px] flex-row items-center rounded-full bg-white px-[18px]">
       <TextInput

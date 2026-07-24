@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { ClockGlyph, LocationPinIcon } from '../../../shared/components/Icons';
 import { EVENT_PALETTE } from '../eventColors';
 import { TimelineEvent, formatClockRange } from '../utils/timeline';
@@ -18,16 +18,15 @@ interface EventDetailTimelineProps {
   event: TimelineEvent;
 }
 
-function hourParts(hour: number) {
-  const normalized = hour % 24;
-  return {
-    display: normalized % 12 === 0 ? 12 : normalized % 12,
-    suffix: normalized < 12 ? 'AM' : 'PM',
-  };
+function hourLabel(hour: number) {
+  // 24-jam / military: "13:00"
+  return `${String(hour % 24).padStart(2, '0')}:00`;
 }
 
 // mini timeline sejam sejaman di sekitar event, biar keliatan kek di kalender
 export function EventDetailTimeline({ event }: EventDetailTimelineProps) {
+  const textStyle = useTextStyle();
+
   const tone = EVENT_PALETTE[event.tone % EVENT_PALETTE.length];
 
   const eventStartHour = Math.floor(event.startMinutes / 60);
@@ -46,8 +45,6 @@ export function EventDetailTimeline({ event }: EventDetailTimelineProps) {
     <View className="overflow-hidden rounded-[16px] bg-white py-[16px] pl-[16px]">
       <View style={{ height: hours.length * ROW_HEIGHT }}>
         {hours.map((hour, index) => {
-          const { display, suffix } = hourParts(hour);
-
           return (
             <View
               key={hour}
@@ -58,11 +55,8 @@ export function EventDetailTimeline({ event }: EventDetailTimelineProps) {
                 className="flex-row items-baseline justify-end gap-[3px] pr-[8px]"
                 style={{ width: GUTTER_WIDTH }}
               >
-                <Text className="text-[15px] text-light-muted" style={textStyle('regular')}>
-                  {display}
-                </Text>
-                <Text className="text-[10px] text-light-faint" style={textStyle('medium')}>
-                  {suffix}
+                <Text className="text-[13px] text-light-muted" style={textStyle('regular')}>
+                  {hourLabel(hour)}
                 </Text>
               </View>
 

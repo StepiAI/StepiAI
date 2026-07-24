@@ -160,6 +160,7 @@ function buildSchedule(
     summary: 'Learning React',
     description: 'Build one project',
     location: 'ONLINE',
+    googleCalendarEventId: null,
     startDateTime: '2026-07-20T19:00:00.000Z',
     endDateTime: '2026-07-20T21:00:00.000Z',
     status: 'ACCEPTED',
