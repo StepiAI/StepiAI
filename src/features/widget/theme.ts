@@ -1,35 +1,47 @@
-import type { HexColor } from 'react-native-android-widget';
+import type { ColorProp } from 'react-native-android-widget';
 
 // apparently widget tu ternyata di render sama android lewat remoteviews, jadi tailwind ga bisa ikut jalan disana.
 export interface WidgetTheme {
-  canvas: HexColor;
-  card: HexColor;
-  ink: HexColor;
-  muted: HexColor;
-  faint: HexColor;
-  accent: HexColor;
-  onAccent: HexColor;
-  line: HexColor;
+  canvas: ColorProp; 
+  dateFrom: ColorProp; 
+  dateTo: ColorProp;
+  dateInk: ColorProp; 
+  dateSub: ColorProp;
+  label: ColorProp;
+  ink: ColorProp;
+  muted: ColorProp;
+  bar: ColorProp;
+  barNow: ColorProp;
+  line: ColorProp;
+  onAccent: ColorProp;
 }
-
-export const darkTheme: WidgetTheme = {
-  canvas: '#0B0B0F',
-  card: '#16161D',
-  ink: '#F5F5F7',
-  muted: '#9A9AA5',
-  faint: '#6E6E78',
-  accent: '#6C5CE7',
-  onAccent: '#FFFFFF',
-  line: '#26262E',
-};
 
 export const lightTheme: WidgetTheme = {
   canvas: '#FFFFFF',
-  card: '#F2F2F5',
-  ink: '#1C1C1E',
-  muted: '#8E8E93',
-  faint: '#A0A0A8',
-  accent: '#6C5CE7',
+  dateFrom: '#EEF3FF',
+  dateTo: '#CBDBFF',
+  dateInk: '#2B4CDB',
+  dateSub: '#4C6BE6',
+  label: '#93A4C4',
+  ink: '#1C2333',
+  muted: '#8A97AE',
+  bar: '#7FA0F5',
+  barNow: '#2B5BE0',
+  line: '#EAEFF8',
   onAccent: '#FFFFFF',
-  line: '#EAEAEE',
+};
+
+export const darkTheme: WidgetTheme = {
+  canvas: '#12131A',
+  dateFrom: '#22305C',
+  dateTo: '#141B33',
+  dateInk: '#9CB8FF',
+  dateSub: '#6E8FE8',
+  label: '#5D6B85',
+  ink: '#EDEFF6',
+  muted: '#8A93A8',
+  bar: '#3F5CA8',
+  barNow: '#6E93FF',
+  line: '#242634',
+  onAccent: '#FFFFFF',
 };
