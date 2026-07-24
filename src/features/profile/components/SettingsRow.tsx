@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { ChevronRight } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 interface SettingsRowProps {
   label: string;
@@ -37,6 +37,8 @@ export function SettingsRow({
   danger = false,
   busy = false,
 }: SettingsRowProps) {
+  const textStyle = useTextStyle();
+
   const body = (
     <View className="flex-row items-center gap-[12px] px-[16px] py-[14px]">
       {logo ? (

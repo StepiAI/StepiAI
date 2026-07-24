@@ -1,5 +1,5 @@
 import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import {
   LifePlanConflictOption,
   LifePlanConflictResult,
@@ -28,7 +28,11 @@ function formatIsoDate(value: string): string {
 }
 
 function formatIsoTimeRange(startIso: string, endIso: string): string {
-  const options: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit' };
+  const options: Intl.DateTimeFormatOptions = {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  };
   const start = new Date(startIso).toLocaleTimeString('en-US', options);
   const end = new Date(endIso).toLocaleTimeString('en-US', options);
   return `${start} – ${end}`;
@@ -40,6 +44,8 @@ export function LifePlanConflictModal({
   onSelectOption,
   onCancel,
 }: LifePlanConflictModalProps) {
+  const textStyle = useTextStyle();
+
   return (
     <Modal
       visible={conflict !== null}
@@ -110,7 +116,7 @@ export function LifePlanConflictModal({
                 key={option.type}
                 disabled={submitting}
                 onPress={() => onSelectOption(option)}
-                className="mb-[12px] rounded-[18px] border border-light-accent/40 bg-white px-[16px] py-[14px] active:opacity-70"
+                className="mb-[12px] rounded-[18px] border border-light-accentLine bg-white px-[16px] py-[14px] active:opacity-70"
               >
                 <Text
                   className="text-[15px] text-light-accent"

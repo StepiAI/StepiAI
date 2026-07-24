@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 interface SettingRowProps {
   label: string;
@@ -11,6 +11,8 @@ interface SettingRowProps {
 }
 
 export function SettingRow({ label, value, icon, trailing, onPress }: SettingRowProps) {
+  const textStyle = useTextStyle();
+
   return (
     <TouchableOpacity
       activeOpacity={onPress ? 0.6 : 1}
@@ -39,6 +41,8 @@ export function RowDivider() {
 }
 
 export function SectionLabel({ children }: { children: string }) {
+  const textStyle = useTextStyle();
+
   return (
     <Text
       className="mb-[10px] ml-[4px] text-[11px] tracking-[1.1px] text-light-faint"

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 interface AdjustOptionCardProps {
   icon: ReactNode;
@@ -19,6 +19,8 @@ export function AdjustOptionCard({
   selected,
   onSelect,
 }: AdjustOptionCardProps) {
+  const textStyle = useTextStyle();
+
   return (
     <TouchableOpacity
       onPress={onSelect}

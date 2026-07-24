@@ -7,8 +7,6 @@ const PANEL_RESERVED_DP = 34;
 const ROW_GAP = 4;
 const VISIBLE_TRIM_DP = 40;
 
-const DEBUG_SIZE = true;
-
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -63,6 +61,8 @@ function DateCard({
     >
       <TextWidget
         text={bigDate}
+        maxLines={1}
+        truncate="END"
         style={{ fontSize: 30, fontWeight: '700', color: theme.dateInk }}
       />
 
@@ -185,7 +185,7 @@ function UpcomingPanel({ snapshot, theme, height }: AgendaWidgetProps) {
       />
       {rows.map((event, index) => (
         <EventRow
-          key={event.id}
+          key={`${event.id}-${index}`}
           event={event}
           now={index === 0 && snapshot.inProgress}
           theme={theme}
@@ -206,8 +206,6 @@ export function AgendaWidget({ snapshot, theme, height }: AgendaWidgetProps) {
         ? 'No events'
         : `${count} event${count === 1 ? '' : 's'}`;
 
-  const shownLabel = DEBUG_SIZE ? `h=${Math.round(height)}dp` : countLabel;
-
   return (
     <FlexWidget
       clickAction="OPEN_APP"
@@ -222,7 +220,7 @@ export function AgendaWidget({ snapshot, theme, height }: AgendaWidgetProps) {
         paddingVertical: 10,
       }}
     >
-      <DateCard date={date} countLabel={shownLabel} theme={theme} />
+      <DateCard date={date} countLabel={countLabel} theme={theme} />
       <FlexWidget style={{ flex: 6, height: 'match_parent', marginLeft: 12, flexDirection: 'column' }}>
         <UpcomingPanel snapshot={snapshot} theme={theme} height={height} />
       </FlexWidget>

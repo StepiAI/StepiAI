@@ -1,5 +1,5 @@
 import { ActivityIndicator, Text, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import type { WeatherCategory } from '../../../services/weather/client';
 import type { ScheduleWeather } from '../hooks/useScheduleWeather';
 
@@ -16,6 +16,7 @@ function formatHour(iso: string) {
   return new Date(iso).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
   });
 }
 
@@ -25,6 +26,8 @@ interface WeatherHintProps {
 }
 
 export function WeatherHint({ weather, loading }: WeatherHintProps) {
+  const textStyle = useTextStyle();
+
   if (loading) {
     return (
       <View className="flex-row items-center gap-[6px]">

@@ -12,7 +12,7 @@ import {
   ClockIcon,
   LockIcon,
 } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { BenefitRow } from '../components/BenefitRow';
 import { useLocationPermission } from '../hooks/useLocationPermission';
 
@@ -29,6 +29,8 @@ export function LocationAccessScreen({
   onAllow,
   onSkip,
 }: LocationAccessScreenProps) {
+  const textStyle = useTextStyle();
+
   const { status, requesting, request, openSettings } = useLocationPermission();
   const insets = useSafeAreaInsets();
 

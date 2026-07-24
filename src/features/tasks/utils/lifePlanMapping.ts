@@ -10,7 +10,7 @@ import {
   LifePlanDraft,
   Weekday,
 } from '../types';
-import { formatDateOnly, formatTimeOnly, parseWallClock } from './dateTime';
+import { formatDateOnly, formatTimeOnly, parseScheduleTime } from './dateTime';
 
 const WEEKDAY_TO_API: Record<Weekday, ApiWeekday> = {
   Monday: 'MONDAY',
@@ -99,11 +99,13 @@ export function countCompletedSessions(plan: LifePlanRecord): number {
     now.getDate(),
   ).getTime();
 
-  return plan.schedules.filter(schedule => {
-    const sessionStart = new Date(schedule.startDateTime).getTime();
+  return (
+    plan.schedules?.filter(schedule => {
+      const sessionStart = new Date(schedule.startDateTime).getTime();
 
-    return Number.isFinite(sessionStart) && sessionStart < todayStart;
-  }).length;
+      return Number.isFinite(sessionStart) && sessionStart < todayStart;
+    }).length ?? 0
+  );
 }
 
 export function isLifePlanCompleted(plan: LifePlanRecord): boolean {
@@ -158,7 +160,7 @@ export function getThisWeekSchedules(
   // sengaja ikut nampilin sesi yg udah lewat (buat checkmark otomatis),
   // batasnya cuma sampai 7 hari ke depan
   return schedules.filter(
-    schedule => parseWallClock(schedule.startDateTime).getTime() <= end,
+    schedule => parseScheduleTime(schedule.startDateTime).getTime() <= end,
   );
 }
 

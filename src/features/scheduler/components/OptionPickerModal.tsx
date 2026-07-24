@@ -1,5 +1,5 @@
 import { Modal, Pressable, ScrollView, Text } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 export interface PickerOption<T extends string> {
   value: T;
@@ -21,6 +21,8 @@ export function OptionPickerModal<T extends string>({
   onClose,
   onSelect,
 }: OptionPickerModalProps<T>) {
+  const textStyle = useTextStyle();
+
   return (
     <Modal
       visible={visible}

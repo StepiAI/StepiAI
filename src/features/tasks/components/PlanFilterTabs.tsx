@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, LayoutChangeEvent, Pressable, Text, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 export type PlanFilter = 'all' | 'archived';
 
@@ -18,6 +18,8 @@ const TRACK_PADDING = 6;
 const TRACK_BORDER = 1;
 
 export function PlanFilterTabs({ value, onChange }: PlanFilterTabsProps) {
+  const textStyle = useTextStyle();
+
   const activeIndex = TABS.findIndex(tab => tab.value === value);
   const [trackWidth, setTrackWidth] = useState(0);
   const anim = useRef(new Animated.Value(activeIndex)).current;

@@ -4,7 +4,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Modal,
-  Platform,
   ScrollView,
   Switch,
   Text,
@@ -21,12 +20,13 @@ import {
   ChevronUpDownIcon,
   CloseIcon,
 } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { KEYBOARD_AVOIDING_BEHAVIOR } from '../../../shared/keyboard';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { TimePickerModal } from '../../tasks/components/TimePickerModal';
 import { formatDateLabel, formatTimeLabel } from '../../tasks/utils/dateTime';
 import type { PlaceSuggestion } from '../../../services/weather/client';
 import { useCreateGoogleCalendarEvent } from '../hooks/useCreateGoogleCalendarEvent';
-import { toWallClockUtcIso, updateSchedule } from '../../../services/schedules/client';
+import { toUtcIso, updateSchedule } from '../../../services/schedules/client';
 import { usePlaceSearch } from '../hooks/usePlaceSearch';
 import { useScheduleWeather } from '../hooks/useScheduleWeather';
 import { removeAttachment as removeUploadedAttachment } from '../../../services/attachments/client';
@@ -142,6 +142,8 @@ export function NewScheduleModal({
   draft,
   onUpdated,
 }: NewScheduleModalProps) {
+  const textStyle = useTextStyle();
+
   const { create, update, saving, error, reset } = useCreateGoogleCalendarEvent();
   const insets = useSafeAreaInsets();
   const isEdit = Boolean(draft);
@@ -305,8 +307,8 @@ export function NewScheduleModal({
           summary: payload.summary,
           description: payload.description,
           location: payload.location,
-          startDateTime: toWallClockUtcIso(start),
-          endDateTime: toWallClockUtcIso(end),
+          startDateTime: toUtcIso(start),
+          endDateTime: toUtcIso(end),
         });
         ok = true;
       } catch (err) {
@@ -343,7 +345,7 @@ export function NewScheduleModal({
           <SafeAreaView className="flex-1" edges={['bottom']}>
             <KeyboardAvoidingView
               className="flex-1"
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              behavior={KEYBOARD_AVOIDING_BEHAVIOR}
             >
               <View className="flex-row items-center justify-between px-[20px] pb-[14px] pt-[18px]">
                 <TouchableOpacity
@@ -661,6 +663,8 @@ function SelectRow({
   value: string;
   onPress: () => void;
 }) {
+  const textStyle = useTextStyle();
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -684,6 +688,8 @@ function SelectRow({
 }
 
 function Pill({ label, onPress }: { label: string; onPress: () => void }) {
+  const textStyle = useTextStyle();
+
   return (
     <TouchableOpacity
       onPress={onPress}

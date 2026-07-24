@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from '../../../app/navigation/types';
 import { MicIcon, SearchIcon } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { SettingsRow } from '../components/SettingsRow';
 import { SettingsScreenLayout } from '../components/SettingsScreenLayout';
 import { SettingsSection } from '../components/SettingsSection';
@@ -20,6 +20,8 @@ const TOPICS = [
 ];
 
 export function HelpCenterScreen() {
+  const textStyle = useTextStyle();
+
   const [query, setQuery] = useState('');
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
 

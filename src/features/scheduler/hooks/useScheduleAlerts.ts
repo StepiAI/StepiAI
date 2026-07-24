@@ -19,23 +19,47 @@ function deviceTimeZone(): string | undefined {
   }
 }
 
+const NON_PHYSICAL_LOCATIONS = new Set([
+  'online',
+  'daring',
+  'zoom',
+  'google meet',
+  'gmeet',
+]);
+
 function toAlertEvents(events: GoogleCalendarEvent[]): AnalyzeAlertsEvent[] {
-  return events
-    .filter(
-      (event) =>
-        !!event.id &&
-        !!event.summary &&
-        !!event.location?.trim() &&
-        !!event.start?.dateTime &&
-        !!event.end?.dateTime,
-    )
-    .map((event) => ({
+  const kept: AnalyzeAlertsEvent[] = [];
+  for (const event of events) {
+    const location = event.location?.trim() ?? '';
+    const reasons: string[] = [];
+    if (!event.id) reasons.push('no id');
+    if (!event.summary) reasons.push('no summary');
+    if (!location) reasons.push('no location');
+    else if (NON_PHYSICAL_LOCATIONS.has(location.toLowerCase()))
+      reasons.push('non-physical location (online/zoom/dst)');
+    if (!event.start?.dateTime) reasons.push('no start.dateTime');
+    if (!event.end?.dateTime) reasons.push('no end.dateTime');
+
+    if (reasons.length > 0) {
+      console.log(
+        `[DEBUG ALERTS] skip "${event.summary ?? '(untitled)'}" -> ${reasons.join(', ')}`,
+      );
+      continue;
+    }
+
+    kept.push({
       id: event.id as string,
       summary: event.summary as string,
       location: event.location as string,
       startDateTime: event.start!.dateTime as string,
       endDateTime: event.end!.dateTime as string,
-    }));
+    });
+  }
+  console.log(
+    `[DEBUG ALERTS] events masuk=${events.length}, lolos filter=${kept.length}`,
+    kept.map((e) => `${e.summary} @ ${e.startDateTime} (${e.location})`),
+  );
+  return kept;
 }
 
 export function useScheduleAlerts(
@@ -51,7 +75,14 @@ export function useScheduleAlerts(
   const alertEvents = useMemo(() => toAlertEvents(events), [events]);
 
   useEffect(() => {
-    if (latitude === null || longitude === null || alertEvents.length === 0) {
+    if (latitude === null || longitude === null) {
+      console.log('[DEBUG ALERTS] SKIP: lokasi (origin) masih null — GPS/izin?');
+      setAlerts([]);
+      setLoading(false);
+      return;
+    }
+    if (alertEvents.length === 0) {
+      console.log('[DEBUG ALERTS] SKIP: nggak ada event yang lolos filter minggu ini');
       setAlerts([]);
       setLoading(false);
       return;
@@ -60,17 +91,25 @@ export function useScheduleAlerts(
     let cancelled = false;
     setLoading(true);
 
-    analyzeAlerts({
+    const payload = {
       origin: { latitude, longitude },
       events: alertEvents,
       timezone: deviceTimeZone(),
-    })
+    };
+    console.log('[DEBUG ALERTS] POST /alerts/analyze payload:', JSON.stringify(payload));
+
+    analyzeAlerts(payload)
       .then((result) => {
+        console.log(
+          `[DEBUG ALERTS] backend balikin ${result.length} alert:`,
+          JSON.stringify(result.map((a) => ({ type: a.type, summary: a.summary, title: a.title }))),
+        );
         if (!cancelled) setAlerts(result);
       })
       .catch((err) => {
         if (cancelled) return;
-        console.warn('[Alerts] gagal ambil warning:', err);
+        const e = err as { status?: number; message?: string };
+        console.warn('[DEBUG ALERTS] gagal ambil warning:', e?.status, e?.message, err);
         setAlerts([]);
       })
       .finally(() => {

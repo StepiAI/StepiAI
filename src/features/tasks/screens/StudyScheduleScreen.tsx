@@ -3,7 +3,7 @@ import { ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { ChevronLeft } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { MonthPickerModal } from '../../scheduler/components/MonthPickerModal';
 import { DayChip } from '../components/DayChip';
 import { FieldCard, FieldRow, FieldRowDivider } from '../components/FieldCard';
@@ -41,6 +41,8 @@ export function StudyScheduleScreen({
   onBack,
   onNext,
 }: StudyScheduleScreenProps) {
+  const textStyle = useTextStyle();
+
   const tabBarSpace = useTabBarSpace();
   const [activePicker, setActivePicker] = useState<ActivePicker>(null);
   const closePicker = () => setActivePicker(null);

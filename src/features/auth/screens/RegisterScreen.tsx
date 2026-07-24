@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, StatusBar, Text, TouchableOpacity, View } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MeshGradient } from '../../../shared/components/MeshGradient';
 import { GoogleLogo } from '../../../shared/components/GoogleLogo';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { signInWithGoogle } from '../services/googleAuth';
 
 interface RegisterScreenProps {
@@ -11,6 +11,8 @@ interface RegisterScreenProps {
 }
 
 export function RegisterScreen({ onBackToOnboarding }: RegisterScreenProps) {
+  const textStyle = useTextStyle();
+
   const [signingIn, setSigningIn] = useState(false);
 
   async function handleGoogleSignIn() {

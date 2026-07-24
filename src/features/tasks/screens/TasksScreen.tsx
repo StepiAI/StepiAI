@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { useTabBarVisibility } from '../../../app/navigation/TabBarVisibilityContext';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { PlanFilterTabs, PlanFilter } from '../components/PlanFilterTabs';
 import { LifePlanCard } from '../components/LifePlanCard';
 import { LifePlanConflictModal } from '../components/LifePlanConflictModal';
@@ -202,6 +202,8 @@ export function TasksScreen() {
 }
 
 function ScreenHeader() {
+  const textStyle = useTextStyle();
+
   return (
     <Text className="mt-[20px] text-center text-[21px] text-light-inkStrong" style={textStyle('bold')}>
       Life Plan
@@ -222,6 +224,8 @@ function LifePlanLoadingScreen() {
 }
 
 function LifePlanEmptyState({ onCreatePress }: { onCreatePress: () => void }) {
+  const textStyle = useTextStyle();
+
   const tabBarSpace = useTabBarSpace();
 
   return (
@@ -282,6 +286,8 @@ function LifePlanListScreen({
   onSetArchived,
   onDeletePlan,
 }: LifePlanListScreenProps) {
+  const textStyle = useTextStyle();
+
   const tabBarSpace = useTabBarSpace();
   const [filter, setFilter] = useState<PlanFilter>('all');
 
@@ -374,6 +380,8 @@ function LifePlanListScreen({
 }
 
 function Notice({ title, caption }: { title: string; caption: string }) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="items-center px-[12px] py-[24px]">
       <Text className="text-[15px] text-light-ink" style={textStyle('medium')}>

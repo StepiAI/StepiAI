@@ -12,7 +12,7 @@ import {
   PersonIcon,
   PlusIcon,
 } from '../../shared/components/Icons';
-import { textStyle } from '../../shared/theme/typography';
+import { useTextStyle } from '../../shared/theme/typography';
 import type { MainTabParamList } from './types';
 
 const ACTIVE_COLOR = '#111114';
@@ -43,6 +43,8 @@ interface TabButtonProps {
 }
 
 function TabButton({ item, focused, onPress }: TabButtonProps) {
+  const textStyle = useTextStyle();
+
   const color = focused ? ACTIVE_COLOR : INACTIVE_COLOR;
 
   return (

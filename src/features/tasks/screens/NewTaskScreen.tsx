@@ -4,7 +4,6 @@ import {
   Alert,
   KeyboardAvoidingView,
   Modal,
-  Platform,
   ScrollView,
   StatusBar,
   Switch,
@@ -15,7 +14,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronDown, CheckIcon, CloseIcon } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { KEYBOARD_AVOIDING_BEHAVIOR } from '../../../shared/keyboard';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { FieldCard, FieldRowDivider, FieldRowDouble } from '../components/FieldCard';
 import { MonthPickerModal } from '../../scheduler/components/MonthPickerModal';
 import { useCreateGoogleCalendarEvent } from '../../scheduler/hooks/useCreateGoogleCalendarEvent';
@@ -38,6 +38,8 @@ function combine(date: Date, time: Date) {
 }
 
 export function NewTaskScreen({ visible, onClose }: NewTaskScreenProps) {
+  const textStyle = useTextStyle();
+
   const insets = useSafeAreaInsets();
   const [title, setTitle] = useState('');
   const [allDay, setAllDay] = useState(false);
@@ -102,7 +104,7 @@ export function NewTaskScreen({ visible, onClose }: NewTaskScreenProps) {
 
         <KeyboardAvoidingView
           className="flex-1"
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={KEYBOARD_AVOIDING_BEHAVIOR}
         >
           <View className="flex-row items-center px-[18px] pt-[6px]">
             <TouchableOpacity

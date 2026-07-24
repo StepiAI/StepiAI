@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from '../../../app/navigation/types';
 import { ChevronLeft } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 interface SettingsScreenLayoutProps extends PropsWithChildren {
   title: string;
@@ -13,6 +13,8 @@ interface SettingsScreenLayoutProps extends PropsWithChildren {
 
 // dipakai semua sub-screen profile biar header + spacing-nya seragam
 export function SettingsScreenLayout({ title, children }: SettingsScreenLayoutProps) {
+  const textStyle = useTextStyle();
+
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
 
   // semua screen ini anaknya Profile, jadi kalau gak ada history balikin ke Profile
