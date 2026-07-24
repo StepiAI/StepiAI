@@ -25,14 +25,20 @@ function readErrorMessage(body: string, status: number) {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await authorizedFetch(path, init);
 
-  return response.json() as Promise<T>;
+  // 204 / body kosong (mis. DELETE) -> jangan dipaksa .json(), nanti throw
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const text = await response.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }
 
 async function authorizedFetch(path: string, init?: RequestInit) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-
+  
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: {
       'Content-Type': 'application/json',

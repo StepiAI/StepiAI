@@ -26,6 +26,7 @@ import { TimePickerModal } from '../../tasks/components/TimePickerModal';
 import { formatDateLabel, formatTimeLabel } from '../../tasks/utils/dateTime';
 import type { PlaceSuggestion } from '../../../services/weather/client';
 import { useCreateGoogleCalendarEvent } from '../hooks/useCreateGoogleCalendarEvent';
+import { toWallClockUtcIso, updateSchedule } from '../../../services/schedules/client';
 import { usePlaceSearch } from '../hooks/usePlaceSearch';
 import { useScheduleWeather } from '../hooks/useScheduleWeather';
 import { removeAttachment as removeUploadedAttachment } from '../../../services/attachments/client';
@@ -65,6 +66,10 @@ export interface ScheduleDraft {
   existingAttachments: { name: string; url: string }[];
   start: Date;
   end: Date;
+  alert?: AlertValue;
+  // true = jadwal lokal STEPI (sesi life plan): simpan lewat /schedules,
+  // bukan Google API (id-nya bukan event Google, bakal 404/502 di sana)
+  localSchedule?: boolean;
 }
 
 interface NewScheduleModalProps {
@@ -171,6 +176,10 @@ export function NewScheduleModal({
   const [place, setPlace] = useState<PlaceSuggestion | null>(null);
   const [locationFocused, setLocationFocused] = useState(false);
 
+  const busy = saving || uploadingAttachments;
+  // centang aktif (biru) begitu title minimal keisi
+  const canSubmit = title.trim().length > 0;
+
   const { results: placeResults, loading: placesLoading } = usePlaceSearch(
     location,
     locationFocused && !place && !allDay,
@@ -272,6 +281,8 @@ export function NewScheduleModal({
       ...uploaded.map(a => ({ name: a.name, url: a.signedUrl })),
     ];
 
+    const alertMinutes = ALERT_MINUTES_BEFORE[alert];
+
     const payload = {
       summary: title.trim(),
       location: location.trim() || undefined,
@@ -282,10 +293,30 @@ export function NewScheduleModal({
       recurrence: toRecurrence(repeat),
       latitude: place?.latitude,
       longitude: place?.longitude,
-      reminderMinutesBefore: ALERT_MINUTES_BEFORE[alert],
+      // null = "None" -> server matiin alert; angka = menit sebelum acara
+      reminderMinutesBefore: alertMinutes ?? null,
     };
 
-    const ok = draft ? await update(draft.id, payload) : await create(payload);
+    let ok: boolean;
+    if (draft?.localSchedule) {
+      // sesi life plan -> simpan ke DB STEPI dgn waktu wall-clock
+      try {
+        await updateSchedule(draft.id, {
+          summary: payload.summary,
+          description: payload.description,
+          location: payload.location,
+          startDateTime: toWallClockUtcIso(start),
+          endDateTime: toWallClockUtcIso(end),
+        });
+        ok = true;
+      } catch (err) {
+        console.error('[Schedules] gagal update jadwal lokal:', err);
+        setFormError('Could not save this session. Please try again.');
+        ok = false;
+      }
+    } else {
+      ok = draft ? await update(draft.id, payload) : await create(payload);
+    }
 
     if (ok) {
       (draft ? onUpdated : onCreated)?.();
@@ -318,9 +349,10 @@ export function NewScheduleModal({
                 <TouchableOpacity
                   onPress={onClose}
                   activeOpacity={0.7}
-                  className="h-[36px] w-[36px] items-center justify-center rounded-full bg-white"
+                  accessibilityLabel="Cancel"
+                  className="h-[40px] w-[40px] items-center justify-center rounded-full bg-white/70"
                 >
-                  <CloseIcon size={12} />
+                  <CloseIcon size={13} />
                 </TouchableOpacity>
 
                 <Text
@@ -332,14 +364,17 @@ export function NewScheduleModal({
 
                 <TouchableOpacity
                   onPress={submit}
-                  disabled={saving || uploadingAttachments}
+                  disabled={busy || !canSubmit}
                   activeOpacity={0.7}
-                  className="h-[36px] w-[36px] items-center justify-center rounded-full bg-light-disabled"
+                  accessibilityLabel="Save"
+                  className="h-[40px] w-[40px] items-center justify-center rounded-full bg-white/70"
                 >
-                  {saving || uploadingAttachments ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  {busy ? (
+                    <ActivityIndicator size="small" color="#2E7BE0" />
                   ) : (
-                    <CheckIcon size={14} />
+                    // ikonnya yg biru pas title udah keisi — bukan seluruh tombolnya,
+                    // biar bentuknya konsisten sama tombol back di layar lain
+                    <CheckIcon size={15} color={canSubmit ? '#2E7BE0' : '#C6C6CC'} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -426,13 +461,16 @@ export function NewScheduleModal({
                     >
                       All-day
                     </Text>
-                    <Switch
-                      value={allDay}
-                      onValueChange={setAllDay}
-                      trackColor={{ false: '#E5E5EA', true: '#2E7BE0' }}
-                      thumbColor="#FFFFFF"
-                      ios_backgroundColor="#E5E5EA"
-                    />
+                    {/* dibungkus + centered biar switch-nya gak ketarik ke atas */}
+                    <View className="items-center justify-center">
+                      <Switch
+                        value={allDay}
+                        onValueChange={setAllDay}
+                        trackColor={{ false: '#E5E5EA', true: '#2E7BE0' }}
+                        thumbColor="#FFFFFF"
+                        ios_backgroundColor="#E5E5EA"
+                      />
+                    </View>
                   </View>
 
                   <View className="ml-[18px] h-[1px] bg-light-rule" />

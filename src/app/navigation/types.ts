@@ -1,4 +1,5 @@
 import type { ScheduleAlert } from '../../services/alerts/client';
+import type { TimelineEvent } from '../../features/scheduler/utils/timeline';
 
 export type MainTabParamList = {
   Home: undefined;
@@ -7,6 +8,9 @@ export type MainTabParamList = {
   Profile: undefined;
   Calendar: undefined;
   AdjustSchedule: { alert: ScheduleAlert } | undefined;
+  MissingDetails: undefined;
+  // dayIso dikirim string biar param-nya serializable
+  EventDetail: { event: TimelineEvent; dayIso: string };
   Chat: undefined;
   ConnectedApps: undefined;
   Accessibility: undefined;
