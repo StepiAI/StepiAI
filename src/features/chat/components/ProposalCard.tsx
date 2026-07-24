@@ -25,7 +25,7 @@ import {
   MoonIcon,
   TargetIcon,
 } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 type ProposalStatus = 'pending' | 'accepted' | 'dismissed';
 
@@ -80,8 +80,8 @@ function formatWhen({
 function formatHourLabel(date: Date) {
   return date
     .toLocaleTimeString([], {
-      hour: 'numeric',
-      hour12: true,
+      hour: '2-digit',
+      hour12: false,
     })
     .replace(' ', '');
 }
@@ -122,9 +122,9 @@ function formatLifePlanTime(
   const format = (value: string) => {
     const [hours, minutes] = value.split(':').map(Number);
     return new Date(2026, 0, 1, hours, minutes).toLocaleTimeString([], {
-      hour: 'numeric',
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: true,
+      hour12: false,
     });
   };
 
@@ -200,6 +200,8 @@ function successLabel(proposal: ChatProposal) {
 }
 
 function ProposalDetails({ proposal }: { proposal: ChatProposal }) {
+  const textStyle = useTextStyle();
+
   if (proposal.type === 'schedule_delete_proposal') {
     return (
       <Text
@@ -302,6 +304,8 @@ function SchedulePreview({
 }: {
   proposal: ScheduleProposal | ScheduleUpdateProposal;
 }) {
+  const textStyle = useTextStyle();
+
   const start = new Date(proposal.startDateTime);
   const previousStart = new Date(start);
   previousStart.setHours(Math.max(0, start.getHours() - 1), 0, 0, 0);
@@ -346,7 +350,7 @@ function SchedulePreview({
               className="text-[12px] text-light-muted"
               style={textStyle('regular')}
             >
-              09.00 AM - 10.00 AM
+              09:00 - 10:00
             </Text>
           </View>
 
@@ -390,7 +394,7 @@ function SchedulePreview({
               className="text-[12px] text-light-muted"
               style={textStyle('regular')}
             >
-              12.00 PM - 1.00 PM
+              12:00 - 13:00
             </Text>
           </View>
         </View>
@@ -408,6 +412,8 @@ function LifePlanDetailRow({
   label: string;
   value: string;
 }) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="flex-row items-center">
       <View className="h-[38px] w-[38px] items-center justify-center rounded-[6px] bg-[#F3F3F6]">
@@ -499,6 +505,8 @@ export function ProposalCard({
   onStatusChange,
   onNeedsFollowUp,
 }: ProposalCardProps) {
+  const textStyle = useTextStyle();
+
   const [outcome, setOutcome] = useState<ProposalStatus>(status);
   const [saving, setSaving] = useState(false);
   const [dismissing, setDismissing] = useState(false);

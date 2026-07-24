@@ -1,6 +1,6 @@
 import { Children, Fragment, PropsWithChildren, isValidElement } from 'react';
 import { Text, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 interface SettingsSectionProps extends PropsWithChildren {
   title?: string;
@@ -15,6 +15,8 @@ export function SettingsSection({
   className,
   children,
 }: SettingsSectionProps) {
+  const textStyle = useTextStyle();
+
   const rows = Children.toArray(children).filter(isValidElement);
 
   return (

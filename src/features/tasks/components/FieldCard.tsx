@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 export function FieldCard({ children }: { children: ReactNode }) {
   return <View className="overflow-hidden rounded-[16px] bg-white">{children}</View>;
@@ -17,6 +17,8 @@ interface FieldRowProps {
 }
 
 export function FieldRow({ label, value, onPress }: FieldRowProps) {
+  const textStyle = useTextStyle();
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -51,6 +53,8 @@ export function FieldRowDouble({
   onPrimaryPress,
   onSecondaryPress,
 }: FieldRowDoubleProps) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="h-[64px] flex-row items-center justify-between px-[18px]">
       <Text className="text-[15px] text-light-ink" style={textStyle('medium')}>

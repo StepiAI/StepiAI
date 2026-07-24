@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Text, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 interface BenefitRowProps {
   icon: ReactNode;
@@ -9,6 +9,8 @@ interface BenefitRowProps {
 }
 
 export function BenefitRow({ icon, title, caption }: BenefitRowProps) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="flex-row items-start px-[16px] py-[14px]">
       <View className="mr-[14px] mt-[1px]">{icon}</View>

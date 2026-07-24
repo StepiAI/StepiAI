@@ -14,7 +14,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { ChevronLeft, ChevronRight } from '../../../shared/components/Icons';
 import { EVENT_PALETTE } from '../eventColors';
 import { isSameDay } from '../utils/day';
@@ -216,6 +216,8 @@ function MonthView({
   onOpenYear: () => void;
   onPickDay: (date: Date) => void;
 }) {
+  const textStyle = useTextStyle();
+
   const listRef = useRef<FlatList<CalendarWeek>>(null);
   const cellWidth = (width - 32) / 7;
 
@@ -344,6 +346,8 @@ function WeekRow({
   dayChips: Map<string, DayChip[]>;
   onPickDay: (date: Date) => void;
 }) {
+  const textStyle = useTextStyle();
+
   const today = new Date();
   const anchorMonth = weekAnchor(week.days).getMonth();
 
@@ -421,6 +425,8 @@ function WeekRow({
 }
 
 function Chip({ chip }: { chip: DayChip }) {
+  const textStyle = useTextStyle();
+
   const tone = EVENT_PALETTE[chip.tone % EVENT_PALETTE.length];
 
   return (
@@ -452,6 +458,8 @@ function YearView({
   onNextYear: () => void;
   onClose: () => void;
 }) {
+  const textStyle = useTextStyle();
+
   const today = new Date();
 
   return (
@@ -511,6 +519,8 @@ function MiniMonth({
   selected: Date;
   today: Date;
 }) {
+  const textStyle = useTextStyle();
+
   const grid = useMemo(() => buildMonthGrid(new Date(year, monthIndex, 1)), [year, monthIndex]);
   const isCurrentMonth = today.getFullYear() === year && today.getMonth() === monthIndex;
 

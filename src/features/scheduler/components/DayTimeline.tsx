@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { ClockGlyph, LocationPinIcon } from '../../../shared/components/Icons';
 import { EVENT_PALETTE } from '../eventColors';
 import { NOW_INDICATOR_COLOR } from '../theme';
@@ -31,18 +31,25 @@ const MIN_HEIGHT_FOR_LOCATION = 74;
 interface DayTimelineProps {
   events: TimelineEvent[];
   nowMinutes?: number;
+  // penanda "sekarang" (dot + garis merah) cuma relevan pas lagi lihat hari ini
+  isToday?: boolean;
   onEventPress?: (event: TimelineEvent) => void;
 }
 
-export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelineProps) {
+export function DayTimeline({ events, nowMinutes, isToday = true, onEventPress }: DayTimelineProps) {
+  const textStyle = useTextStyle();
+
   const now = nowMinutes ?? minutesNow();
   const range = useMemo(() => rangeForEvents(events), [events]);
   const positioned = useMemo(() => layoutEvents(events, range), [events, range]);
 
+  // tampilin marking "now" cuma kalau hari ini & jamnya masuk rentang timeline
+  const nowVisible = isToday && isWithinTimeline(now, range);
+
   return (
     <View style={{ height: timelineHeight(range) }}>
       {hourSlots(range).map((hour, index) => {
-        const isNowHour = isWithinTimeline(now, range) && now === hour * 60;
+        const isNowHour = nowVisible && now === hour * 60;
 
         return (
           <View
@@ -153,7 +160,7 @@ export function DayTimeline({ events, nowMinutes, onEventPress }: DayTimelinePro
         })}
       </View>
 
-      {isWithinTimeline(now, range) && now % 60 !== 0 ? (
+      {nowVisible && now % 60 !== 0 ? (
         <View
           className="absolute left-0 right-0 flex-row items-center"
           style={{ top: offsetForMinutes(now, range) }}

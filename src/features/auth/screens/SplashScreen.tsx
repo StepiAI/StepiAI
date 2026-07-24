@@ -1,13 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Image, StatusBar, Text, View } from 'react-native';
 import { MeshGradient } from '../../../shared/components/MeshGradient';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 interface SplashScreenProps {
   onFinish?: () => void;
 }
 
 export function SplashScreen({ onFinish }: SplashScreenProps) {
+  const textStyle = useTextStyle();
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.92)).current;
 

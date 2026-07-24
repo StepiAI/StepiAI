@@ -5,8 +5,9 @@ const DATE_LABEL_OPTIONS: Intl.DateTimeFormatOptions = {
 };
 
 const TIME_LABEL_OPTIONS: Intl.DateTimeFormatOptions = {
-  hour: 'numeric',
+  hour: '2-digit',
   minute: '2-digit',
+  hour12: false,
 };
 
 export function formatDateLabel(date: Date): string {
@@ -64,14 +65,6 @@ export function buildTimeSlots(): Date[] {
   return slots;
 }
 
-/**
- * Jadwal life plan disimpan sebagai "wall clock": FE kirim jam lokal (mis.
- * "19:00"), BE simpan apa adanya dalam kontainer UTC ("...T19:00:00Z").
- * Jadi pas dibaca, komponen UTC-nya HARUS diperlakukan sebagai jam lokal —
- * kalau di-parse langsung pakai new Date(iso), jamnya geser +7 (WIB) dan
- * sesinya "pindah" ke jam 2 pagi hari berikutnya.
- */
-export function parseWallClock(iso: string): Date {
-  // buang 'Z'/millis -> di-parse JS sebagai waktu lokal
-  return new Date(iso.slice(0, 19));
+export function parseScheduleTime(iso: string): Date {
+  return new Date(iso);
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Image, Linking, Text, TouchableOpacity, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import type { EventAttachment } from '../utils/eventNotes';
 import { ImagePreviewModal } from './ImagePreviewModal';
 
@@ -9,6 +9,8 @@ interface EventAttachmentsProps {
 }
 
 export function EventAttachments({ attachments }: EventAttachmentsProps) {
+  const textStyle = useTextStyle();
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   if (attachments.length === 0) {

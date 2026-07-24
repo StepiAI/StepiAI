@@ -26,15 +26,15 @@ function event(overrides: Partial<TimelineEvent> = {}): TimelineEvent {
 }
 
 describe('formatHourLabel', () => {
-  it('pakai jam 12-an dengan AM/PM', () => {
-    expect(formatHourLabel(9)).toBe('9AM');
-    expect(formatHourLabel(12)).toBe('12PM');
-    expect(formatHourLabel(17)).toBe('5PM');
+  it('pakai jam 24-an / military', () => {
+    expect(formatHourLabel(9)).toBe('09:00');
+    expect(formatHourLabel(12)).toBe('12:00');
+    expect(formatHourLabel(17)).toBe('17:00');
   });
 
-  it('tengah malam jadi 12AM, bukan 0AM', () => {
-    expect(formatHourLabel(0)).toBe('12AM');
-    expect(formatHourLabel(24)).toBe('12AM');
+  it('tengah malam jadi 00:00', () => {
+    expect(formatHourLabel(0)).toBe('00:00');
+    expect(formatHourLabel(24)).toBe('00:00');
   });
 });
 
@@ -47,21 +47,21 @@ describe('formatEventTime', () => {
 });
 
 describe('formatClockTime', () => {
-  it('format 12-jam dengan AM/PM, jam dua digit', () => {
-    expect(formatClockTime(9 * 60)).toBe('09:00 AM');
-    expect(formatClockTime(13 * 60 + 30)).toBe('01:30 PM');
-    expect(formatClockTime(0)).toBe('12:00 AM');
-    expect(formatClockTime(12 * 60)).toBe('12:00 PM');
+  it('format 24-jam / military, jam dua digit', () => {
+    expect(formatClockTime(9 * 60)).toBe('09:00');
+    expect(formatClockTime(13 * 60 + 30)).toBe('13:30');
+    expect(formatClockTime(0)).toBe('00:00');
+    expect(formatClockTime(12 * 60)).toBe('12:00');
   });
 
-  it('tengah malam di ujung hari balik ke 12:00 AM', () => {
-    expect(formatClockTime(24 * 60)).toBe('12:00 AM');
+  it('tengah malam di ujung hari balik ke 00:00', () => {
+    expect(formatClockTime(24 * 60)).toBe('00:00');
   });
 });
 
 describe('formatClockRange', () => {
   it('gabungin mulai sampe selesai', () => {
-    expect(formatClockRange(9 * 60, 60)).toBe('09:00 AM – 10:00 AM');
+    expect(formatClockRange(9 * 60, 60)).toBe('09:00 – 10:00');
   });
 });
 

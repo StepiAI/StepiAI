@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { MoreIcon } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import type { LifePlanRecord } from '../../../services/lifePlan/client';
 import { PROGRESS_TRACK_COLOR } from '../theme';
 import { formatDateLabel } from '../utils/dateTime';
@@ -28,6 +28,8 @@ export function LifePlanCard({
   onArchiveToggle,
   onDelete,
 }: LifePlanCardProps) {
+  const textStyle = useTextStyle();
+
   const totalSessions = countLifePlanSessions(plan);
   const durationDays = getLifePlanDurationDays(plan);
   const completedSessions = countCompletedSessions(plan);

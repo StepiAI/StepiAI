@@ -32,7 +32,8 @@ import {
   softGradientCss,
   voiceBackgroundCss,
 } from '../../../shared/theme/gradient';
-import { textStyle } from '../../../shared/theme/typography';
+import { KEYBOARD_AVOIDING_BEHAVIOR } from '../../../shared/keyboard';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { ProposalCard } from '../components/ProposalCard';
 import { readChatProposal } from '../utils/parseAssistantContent';
 import { playVoiceSummary, stopVoicePlayback } from '../utils/voicePlayback';
@@ -90,6 +91,8 @@ export function VoiceAssistantScreen({
   onConversationChanged,
   onProposalStatusChange,
 }: VoiceAssistantScreenProps) {
+  const textStyle = useTextStyle();
+
   const visibleRef = useRef(visible);
   const phaseRef = useRef<VoicePhase>('idle');
   const proposalVisibleRef = useRef(false);
@@ -854,7 +857,7 @@ export function VoiceAssistantScreen({
     >
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={KEYBOARD_AVOIDING_BEHAVIOR}
         style={{
           experimental_backgroundImage: voiceBackgroundCss,
           paddingTop: topInset,

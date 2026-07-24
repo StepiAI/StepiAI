@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from '../../../app/navigation/types';
 import { ChevronLeft } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { useGoogleCalendarEvents } from '../hooks/useGoogleCalendarEvents';
 import {
   MissingDetailItem,
@@ -32,6 +32,8 @@ const OPTIONAL_AMBER = '#E8A23D';
 const LOOKAHEAD_DAYS = 14;
 
 export function MissingDetailsScreen() {
+  const textStyle = useTextStyle();
+
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const [tab, setTab] = useState<MissingDetailTab>('required');
 
@@ -184,6 +186,8 @@ function FilterTab({
   onPress: () => void;
   showDot?: boolean;
 }) {
+  const textStyle = useTextStyle();
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -211,6 +215,8 @@ function MissingDetailCard({
   item: MissingDetailItem;
   onAdd: () => void;
 }) {
+  const textStyle = useTextStyle();
+
   const missingColor = item.required ? REQUIRED_RED : OPTIONAL_AMBER;
   const done = item.missing === null;
 
@@ -272,6 +278,8 @@ function MissingDetailCard({
 }
 
 function EmptyState({ title, caption }: { title: string; caption: string }) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="flex-1 items-center justify-center px-[32px]">
       <Text className="text-[16px] text-light-ink" style={textStyle('semibold')}>

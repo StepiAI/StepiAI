@@ -19,7 +19,7 @@ import {
 } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { GradientText } from '../../../shared/components/GradientText';
 import {
   BookIcon,
@@ -28,6 +28,7 @@ import {
   ClockIcon,
   EditIcon,
 } from '../../../shared/components/Icons';
+import { KEYBOARD_AVOIDING_BEHAVIOR } from '../../../shared/keyboard';
 import { ChatComposer } from '../components/ChatComposer';
 import { MessageBubble } from '../components/MessageBubble';
 import { VoiceAssistantScreen } from './VoiceAssistantScreen';
@@ -45,6 +46,8 @@ interface EmptyStateProps {
 }
 
 function EmptyState({ onSuggestion }: EmptyStateProps) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="flex-1 justify-between px-[18px] pb-[8px] pt-[20px]">
       <GradientText
@@ -145,6 +148,8 @@ function useKeyboardVisible() {
 }
 
 export function ChatScreen() {
+  const textStyle = useTextStyle();
+
   const {
     messages,
     loading,
@@ -210,7 +215,7 @@ export function ChatScreen() {
 
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={KEYBOARD_AVOIDING_BEHAVIOR}
       >
         {loading ? (
           <View className="flex-1 items-center justify-center">
@@ -267,6 +272,10 @@ export function ChatScreen() {
             onContentSizeChange={() =>
               scrollRef.current?.scrollToEnd({ animated: true })
             }
+            // Keyboard naik bikin area chat mengecil tanpa ngubah isinya, jadi
+            // onContentSizeChange gak kepanggil & pesan terakhir ketinggalan di
+            // balik composer.
+            onLayout={() => scrollRef.current?.scrollToEnd({ animated: false })}
           >
             {messages.length === 0 && !sending ? (
               <EmptyState onSuggestion={send} />

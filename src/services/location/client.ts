@@ -107,6 +107,18 @@ export async function getCurrentLocation(): Promise<CurrentLocation> {
   return getPosition();
 }
 
+function toCurrentLocation(pos: {
+  coords: { latitude: number; longitude: number; accuracy?: number | null };
+  timestamp: number;
+}): CurrentLocation {
+  return {
+    latitude: pos.coords.latitude,
+    longitude: pos.coords.longitude,
+    accuracy: pos.coords.accuracy ?? null,
+    capturedAt: pos.timestamp,
+  };
+}
+
 export async function watchCurrentLocation(
   onUpdate: (location: CurrentLocation) => void,
   onError: (error: Error) => void,
@@ -117,16 +129,31 @@ export async function watchCurrentLocation(
     return () => {};
   }
 
+  let seeded = false;
+
+  Geolocation.getCurrentPosition(
+    (pos) => {
+      seeded = true;
+      console.log('[DEBUG ALERTS] seed lokasi awal (coarse) OK');
+      onUpdate(toCurrentLocation(pos));
+    },
+    (err) => {
+      console.warn('[DEBUG ALERTS] seed lokasi awal gagal:', err?.message);
+    },
+    { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 },
+  );
+
   const watchId = Geolocation.watchPosition(
-    (pos) =>
-      onUpdate({
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-        accuracy: pos.coords.accuracy ?? null,
-        capturedAt: pos.timestamp,
-      }),
+    (pos) => {
+      if (!seeded) {
+        seeded = true;
+        console.log('[DEBUG ALERTS] fix lokasi pertama dari watch OK');
+      }
+      onUpdate(toCurrentLocation(pos));
+    },
     (err) => onError(new Error(err.message)),
     {
+      // high-accuracy tetep dipakai buat refine, tp fix awal udah ditangani seed
       enableHighAccuracy: true,
       distanceFilter: 10,
     },

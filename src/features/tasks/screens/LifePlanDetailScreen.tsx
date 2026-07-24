@@ -15,7 +15,7 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from '../../../app/navigation/types';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { ChevronLeft, ClipboardCheckIcon, ClipboardIcon } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { deleteSchedule } from '../../../services/schedules/client';
 import type { ScheduleRecord } from '../../../services/lifePlan/client';
 import { eventColorSeed, toneIndexFor } from '../../scheduler/eventColors';
@@ -23,7 +23,7 @@ import type { TimelineEvent } from '../../scheduler/utils/timeline';
 import { CircularProgress } from '../components/CircularProgress';
 import { TaskRow } from '../components/TaskRow';
 import { useLifePlanDetail } from '../hooks/useLifePlanDetail';
-import { parseWallClock } from '../utils/dateTime';
+import { parseScheduleTime } from '../utils/dateTime';
 import { LIFE_PLAN_PROGRESS_GRADIENT } from '../theme';
 import {
   computeElapsedProgress,
@@ -38,8 +38,8 @@ import { NewTaskScreen } from './NewTaskScreen';
 // bentuk sesi life plan jadi TimelineEvent biar bisa dibuka di halaman detail
 // kalender (route EventDetail) — sama kayak event Google di Home
 function toTimelineEvent(schedule: ScheduleRecord): TimelineEvent {
-  const start = parseWallClock(schedule.startDateTime);
-  const end = parseWallClock(schedule.endDateTime);
+  const start = parseScheduleTime(schedule.startDateTime);
+  const end = parseScheduleTime(schedule.endDateTime);
   const startMinutes = start.getHours() * 60 + start.getMinutes();
   const durationMinutes = Math.max(
     Math.round((end.getTime() - start.getTime()) / 60_000),
@@ -64,6 +64,8 @@ interface LifePlanDetailScreenProps {
 }
 
 export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScreenProps) {
+  const textStyle = useTextStyle();
+
   const { plan, loading, error, refresh } = useLifePlanDetail(lifePlanId);
   const tabBarSpace = useTabBarSpace();
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
@@ -72,7 +74,7 @@ export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScree
   const openInCalendar = (schedule: ScheduleRecord) => {
     navigation.navigate('EventDetail', {
       event: toTimelineEvent(schedule),
-      dayIso: parseWallClock(schedule.startDateTime).toISOString(),
+      dayIso: parseScheduleTime(schedule.startDateTime).toISOString(),
     });
   };
 
@@ -106,7 +108,7 @@ export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScree
 
   const defaultSelectedId = useMemo(
     () =>
-      thisWeekSchedules.find(schedule => isSessionToday(parseWallClock(schedule.startDateTime)))?.id ??
+      thisWeekSchedules.find(schedule => isSessionToday(parseScheduleTime(schedule.startDateTime)))?.id ??
       null,
     [thisWeekSchedules],
   );
@@ -210,6 +212,8 @@ export function LifePlanDetailScreen({ lifePlanId, onBack }: LifePlanDetailScree
 }
 
 function StatRow({ icon, value, label }: { icon: ReactNode; value: number; label: string }) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="flex-row items-center gap-[10px]">
       <View className="h-[36px] w-[36px] items-center justify-center rounded-[10px] bg-white">

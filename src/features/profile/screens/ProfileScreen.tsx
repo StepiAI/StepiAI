@@ -11,7 +11,7 @@ import {
   HelpIcon,
   PersonIcon,
 } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { useAuthSession } from '../../auth/hooks/useAuthSession';
 import { SettingsRow } from '../components/SettingsRow';
 import { SettingsSection } from '../components/SettingsSection';
@@ -28,6 +28,8 @@ const PARKED_SCREENS: { name: ParamlessRoute; label: string }[] = [
 ];
 
 export function ProfileScreen() {
+  const textStyle = useTextStyle();
+
   const { session } = useAuthSession();
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const tabBarSpace = useTabBarSpace();
