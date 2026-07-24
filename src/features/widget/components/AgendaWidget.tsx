@@ -2,10 +2,17 @@ import { FlexWidget, TextWidget } from 'react-native-android-widget';
 import type { WidgetEvent, WidgetSnapshot } from '../types';
 import { darkTheme, lightTheme, type WidgetTheme } from '../theme';
 
-const COMPACT_HEIGHT_DP = 150;
+const ROW_BUDGET_DP = 40;
+const PANEL_RESERVED_DP = 30;
+const ROW_GAP = 6;
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+function rowsForHeight(height: number) {
+  const usable = height - PANEL_RESERVED_DP;
+  return Math.max(1, Math.min(3, Math.floor(usable / ROW_BUDGET_DP)));
+}
 
 interface AgendaWidgetProps {
   snapshot: WidgetSnapshot;
@@ -48,7 +55,7 @@ function DateCard({
         justifyContent: 'space-between',
         backgroundGradient: { from: theme.dateFrom, to: theme.dateTo, orientation: 'TOP_BOTTOM' },
         borderRadius: 20,
-        padding: 16,
+        padding: 14,
       }}
     >
       <TextWidget
@@ -88,13 +95,13 @@ function EventRow({
         width: 'match_parent',
         flexDirection: 'row',
         alignItems: 'flex-start',
-        marginTop: 12,
+        marginTop: ROW_GAP,
       }}
     >
       <FlexWidget
         style={{
           width: 3,
-          height: 30,
+          height: 28,
           borderRadius: 3,
           backgroundColor: now ? theme.barNow : theme.bar,
           marginRight: 11,
@@ -111,7 +118,7 @@ function EventRow({
           text={event.timeLabel}
           maxLines={1}
           truncate="END"
-          style={{ fontSize: 11, color: theme.muted, marginTop: 3 }}
+          style={{ fontSize: 11, color: theme.muted, marginTop: 1 }}
         />
       </FlexWidget>
     </FlexWidget>
@@ -163,14 +170,13 @@ function UpcomingPanel({ snapshot, theme, height }: AgendaWidgetProps) {
     );
   }
 
-  const maxRows = height < COMPACT_HEIGHT_DP ? 2 : 3;
-  const rows = events.slice(0, maxRows);
+  const rows = events.slice(0, rowsForHeight(height));
 
   return (
     <FlexWidget style={{ flex: 1, flexDirection: 'column' }}>
       <TextWidget
         text="UPCOMING"
-        style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.5, color: theme.label }}
+        style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.5, color: theme.label, marginBottom: 2 }}
       />
       {rows.map((event, index) => (
         <EventRow
@@ -205,11 +211,12 @@ export function AgendaWidget({ snapshot, theme, height }: AgendaWidgetProps) {
         flexDirection: 'row',
         backgroundColor: theme.canvas,
         borderRadius: 28,
-        padding: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
       }}
     >
       <DateCard date={date} countLabel={countLabel} theme={theme} />
-      <FlexWidget style={{ flex: 6, height: 'match_parent', marginLeft: 12, paddingVertical: 4 }}>
+      <FlexWidget style={{ flex: 6, height: 'match_parent', marginLeft: 12 }}>
         <UpcomingPanel snapshot={snapshot} theme={theme} height={height} />
       </FlexWidget>
     </FlexWidget>
