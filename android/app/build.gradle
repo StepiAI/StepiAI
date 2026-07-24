@@ -106,11 +106,19 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+
+    // Name the generated APK after the app instead of the default "app-<buildType>.apk"
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            output.outputFileName = "StepiAI.apk"
+        }
+    }
 }
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-messaging")
 
     if (hermesEnabled.toBoolean()) {
