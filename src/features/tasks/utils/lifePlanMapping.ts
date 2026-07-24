@@ -86,34 +86,24 @@ export function countLifePlanSessions(plan: LifePlanRecord): number {
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
 
-  return count;
+  return plan.schedules?.length || count;
 }
 
 export function countCompletedSessions(plan: LifePlanRecord): number {
-  const availableDayIndexes = new Set(
-    plan.availableDays.map(day => API_WEEKDAY_TO_DAY_INDEX[day]),
-  );
-  if (availableDayIndexes.size === 0) return 0;
-
   const now = new Date();
-  const todayStart = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
 
-  const cursor = new Date(plan.startDate);
-  const end = new Date(plan.endDate);
-  let count = 0;
+  // Beginning of today in local time
+  const todayStart = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  ).getTime();
 
-  while (cursor.getTime() <= end.getTime()) {
-    // session nya keitung kelar klo udh lewat hari ini (sesuai perkataan jacq)
-    if (
-      availableDayIndexes.has(cursor.getUTCDay()) &&
-      cursor.getTime() < todayStart
-    ) {
-      count++;
-    }
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
-  }
+  return plan.schedules.filter(schedule => {
+    const sessionStart = new Date(schedule.startDateTime).getTime();
 
-  return count;
+    return Number.isFinite(sessionStart) && sessionStart < todayStart;
+  }).length;
 }
 
 export function isLifePlanCompleted(plan: LifePlanRecord): boolean {
@@ -166,9 +156,8 @@ export function getThisWeekSchedules(
   const end = start + 7 * 86_400_000;
 
   const res = schedules.filter(schedule => {
-    console.log(`ON LOOP ${new Date(schedule.startDateTime).getTime()}`);
     const scheduleStart = new Date(schedule.startDateTime).getTime();
-    return  scheduleStart <= end;
+    return scheduleStart >= start && scheduleStart <= end;
   });
   console.log(`RES: ${res}`);
   return res;

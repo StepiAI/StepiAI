@@ -45,6 +45,7 @@ export interface LifePlanRecord {
   startDate: string;
   endDate: string;
   availableDays: ApiWeekday[];
+  schedules?: ScheduleRecord[];
   startTime: string;
   endTime: string;
   difficultyLevel: ApiDifficultyLevel;
@@ -126,7 +127,9 @@ export function getLifePlan(id: string) {
 }
 
 export function setLifePlanArchived(id: string, archived: boolean) {
-  return apiClient.patch<LifePlanRecord>(`${BASE_PATH}/${id}/archive`, { archived });
+  return apiClient.patch<LifePlanRecord>(`${BASE_PATH}/${id}/archive`, {
+    archived,
+  });
 }
 
 export function deleteLifePlan(id: string) {

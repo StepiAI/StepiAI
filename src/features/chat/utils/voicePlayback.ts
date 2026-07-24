@@ -1,16 +1,14 @@
+import { AudioContext } from 'react-native-audio-api';
+
 const STREAMING_TTS_URL =
   'wss://azurefoundryttsapi-production.up.railway.app/ws/tts';
 const STREAMING_SAMPLE_RATE = 24000;
 const STREAMING_CHANNELS = 1;
 const FIRST_AUDIO_TIMEOUT_MS = 15000;
-const STREAMING_END_MARKERS = new Set([
-  '**END_OF_AUDIO**',
-  '**END\\_OF\\_AUDIO**',
-]);
+const AUDIO_IDLE_TIMEOUT_MS = 500;
+const STREAMING_END_MARKER = '**END_OF_AUDIO**';
 
-type AudioContextInstance = InstanceType<
-  typeof import('react-native-audio-api')['AudioContext']
->;
+type AudioContextInstance = InstanceType<typeof AudioContext>;
 type AudioQueueSource = ReturnType<
   AudioContextInstance['createBufferQueueSource']
 >;
@@ -72,20 +70,12 @@ export async function stopVoicePlayback() {
   }
 }
 
-export async function playVoiceSummary(
-  text: string,
-  onEnded?: () => void,
-  onError?: (error: Error) => void,
-) {
+export async function playVoiceSummary(text: string) {
   const content = text.trim();
-  if (!content) {
-    onEnded?.();
-    return;
-  }
+  if (!content) return;
 
   await stopVoicePlayback();
   const generation = playbackGeneration;
-  const { AudioContext } = await import('react-native-audio-api');
   const context = new AudioContext({ sampleRate: STREAMING_SAMPLE_RATE });
 
   if (generation !== playbackGeneration) {
@@ -105,26 +95,28 @@ export async function playVoiceSummary(
   let started = false;
   let finished = false;
   let carryByte: number | null = null;
-  let startSettled = false;
+  let pendingBinaryMessages = 0;
+  let audioIdleTimer: ReturnType<typeof setTimeout> | null = null;
   let messageQueue = Promise.resolve();
 
-  let resolveStart!: () => void;
-  let rejectStart!: (error: Error) => void;
-  const startPromise = new Promise<void>((resolve, reject) => {
-    resolveStart = resolve;
-    rejectStart = reject;
+  let resolveCompletion!: () => void;
+  let rejectCompletion!: (error: Error) => void;
+  const completionPromise = new Promise<void>((resolve, reject) => {
+    resolveCompletion = resolve;
+    rejectCompletion = reject;
   });
+  let completionSettled = false;
 
-  const settleStart = () => {
-    if (startSettled) return;
-    startSettled = true;
-    resolveStart();
-  };
+  const settleCompletion = (error?: Error) => {
+    if (completionSettled) return;
+    completionSettled = true;
 
-  const failStart = (error: Error) => {
-    if (startSettled) return;
-    startSettled = true;
-    rejectStart(error);
+    if (error) {
+      rejectCompletion(error);
+      return;
+    }
+
+    resolveCompletion();
   };
 
   const clearActivePlayback = () => {
@@ -143,11 +135,18 @@ export async function playVoiceSummary(
     return wasActive;
   };
 
+  const clearAudioIdleTimer = () => {
+    if (!audioIdleTimer) return;
+    clearTimeout(audioIdleTimer);
+    audioIdleTimer = null;
+  };
+
   const finishPlayback = (error?: Error) => {
     if (finished) return Promise.resolve();
     finished = true;
     clearTimeout(firstAudioTimer);
-    const wasActive = clearActivePlayback();
+    clearAudioIdleTimer();
+    clearActivePlayback();
     closeSocket(socket);
 
     try {
@@ -162,15 +161,12 @@ export async function playVoiceSummary(
       .close()
       .catch(() => undefined)
       .finally(() => {
-        if (!wasActive) return;
-        if (error && started) onError?.(error);
-        onEnded?.();
+        settleCompletion(error);
       });
   };
 
   const failPlayback = (error: Error) => {
     if (finished) return;
-    if (!started) failStart(error);
     finishPlayback(error);
   };
 
@@ -183,6 +179,32 @@ export async function playVoiceSummary(
     }
 
     finishPlayback();
+  };
+
+  const endIncomingStream = () => {
+    if (finished || streamEnded) return;
+    streamEnded = true;
+    clearAudioIdleTimer();
+    closeSocket(socket);
+    finishIfReady();
+  };
+
+  const scheduleAudioIdleEnd = () => {
+    clearAudioIdleTimer();
+
+    if (finished || streamEnded || !started || pendingBinaryMessages > 0) {
+      return;
+    }
+
+    audioIdleTimer = setTimeout(() => {
+      audioIdleTimer = null;
+
+      if (finished || streamEnded || pendingBinaryMessages > 0) {
+        return;
+      }
+
+      endIncomingStream();
+    }, AUDIO_IDLE_TIMEOUT_MS);
   };
 
   const firstAudioTimer = setTimeout(() => {
@@ -200,10 +222,7 @@ export async function playVoiceSummary(
   activeContext = context;
   activeQueueSource = queueSource;
   activeSocket = socket;
-  activeCancel = () => {
-    if (!started) settleStart();
-    return finishPlayback();
-  };
+  activeCancel = () => finishPlayback();
 
   (socket as WebSocket & { binaryType: 'arraybuffer' }).binaryType =
     'arraybuffer';
@@ -215,6 +234,12 @@ export async function playVoiceSummary(
 
   socket.onmessage = event => {
     if (generation !== playbackGeneration || finished) return;
+    const isBinaryMessage = typeof event.data !== 'string';
+
+    if (isBinaryMessage) {
+      pendingBinaryMessages += 1;
+      clearAudioIdleTimer();
+    }
 
     messageQueue = messageQueue
       .then(async () => {
@@ -222,9 +247,8 @@ export async function playVoiceSummary(
         const data = event.data;
 
         if (typeof data === 'string') {
-          if (!STREAMING_END_MARKERS.has(data)) return;
-          streamEnded = true;
-          finishIfReady();
+          if (!isStreamingEndMarker(data)) return;
+          endIncomingStream();
           return;
         }
 
@@ -252,10 +276,14 @@ export async function playVoiceSummary(
           queueSource.start(context.currentTime, 0);
           started = true;
           clearTimeout(firstAudioTimer);
-          settleStart();
         }
       })
-      .catch(error => failPlayback(describePlaybackError(error)));
+      .catch(error => failPlayback(describePlaybackError(error)))
+      .finally(() => {
+        if (!isBinaryMessage) return;
+        pendingBinaryMessages = Math.max(0, pendingBinaryMessages - 1);
+        scheduleAudioIdleEnd();
+      });
   };
 
   socket.onerror = () => {
@@ -272,7 +300,11 @@ export async function playVoiceSummary(
     );
   };
 
-  await startPromise;
+  await completionPromise;
+}
+
+function isStreamingEndMarker(value: string) {
+  return value.trim().replace(/\\/g, '') === STREAMING_END_MARKER;
 }
 
 async function readBinaryMessage(data: unknown): Promise<ArrayBuffer> {
