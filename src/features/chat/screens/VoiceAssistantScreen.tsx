@@ -367,20 +367,7 @@ export function VoiceAssistantScreen({
 
       setVoicePhase('listening');
 
-      await Voice.start(
-        'id-ID',
-        Platform.OS === 'android'
-          ? {
-              EXTRA_PARTIAL_RESULTS: true,
-              EXTRA_MAX_RESULTS: 1,
-              EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS: 800,
-              EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS:
-                ANDROID_COMPLETE_SILENCE_MS,
-              EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS:
-                ANDROID_POSSIBLE_SILENCE_MS,
-            }
-          : undefined,
-      );
+      await Voice.start('id-ID');
     } catch (startError) {
       console.error('[Voice] failed to start speech recognition:', startError);
 
