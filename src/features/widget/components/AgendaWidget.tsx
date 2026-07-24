@@ -2,15 +2,18 @@ import { FlexWidget, TextWidget } from 'react-native-android-widget';
 import type { WidgetEvent, WidgetSnapshot } from '../types';
 import { darkTheme, lightTheme, type WidgetTheme } from '../theme';
 
-const ROW_BUDGET_DP = 40;
-const PANEL_RESERVED_DP = 30;
-const ROW_GAP = 6;
+const ROW_BUDGET_DP = 36;
+const PANEL_RESERVED_DP = 34;
+const ROW_GAP = 4;
+const VISIBLE_TRIM_DP = 40;
+
+const DEBUG_SIZE = true;
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 function rowsForHeight(height: number) {
-  const usable = height - PANEL_RESERVED_DP;
+  const usable = height - VISIBLE_TRIM_DP - PANEL_RESERVED_DP;
   return Math.max(1, Math.min(3, Math.floor(usable / ROW_BUDGET_DP)));
 }
 
@@ -101,25 +104,27 @@ function EventRow({
       <FlexWidget
         style={{
           width: 3,
-          height: 28,
+          height: 26,
           borderRadius: 3,
           backgroundColor: now ? theme.barNow : theme.bar,
           marginRight: 11,
         }}
       />
-      <FlexWidget style={{ flex: 1, flexDirection: 'column' }}>
-        <TextWidget
-          text={event.title}
-          maxLines={1}
-          truncate="END"
-          style={{ fontSize: 13, fontWeight: '600', color: theme.ink }}
-        />
-        <TextWidget
-          text={event.timeLabel}
-          maxLines={1}
-          truncate="END"
-          style={{ fontSize: 11, color: theme.muted, marginTop: 1 }}
-        />
+      <FlexWidget style={{ flex: 1 }}>
+        <FlexWidget style={{ width: 'match_parent', flexDirection: 'column' }}>
+          <TextWidget
+            text={event.title}
+            maxLines={1}
+            truncate="END"
+            style={{ fontSize: 12, fontWeight: '600', color: theme.ink }}
+          />
+          <TextWidget
+            text={event.timeLabel}
+            maxLines={1}
+            truncate="END"
+            style={{ fontSize: 10, color: theme.muted, marginTop: 1 }}
+          />
+        </FlexWidget>
       </FlexWidget>
     </FlexWidget>
   );
@@ -135,7 +140,7 @@ function PanelMessage({
   theme: WidgetTheme;
 }) {
   return (
-    <FlexWidget style={{ flex: 1, flexDirection: 'column', justifyContent: 'center' }}>
+    <FlexWidget style={{ width: 'match_parent', flex: 1, flexDirection: 'column', justifyContent: 'center' }}>
       <TextWidget text={title} style={{ fontSize: 15, fontWeight: '600', color: theme.ink }} />
       <TextWidget
         text={caption}
@@ -173,7 +178,7 @@ function UpcomingPanel({ snapshot, theme, height }: AgendaWidgetProps) {
   const rows = events.slice(0, rowsForHeight(height));
 
   return (
-    <FlexWidget style={{ flex: 1, flexDirection: 'column' }}>
+    <FlexWidget style={{ width: 'match_parent', flex: 1, flexDirection: 'column' }}>
       <TextWidget
         text="UPCOMING"
         style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.5, color: theme.label, marginBottom: 2 }}
@@ -201,13 +206,15 @@ export function AgendaWidget({ snapshot, theme, height }: AgendaWidgetProps) {
         ? 'No events'
         : `${count} event${count === 1 ? '' : 's'}`;
 
+  const shownLabel = DEBUG_SIZE ? `h=${Math.round(height)}dp` : countLabel;
+
   return (
     <FlexWidget
       clickAction="OPEN_APP"
       accessibilityLabel="Stepi agenda. Tap to open the app."
       style={{
         width: 'match_parent',
-        height: 'match_parent',
+        height: Math.max(120, Math.round(height) - VISIBLE_TRIM_DP),
         flexDirection: 'row',
         backgroundColor: theme.canvas,
         borderRadius: 28,
@@ -215,8 +222,8 @@ export function AgendaWidget({ snapshot, theme, height }: AgendaWidgetProps) {
         paddingVertical: 10,
       }}
     >
-      <DateCard date={date} countLabel={countLabel} theme={theme} />
-      <FlexWidget style={{ flex: 6, height: 'match_parent', marginLeft: 12 }}>
+      <DateCard date={date} countLabel={shownLabel} theme={theme} />
+      <FlexWidget style={{ flex: 6, height: 'match_parent', marginLeft: 12, flexDirection: 'column' }}>
         <UpcomingPanel snapshot={snapshot} theme={theme} height={height} />
       </FlexWidget>
     </FlexWidget>
