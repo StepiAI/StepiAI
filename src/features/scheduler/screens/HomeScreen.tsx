@@ -127,7 +127,7 @@ export function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <View className="px-[20px] pt-[12px]">
         <View className="flex-row items-center justify-between">

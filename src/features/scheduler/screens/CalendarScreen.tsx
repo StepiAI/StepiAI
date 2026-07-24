@@ -45,7 +45,7 @@ export function CalendarScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <View className="px-[20px] pt-[12px]">
         <Text className="mb-[10px] text-[13px] text-light-muted" style={textStyle('medium')}>

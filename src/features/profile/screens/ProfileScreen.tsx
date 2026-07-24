@@ -40,7 +40,7 @@ export function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <ScrollView
         className="flex-1 px-[18px]"

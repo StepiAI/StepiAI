@@ -47,7 +47,7 @@ export function StudyScheduleScreen({
 
   return (
     <SafeAreaView className="flex-1 bg-light-canvas" edges={['top']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <View className="flex-row items-center px-[18px] pt-[6px]">
         <TouchableOpacity onPress={onBack} hitSlop={10} activeOpacity={0.6}>

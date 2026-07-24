@@ -30,7 +30,7 @@ export function CreatingLifePlanScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <View className="flex-1 items-center justify-center px-[40px]">
         <LifePlanLogo />
