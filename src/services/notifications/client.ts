@@ -3,6 +3,7 @@ import messaging, {
 } from '@react-native-firebase/messaging';
 import { apiClient } from '../api/client';
 import { supabase } from '../supabase/client';
+import { getFirebaseMessaging, type RemoteMessage } from './messaging';
 
 export interface RegisterDeviceResponse {
   id: number;
@@ -14,6 +15,12 @@ export interface RegisterDeviceResponse {
 
 export async function initializeNotifications(): Promise<null | RegisterDeviceResponse> {
   try {
+    const messaging = getFirebaseMessaging();
+
+    if (!messaging) {
+      return null;
+    }
+
     const authStatus = await messaging().requestPermission();
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
@@ -57,16 +64,22 @@ export async function unregisterDevice(): Promise<void> {
 }
 
 export function setupNotificationListeners() {
+  const messaging = getFirebaseMessaging();
+
+  if (!messaging) {
+    return () => {};
+  }
+
   // Handle foreground messages
   const unsubscribeForeground = messaging().onMessage(
-    async (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
+    async (remoteMessage: RemoteMessage) => {
       console.log('Foreground notification:', remoteMessage);
     },
   );
 
   // Handle background messages
   messaging().onNotificationOpenedApp(
-    (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
+    (remoteMessage: RemoteMessage) => {
       console.log('Notification opened app:', remoteMessage);
     },
   );
@@ -74,7 +87,7 @@ export function setupNotificationListeners() {
   // Handle notification that opened the app from quit state
   messaging()
     .getInitialNotification()
-    .then((remoteMessage: FirebaseMessagingTypes.RemoteMessage | null) => {
+    .then((remoteMessage: RemoteMessage | null) => {
       if (remoteMessage) {
         console.log('App opened from quit by notification:', remoteMessage);
       }

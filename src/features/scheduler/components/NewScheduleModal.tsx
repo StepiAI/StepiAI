@@ -93,8 +93,6 @@ function combineDateAndTime(date: Date, time: Date) {
   return result;
 }
 
-// gw nemu edge case, method atas ini cuma abil jam ama menit, jd acara cross midnight gitu kek jam 11 malem selsai 00 bisa bikin "selesai" sebelom "mulai". 
-// solusi gw: date++
 function resolveRange(
   startDate: Date,
   startTime: Date,
@@ -103,10 +101,6 @@ function resolveRange(
 ) {
   const start = combineDateAndTime(startDate, startTime);
   const end = combineDateAndTime(endDate, endTime);
-
-  if (end.getTime() <= start.getTime()) {
-    end.setDate(end.getDate() + 1);
-  }
 
   return { start, end };
 }
@@ -268,7 +262,7 @@ export function NewScheduleModal({
     const { start, end } = resolveRange(startDate, startTime, endDate, endTime);
 
     if (end.getTime() <= start.getTime()) {
-      setFormError('End time must be after the start time.');
+      setFormError('End date and time must be after the start date and time.');
       return;
     }
 
