@@ -292,6 +292,24 @@ function alertKey(alert: ScheduleAlert) {
   return `${alert.type}:${alert.eventId}`;
 }
 
+// alert itu week-scoped (bukan cuma hari yg lagi dibuka), jd kalo ada >1
+// card bisa gampang ketuker punya event yg mana. kasih nama acara + hari/jam
+// biar jelas ini soal jadwal yg mana.
+function formatAlertEventMeta(iso: string) {
+  const date = new Date(iso);
+  const day = date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
+  const time = date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  return `${day} · ${time}`;
+}
+
 function AlertCard({
   alert,
   onAdjust,
@@ -321,6 +339,12 @@ function AlertCard({
           style={[textStyle('semibold'), { color: ALERT_TONE.title }]}
         >
           {alert.title}
+        </Text>
+        <Text
+          className="mt-[2px] text-[12px]"
+          style={[textStyle('medium'), { color: ALERT_TONE.action }]}
+        >
+          {alert.summary} · {formatAlertEventMeta(alert.eventStart)}
         </Text>
         <Text
           className="mt-[4px] text-[12px] leading-[17px]"

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/patch-react-native-voice.js)",
+      "Bash(adb -s emulator-5554 reverse tcp:8081 tcp:8081)",
+      "Bash(adb -s emulator-5554 shell pidof com.stepiai)",
+      "Bash(adb -s emulator-5554 logcat -d -t 400)",
+      "Bash(adb logcat *)",
+      "Bash(adb shell *)",
+      "Bash(timeout 12 adb logcat \"*:E\")"
+    ]
+  }
+}

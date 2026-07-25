@@ -27,7 +27,7 @@ import { MissingDetailsScreen } from '../../features/scheduler/screens/MissingDe
 import { EventDetailRoute } from '../../features/scheduler/screens/EventDetailRoute';
 import { ChatScreen } from '../../features/chat/screens/ChatScreen';
 import { useAuthSession } from '../../features/auth/hooks/useAuthSession';
-import { supabase } from '../../services/supabase/client';
+import { performSignOut } from '../../features/auth/services/signOut';
 import { TabBar } from './TabBar';
 import { TabBarVisibilityContext } from './TabBarVisibilityContext';
 import { MainTabParamList } from './types';
@@ -153,7 +153,9 @@ function SignedInApp() {
         onConnect={toggleConnection}
         // back = sign out -> balik ke halaman login (RegisterScreen)
         onBack={() => {
-          supabase.auth.signOut();
+          performSignOut().catch(err => {
+            console.error('[Auth] failed to sign out:', err);
+          });
         }}
       />
     );

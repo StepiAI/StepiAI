@@ -5,7 +5,6 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import { supabase } from '../../../services/supabase/client';
-import type { InitializeNotificationsRequest } from '../../../services/notifications/client';
 import { initializeNotifications } from '../../../services/notifications/client';
 import { configureGoogleSignin } from './googleSigninConfig';
 
@@ -40,19 +39,14 @@ export async function signInWithGoogle() {
     throw error;
   }
 
-  const initializeNotificationServiceRequest: InitializeNotificationsRequest = {
-    userId: data.session?.user.id,
-  };
-  await initializeNotificationServices(initializeNotificationServiceRequest);
+  await initializeNotificationServices();
 
   return data.session;
 }
 
-async function initializeNotificationServices(
-  request: InitializeNotificationsRequest,
-) {
+async function initializeNotificationServices() {
   try {
-    const deviceRegistration = await initializeNotifications(request);
+    const deviceRegistration = await initializeNotifications();
     if (!deviceRegistration) {
       return 'Device registration failed or permission denied.';
     }

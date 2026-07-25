@@ -25,7 +25,8 @@ function interpretIos(authStatus: number): NotificationPermissionStatus {
 }
 
 // Cek status izin notifikasi sekarang + kasih fungsi buat minta izinnya.
-// userId dipake buat daftarin device token ke backend begitu izin didapat.
+// userId cuma penanda "udah login" — device token-nya didaftarin backend ke
+// user yg ada di JWT, bukan ke userId yg dikirim dari sini.
 export function useNotificationPermission(userId?: string) {
   const [status, setStatus] = useState<NotificationPermissionStatus>('unknown');
   const [requesting, setRequesting] = useState(false);
@@ -84,7 +85,7 @@ export function useNotificationPermission(userId?: string) {
       }
 
       // izin OS udah oke (atau iOS/legacy) -> minta token & daftarin device
-      const registration = await initializeNotifications({ userId });
+      const registration = await initializeNotifications();
 
       if (Platform.OS === 'ios') {
         const next = interpretIos(await messaging().hasPermission());

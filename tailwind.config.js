@@ -22,15 +22,22 @@ module.exports = {
           sheet: '#FFFFFF',
           ink: '#1C1C1E',
           inkStrong: '#111114',
-          muted: '#8E8E93',
-          faint: '#A0A0A8',
-          hint: '#B4B4BC',
-          disabled: '#C6C6CC',
-          line: '#EAEAEE',
-          rule: '#F0F0F3',
+          // Token di bawah ini dilewatin CSS variable biar toggle "Increase
+          // Contrast" (Settings > Accessibility) bisa nuker nilainya pas
+          // runtime. Nilai kedua = fallback: dipake kalau variabelnya gak
+          // kebaca, jd paling jelek warnanya balik ke normal — bukan ilang.
+          //
+          // #8E8E93 cuma 3.26:1 di atas putih (gagal WCAG AA buat teks body),
+          // makanya default muted-nya sekarang #6E6E78 = 5.04:1.
+          muted: 'var(--color-muted, #6E6E78)',
+          faint: 'var(--color-faint, #A0A0A8)',
+          hint: 'var(--color-hint, #B4B4BC)',
+          disabled: 'var(--color-disabled, #C6C6CC)',
+          line: 'var(--color-line, #EAEAEE)',
+          rule: 'var(--color-rule, #F0F0F3)',
           fill: '#F1F1F5',
           grid: '#C3D2E8',
-          accent: '#2E7BE0',
+          accent: 'var(--color-accent, #2E7BE0)',
           accentSoft: '#D7E7FC',
           icon: '#4A4A52',
           cta: '#0A0A0A',

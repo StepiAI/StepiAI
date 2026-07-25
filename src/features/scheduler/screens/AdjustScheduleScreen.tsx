@@ -114,8 +114,10 @@ export function AdjustScheduleScreen() {
         id: 'ai',
         icon: <SparkleIcon />,
         title: 'Let AI optimize',
-        onTime: recommendation.recommended.onTime,
-        description: `Auto-apply: leave at ${recommendation.recommended.time}`,
+        onTime: traffic ? `${Math.round(traffic.onTimeAfter * 100)}% on-time` : undefined,
+        description: traffic
+          ? `Reschedule ${traffic.trafficDelayMinutes} min earlier - beat the traffic`
+          : 'AI will find the best schedule',
       },
       {
         id: 'earlier',
@@ -166,6 +168,54 @@ export function AdjustScheduleScreen() {
       `Oke - berangkat jam ${recommendation.recommended.time}${forEvent} biar peluang tepat waktu kamu ${onTimePct}.`,
       [{ text: 'Siap', onPress: goBack }],
     );
+  };
+
+  // "AI optimize" -- beneran ngegeser JAM EVENT-nya lebih maju (earlier)
+  // sebesar delay macet yg diprediksi (TomTom), biar acaranya kelar/mulai
+  // sebelum jam macet parah. Catatan: krn waktu tempuhnya tetep sama, user
+  // ttp perlu berangkat lebih awal dari jam normal -- cuma target jamnya
+  // yg beda, bukan "gak usah buru-buru" kayak opsi Leave Earlier.
+  const applyAiOptimize = async () => {
+    if (!traffic || !alert?.eventId || !alert.eventStart || !alert.eventEnd) {
+      Alert.alert('Belum ada rekomendasi', 'Buka Adjust dari kartu alert dulu ya.');
+      return;
+    }
+    if (isUnsyncedLocalEventId(alert.eventId)) {
+      Alert.alert(
+        'Belum bisa di-reschedule',
+        'Acara ini dari Life Plan dan belum kesinkron ke Google Calendar. Coba lagi sebentar lagi.',
+      );
+      return;
+    }
+    if (busy) return;
+
+    const delayMs = traffic.trafficDelayMinutes * 60_000;
+    const newStart = new Date(new Date(alert.eventStart).getTime() - delayMs);
+    const newEnd = new Date(new Date(alert.eventEnd).getTime() - delayMs);
+
+    setBusy(true);
+    try {
+      await rescheduleGoogleCalendarEvent(
+        alert.eventId,
+        newStart.toISOString(),
+        newEnd.toISOString(),
+      );
+      const label = newStart.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+      Alert.alert(
+        'Jadwal dioptimasi',
+        `${eventSummary ? `"${eventSummary}" ` : 'Meeting '}dimajuin ${traffic.trafficDelayMinutes} menit jadi jam ${label}, biar kelar sebelum macet makin parah.`,
+        [{ text: 'Oke', onPress: goBack }],
+      );
+    } catch (err) {
+      console.error('[Adjust] gagal AI optimize:', err);
+      Alert.alert('Gagal optimasi', 'Coba lagi sebentar ya.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const applyUmbrellaReminder = () => {
@@ -290,11 +340,7 @@ export function AdjustScheduleScreen() {
       return;
     }
     if (selected === 'ai') {
-      if (traffic) {
-        applyLeaveEarlier();
-      } else {
-        Alert.alert('Belum ada rekomendasi', 'Buka Adjust dari kartu alert dulu ya.');
-      }
+      applyAiOptimize();
       return;
     }
     goBack();

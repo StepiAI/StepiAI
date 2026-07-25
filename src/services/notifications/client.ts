@@ -1,17 +1,8 @@
 import messaging, {
   FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging';
-import { Platform } from 'react-native';
 import { apiClient } from '../api/client';
 import { supabase } from '../supabase/client';
-
-export interface InitializeNotificationsRequest {
-  userId: string;
-}
-
-interface RegisterDeviceRequest extends InitializeNotificationsRequest {
-  deviceToken: string;
-}
 
 export interface RegisterDeviceResponse {
   id: number;
@@ -21,9 +12,7 @@ export interface RegisterDeviceResponse {
   lastUsedAt: string;
 }
 
-export async function initializeNotifications(
-  request: InitializeNotificationsRequest,
-): Promise<null | RegisterDeviceResponse> {
+export async function initializeNotifications(): Promise<null | RegisterDeviceResponse> {
   try {
     const authStatus = await messaging().requestPermission();
     const enabled =
@@ -36,24 +25,35 @@ export async function initializeNotifications(
 
     const token = await messaging().getToken();
 
-    const registerDeviceRequest: RegisterDeviceRequest = {
-      userId: request.userId,
-      deviceToken: token,
-    };
-
-    return await registerDevice(registerDeviceRequest);
+    return await registerDevice(token);
   } catch (error) {
     return null;
   }
 }
 
+// userId-nya diambil backend dari JWT, jadi gak usah dikirim dari sini
 async function registerDevice(
-  request: RegisterDeviceRequest,
+  deviceToken: string,
 ): Promise<RegisterDeviceResponse> {
   return apiClient.post<RegisterDeviceResponse>(
     '/notifications/register-device',
-    request,
+    { deviceToken },
   );
+}
+
+/**
+ * Lepasin device ini dari user yg lagi login. WAJIB dipanggil sebelum
+ * supabase.auth.signOut() — butuh JWT yg masih hidup. Kalau dilewat, baris
+ * token-nya masih nunjuk user lama dan reminder jadwal dia terus masuk ke HP
+ * ini walaupun yg login udah ganti orang.
+ */
+export async function unregisterDevice(): Promise<void> {
+  try {
+    const deviceToken = await messaging().getToken();
+    await apiClient.post('/notifications/unregister-device', { deviceToken });
+  } catch (error) {
+    console.warn('[Notifications] gagal lepas device token pas logout:', error);
+  }
 }
 
 export function setupNotificationListeners() {
@@ -89,10 +89,10 @@ export function setupNotificationListeners() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      const userId = session?.user.id;
 
-      if (userId) {
-        await registerDevice({ userId, deviceToken: token });
+      // tanpa session, token barunya bakal nyantol ke user yg salah
+      if (session) {
+        await registerDevice(token);
       }
     } catch (error) {
       console.error('Failed to re-register refreshed FCM token:', error);

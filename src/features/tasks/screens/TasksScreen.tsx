@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -21,7 +21,11 @@ import {
   LifePlanConflictOption,
   LifePlanConflictResult,
 } from '../../../services/lifePlan/client';
-import { LifePlanResolution, useCreateLifePlan } from '../hooks/useCreateLifePlan';
+import {
+  CreateLifePlanOutcome,
+  LifePlanResolution,
+  useCreateLifePlan,
+} from '../hooks/useCreateLifePlan';
 import { useLifePlanDraft } from '../hooks/useLifePlanDraft';
 import { useLifePlans } from '../hooks/useLifePlans';
 import { isLifePlanCompleted } from '../utils/lifePlanMapping';
@@ -66,18 +70,36 @@ export function TasksScreen() {
   const { create, saving } = useCreateLifePlan();
   const { plans, loading, refreshing, error, refresh, setArchived, remove } = useLifePlans();
   const [conflict, setConflict] = useState<LifePlanConflictResult | null>(null);
+  const [creationSettled, setCreationSettled] = useState(false);
+  const pendingOutcome = useRef<CreateLifePlanOutcome | null>(null);
 
   const exitCreation = () => {
     setStep(null);
     setConflict(null);
+    setCreationSettled(false);
+    pendingOutcome.current = null;
     reset();
   };
 
   const submitDraft = async (resolution?: LifePlanResolution) => {
     setConflict(null);
+    setCreationSettled(false);
+    pendingOutcome.current = null;
     setStep('creating');
 
-    const outcome = await create(draft, resolution);
+    pendingOutcome.current = await create(draft, resolution);
+    // Hand off to the progress bar; it calls applyOutcome once it hits 100%.
+    setCreationSettled(true);
+  };
+
+  const applyOutcome = () => {
+    const outcome = pendingOutcome.current;
+    pendingOutcome.current = null;
+    setCreationSettled(false);
+
+    if (!outcome) {
+      return;
+    }
 
     if (outcome.type === 'created') {
       exitCreation();
@@ -170,7 +192,7 @@ export function TasksScreen() {
   }
 
   if (step === 'creating') {
-    return <CreatingLifePlanScreen />;
+    return <CreatingLifePlanScreen done={creationSettled} onComplete={applyOutcome} />;
   }
 
   if (selectedPlanId) {
