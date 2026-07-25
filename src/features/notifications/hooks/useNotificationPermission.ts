@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Linking, PermissionsAndroid, Platform } from 'react-native';
 import { initializeNotifications } from '../../../services/notifications/client';
 import { getFirebaseMessaging } from '../../../services/notifications/messaging';
+import { supabase } from '../../../services/supabase/client';
 
 export type NotificationPermissionStatus =
   | 'unknown'
@@ -101,7 +102,12 @@ export function useNotificationPermission(userId?: string) {
       }
 
       // izin OS udah oke (atau iOS/legacy) -> minta token & daftarin device
-      const registration = await initializeNotifications();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const registration = session
+        ? await initializeNotifications({ userId: session.user.id })
+        : null;
 
       if (Platform.OS === 'ios') {
         const messaging = getFirebaseMessaging();

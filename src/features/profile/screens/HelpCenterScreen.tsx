@@ -1,34 +1,39 @@
 import { useState } from 'react';
-import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from '../../../app/navigation/types';
 import { MicIcon, SearchIcon } from '../../../shared/components/Icons';
 import { useTextStyle } from '../../../shared/theme/typography';
+import { HELP_ARTICLES, type HelpArticle } from '../helpArticles';
+import { HelpArticleModal } from '../components/HelpArticleModal';
 import { SettingsRow } from '../components/SettingsRow';
 import { SettingsScreenLayout } from '../components/SettingsScreenLayout';
 import { SettingsSection } from '../components/SettingsSection';
 
 const PLACEHOLDER_COLOR = '#A0A0A8';
 
-const TOPICS = [
-  'Getting Started',
-  'Connect Calendar',
-  'How AI Plan Works',
-  'Reschedule Events',
-  'Manage Notifications',
-];
+function matchesQuery(article: HelpArticle, query: string) {
+  if (article.title.toLowerCase().includes(query)) return true;
+  if (article.intro.toLowerCase().includes(query)) return true;
+  return article.sections.some(
+    section =>
+      section.heading?.toLowerCase().includes(query) ||
+      section.body.toLowerCase().includes(query),
+  );
+}
 
 export function HelpCenterScreen() {
   const textStyle = useTextStyle();
 
   const [query, setQuery] = useState('');
+  const [openArticle, setOpenArticle] = useState<HelpArticle | null>(null);
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
 
   const trimmed = query.trim().toLowerCase();
-  const topics = trimmed
-    ? TOPICS.filter(topic => topic.toLowerCase().includes(trimmed))
-    : TOPICS;
+  const articles = trimmed
+    ? HELP_ARTICLES.filter(article => matchesQuery(article, trimmed))
+    : HELP_ARTICLES;
 
   return (
     <SettingsScreenLayout title="Help Center">
@@ -48,13 +53,13 @@ export function HelpCenterScreen() {
       </View>
 
       <SettingsSection title="Popular Topics">
-        {topics.length ? (
-          topics.map(topic => (
+        {articles.length ? (
+          articles.map(article => (
             <SettingsRow
-              key={topic}
-              label={topic}
+              key={article.id}
+              label={article.title}
               showChevron
-              onPress={() => Alert.alert(topic, 'This help article is not available yet.')}
+              onPress={() => setOpenArticle(article)}
             />
           ))
         ) : (
@@ -82,6 +87,8 @@ export function HelpCenterScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      <HelpArticleModal article={openArticle} onClose={() => setOpenArticle(null)} />
     </SettingsScreenLayout>
   );
 }

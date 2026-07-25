@@ -17,13 +17,12 @@ import { SettingsRow } from '../components/SettingsRow';
 import { SettingsSection } from '../components/SettingsSection';
 import { useSignOut } from '../hooks/useSignOut';
 
-// sementara masih dipajang biar gampang dibuka pas ngerjain UI, nanti dihapus.
 // dibatasi ke route tanpa params biar navigate-nya aman di TS.
-type ParamlessRoute = 'Summary' | 'Personalize' | 'Location';
+// (Personalize sengaja gak dipajang di sini — screen-nya masih ada, cuma
+// gak perlu ditampilin di Profile)
+type ParamlessRoute = 'Location';
 
 const PARKED_SCREENS: { name: ParamlessRoute; label: string }[] = [
-  { name: 'Summary', label: 'Summary' },
-  { name: 'Personalize', label: 'Personalize your Day' },
   { name: 'Location', label: 'Location Access' },
 ];
 

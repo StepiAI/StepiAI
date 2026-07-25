@@ -4,7 +4,6 @@ import type { TimelineEvent } from '../../features/scheduler/utils/timeline';
 export type MainTabParamList = {
   Home: undefined;
   Tasks: undefined;
-  Summary: undefined;
   Profile: undefined;
   Calendar: undefined;
   AdjustSchedule: { alert: ScheduleAlert } | undefined;

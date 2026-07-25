@@ -59,34 +59,10 @@ export function toCreateLifePlanRequest(
   };
 }
 
-const API_WEEKDAY_TO_DAY_INDEX: Record<ApiWeekday, number> = {
-  SUNDAY: 0,
-  MONDAY: 1,
-  TUESDAY: 2,
-  WEDNESDAY: 3,
-  THURSDAY: 4,
-  FRIDAY: 5,
-  SATURDAY: 6,
-};
-
+// jumlah sesi diambil dari schedules beneran (bukan dihitung ulang dari
+// rentang tanggal) — jadi skipped dates & task yg dihapus ikut kehitung bener
 export function countLifePlanSessions(plan: LifePlanRecord): number {
-  const availableDayIndexes = new Set(
-    plan.availableDays.map(day => API_WEEKDAY_TO_DAY_INDEX[day]),
-  );
-  if (availableDayIndexes.size === 0) return 0;
-
-  const cursor = new Date(plan.startDate);
-  const end = new Date(plan.endDate);
-  let count = 0;
-
-  while (cursor.getTime() <= end.getTime()) {
-    if (availableDayIndexes.has(cursor.getUTCDay())) {
-      count += 1;
-    }
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
-  }
-
-  return plan.schedules?.length || count;
+  return plan.schedules?.length ?? 0;
 }
 
 export function countCompletedSessions(plan: LifePlanRecord): number {

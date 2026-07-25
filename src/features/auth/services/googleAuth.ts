@@ -39,14 +39,14 @@ export async function signInWithGoogle() {
     throw error;
   }
 
-  await initializeNotificationServices();
+  await initializeNotificationServices(data.session.user.id);
 
   return data.session;
 }
 
-async function initializeNotificationServices() {
+async function initializeNotificationServices(userId: string) {
   try {
-    const deviceRegistration = await initializeNotifications();
+    const deviceRegistration = await initializeNotifications({ userId });
     if (!deviceRegistration) {
       return 'Device registration failed or permission denied.';
     }
