@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Linking, PermissionsAndroid, Platform } from 'react-native';
-import messaging from '@react-native-firebase/messaging';
 import { initializeNotifications } from '../../../services/notifications/client';
+import { getFirebaseMessaging } from '../../../services/notifications/messaging';
 
 export type NotificationPermissionStatus =
   | 'unknown'
@@ -12,12 +12,19 @@ export type NotificationPermissionStatus =
 const androidNeedsRuntimePermission =
   Platform.OS === 'android' && Number(Platform.Version) >= 33;
 
-function interpretIos(authStatus: number): NotificationPermissionStatus {
+function interpretIos(
+  authStatus: number,
+  authorizationStatus: {
+    AUTHORIZED: number;
+    PROVISIONAL: number;
+    DENIED: number;
+  },
+): NotificationPermissionStatus {
   switch (authStatus) {
-    case messaging.AuthorizationStatus.AUTHORIZED:
-    case messaging.AuthorizationStatus.PROVISIONAL:
+    case authorizationStatus.AUTHORIZED:
+    case authorizationStatus.PROVISIONAL:
       return 'granted';
-    case messaging.AuthorizationStatus.DENIED:
+    case authorizationStatus.DENIED:
       return 'blocked'; // iOS ga bisa re-prompt, harus ke Settings
     default:
       return 'denied'; // NOT_DETERMINED
@@ -46,8 +53,17 @@ export function useNotificationPermission(userId?: string) {
         }
 
         if (Platform.OS === 'ios') {
+          const messaging = getFirebaseMessaging();
+
+          if (!messaging) {
+            if (active) setStatus('denied');
+            return;
+          }
+
           const authStatus = await messaging().hasPermission();
-          if (active) setStatus(interpretIos(authStatus));
+          if (active) {
+            setStatus(interpretIos(authStatus, messaging.AuthorizationStatus));
+          }
           return;
         }
 
@@ -87,7 +103,17 @@ export function useNotificationPermission(userId?: string) {
       const registration = await initializeNotifications({ userId });
 
       if (Platform.OS === 'ios') {
-        const next = interpretIos(await messaging().hasPermission());
+        const messaging = getFirebaseMessaging();
+
+        if (!messaging) {
+          setStatus('denied');
+          return 'denied';
+        }
+
+        const next = interpretIos(
+          await messaging().hasPermission(),
+          messaging.AuthorizationStatus,
+        );
         setStatus(next);
         return next;
       }

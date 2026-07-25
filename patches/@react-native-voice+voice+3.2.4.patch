@@ -1,0 +1,973 @@
+diff --git a/node_modules/@react-native-voice/voice/android/.project b/node_modules/@react-native-voice/voice/android/.project
+new file mode 100644
+index 0000000..59f6ff3
+--- /dev/null
++++ b/node_modules/@react-native-voice/voice/android/.project
+@@ -0,0 +1,34 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>react-native-voice_voice</name>
++	<comment>Project react-native-voice_voice created by Buildship.</comment>
++	<projects>
++	</projects>
++	<buildSpec>
++		<buildCommand>
++			<name>org.eclipse.jdt.core.javabuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++		<buildCommand>
++			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++	</buildSpec>
++	<natures>
++		<nature>org.eclipse.jdt.core.javanature</nature>
++		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
++	</natures>
++	<filteredResources>
++		<filter>
++			<id>1784905485235</id>
++			<name></name>
++			<type>30</type>
++			<matcher>
++				<id>org.eclipse.core.resources.regexFilterMatcher</id>
++				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
++			</matcher>
++		</filter>
++	</filteredResources>
++</projectDescription>
+diff --git a/node_modules/@react-native-voice/voice/android/bin/android.iml b/node_modules/@react-native-voice/voice/android/bin/android.iml
+new file mode 100644
+index 0000000..1f96bd1
+--- /dev/null
++++ b/node_modules/@react-native-voice/voice/android/bin/android.iml
+@@ -0,0 +1,126 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module external.linked.project.id="android" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$" external.system.id="GRADLE" external.system.module.group="" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
++  <component name="FacetManager">
++    <facet type="android-gradle" name="Android-Gradle">
++      <configuration>
++        <option name="GRADLE_PROJECT_PATH" value=":" />
++      </configuration>
++    </facet>
++    <facet type="android" name="Android">
++      <configuration>
++        <option name="SELECTED_BUILD_VARIANT" value="debug" />
++        <option name="SELECTED_TEST_ARTIFACT" value="_android_test_" />
++        <option name="ASSEMBLE_TASK_NAME" value="assembleDebug" />
++        <option name="COMPILE_JAVA_TASK_NAME" value="compileDebugSources" />
++        <afterSyncTasks>
++          <task>generateDebugSources</task>
++        </afterSyncTasks>
++        <option name="ALLOW_USER_CONFIGURATION" value="false" />
++        <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
++        <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res" />
++        <option name="RES_FOLDERS_RELATIVE_PATH" value="" />
++        <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
++        <option name="LIBRARY_PROJECT" value="true" />
++      </configuration>
++    </facet>
++  </component>
++  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
++    <output url="file://$MODULE_DIR$/build/intermediates/classes/debug" />
++    <output-test url="file://$MODULE_DIR$/build/intermediates/classes/test/debug" />
++    <exclude-output />
++    <content url="file://$MODULE_DIR$">
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/debug" isTestSource="false" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/debug" isTestSource="false" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/debug" isTestSource="false" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/debug" isTestSource="false" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/debug" type="java-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/debug" type="java-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/debug" isTestSource="true" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/debug" isTestSource="true" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/debug" isTestSource="true" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/debug" isTestSource="true" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/debug" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/debug" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/debug/res" type="java-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/debug/resources" type="java-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/debug/assets" type="java-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/debug/aidl" isTestSource="false" />
++      <sourceFolder url="file://$MODULE_DIR$/src/debug/java" isTestSource="false" />
++      <sourceFolder url="file://$MODULE_DIR$/src/debug/jni" isTestSource="false" />
++      <sourceFolder url="file://$MODULE_DIR$/src/debug/rs" isTestSource="false" />
++      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/res" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/resources" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/assets" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/aidl" isTestSource="true" />
++      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/java" isTestSource="true" />
++      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/jni" isTestSource="true" />
++      <sourceFolder url="file://$MODULE_DIR$/src/testDebug/rs" isTestSource="true" />
++      <sourceFolder url="file://$MODULE_DIR$/src/main/res" type="java-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/main/assets" type="java-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/main/aidl" isTestSource="false" />
++      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
++      <sourceFolder url="file://$MODULE_DIR$/src/main/jni" isTestSource="false" />
++      <sourceFolder url="file://$MODULE_DIR$/src/main/rs" isTestSource="false" />
++      <sourceFolder url="file://$MODULE_DIR$/src/test/res" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/test/assets" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/test/aidl" isTestSource="true" />
++      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
++      <sourceFolder url="file://$MODULE_DIR$/src/test/jni" isTestSource="true" />
++      <sourceFolder url="file://$MODULE_DIR$/src/test/rs" isTestSource="true" />
++      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/res" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/resources" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/assets" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/aidl" isTestSource="true" />
++      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/java" isTestSource="true" />
++      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/jni" isTestSource="true" />
++      <sourceFolder url="file://$MODULE_DIR$/src/androidTest/rs" isTestSource="true" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/blame" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/bundles" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dependency-cache" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.0.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.facebook.fresco/drawee/0.8.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.facebook.fresco/fbcore/0.8.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.facebook.fresco/fresco/0.8.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.facebook.fresco/imagepipeline-okhttp/0.8.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.facebook.fresco/imagepipeline/0.8.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.facebook.react/react-native/0.17.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/org.webkit/android-jsc/r174650/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/lint" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/res" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/rs" />
++      <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
++      <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
++    </content>
++    <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
++    <orderEntry type="sourceFolder" forTests="false" />
++    <orderEntry type="library" exported="" name="okhttp-ws-2.5.0" level="project" />
++    <orderEntry type="library" exported="" name="library-2.4.0" level="project" />
++    <orderEntry type="library" exported="" name="okio-1.6.0" level="project" />
++    <orderEntry type="library" exported="" name="stetho-okhttp-1.2.0" level="project" />
++    <orderEntry type="library" exported="" name="okhttp-2.5.0" level="project" />
++    <orderEntry type="library" exported="" name="jsr305-3.0.0" level="project" />
++    <orderEntry type="library" exported="" name="stetho-1.2.0" level="project" />
++    <orderEntry type="library" exported="" name="jackson-core-2.2.3" level="project" />
++    <orderEntry type="library" exported="" name="fbcore-0.8.1" level="project" />
++    <orderEntry type="library" exported="" name="commons-cli-1.2" level="project" />
++    <orderEntry type="library" exported="" name="recyclerview-v7-23.0.1" level="project" />
++    <orderEntry type="library" exported="" name="imagepipeline-0.8.1" level="project" />
++    <orderEntry type="library" exported="" name="support-v4-23.1.1" level="project" />
++    <orderEntry type="library" exported="" name="react-native-0.17.1" level="project" />
++    <orderEntry type="library" exported="" name="android-jsc-r174650" level="project" />
++    <orderEntry type="library" exported="" scope="TEST" name="hamcrest-core-1.3" level="project" />
++    <orderEntry type="library" exported="" name="fresco-0.8.1" level="project" />
++    <orderEntry type="library" exported="" name="imagepipeline-okhttp-0.8.1" level="project" />
++    <orderEntry type="library" exported="" scope="TEST" name="junit-4.12" level="project" />
++    <orderEntry type="library" exported="" name="bolts-android-1.1.4" level="project" />
++    <orderEntry type="library" exported="" name="drawee-0.8.1" level="project" />
++    <orderEntry type="library" exported="" name="support-annotations-23.1.1" level="project" />
++    <orderEntry type="library" exported="" name="appcompat-v7-23.1.1" level="project" />
++  </component>
++</module>
+\ No newline at end of file
+diff --git a/node_modules/@react-native-voice/voice/android/bin/build.gradle b/node_modules/@react-native-voice/voice/android/bin/build.gradle
+new file mode 100644
+index 0000000..9041299
+--- /dev/null
++++ b/node_modules/@react-native-voice/voice/android/bin/build.gradle
+@@ -0,0 +1,63 @@
++apply plugin: 'com.android.library'
++
++repositories {
++    mavenLocal()
++    google()
++    mavenCentral()
++    maven {
++        // For developing the library outside the context of the example app, expect `react-native`
++        // to be installed at `./node_modules`.
++        url "$projectDir/../node_modules/react-native/android"
++    }
++    maven {
++        // For developing the example app.
++        url "$projectDir/../../react-native/android"
++    }
++}
++
++android {
++    namespace "com.wenkesj.voice"
++    compileSdk rootProject.ext.compileSdkVersion
++
++    defaultConfig {
++        minSdkVersion rootProject.ext.minSdkVersion
++        targetSdkVersion rootProject.ext.targetSdkVersion
++        versionCode 1
++        versionName "1.0"
++    }
++    buildTypes {
++        release {
++            minifyEnabled false
++            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
++        }
++    }
++}
++
++buildscript {
++    if (project == rootProject) {
++        repositories {
++            google()
++            mavenCentral()
++        }
++        dependencies {
++            classpath 'com.android.tools.build:gradle:3.3.2'
++
++            // NOTE: Do not place your application dependencies here; they belong
++            // in the individual module build.gradle files
++        }
++    }
++}
++
++allprojects {
++    repositories {
++        google()
++        mavenCentral()
++    }
++}
++
++dependencies {
++    implementation fileTree(dir: 'libs', include: ['*.jar'])
++    testImplementation 'junit:junit:4.12'
++    implementation 'androidx.annotation:annotation:1.9.1'
++    implementation 'com.facebook.react:react-android'
++}
+diff --git a/node_modules/@react-native-voice/voice/android/bin/gradle/wrapper/gradle-wrapper.properties b/node_modules/@react-native-voice/voice/android/bin/gradle/wrapper/gradle-wrapper.properties
+new file mode 100644
+index 0000000..122a0dc
+--- /dev/null
++++ b/node_modules/@react-native-voice/voice/android/bin/gradle/wrapper/gradle-wrapper.properties
+@@ -0,0 +1,6 @@
++#Mon Dec 28 10:00:20 PST 2015
++distributionBase=GRADLE_USER_HOME
++distributionPath=wrapper/dists
++zipStoreBase=GRADLE_USER_HOME
++zipStorePath=wrapper/dists
++distributionUrl=https\://services.gradle.org/distributions/gradle-2.10-all.zip
+diff --git a/node_modules/@react-native-voice/voice/android/bin/gradlew b/node_modules/@react-native-voice/voice/android/bin/gradlew
+new file mode 100644
+index 0000000..9d82f78
+--- /dev/null
++++ b/node_modules/@react-native-voice/voice/android/bin/gradlew
+@@ -0,0 +1,160 @@
++#!/usr/bin/env bash
++
++##############################################################################
++##
++##  Gradle start up script for UN*X
++##
++##############################################################################
++
++# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
++DEFAULT_JVM_OPTS=""
++
++APP_NAME="Gradle"
++APP_BASE_NAME=`basename "$0"`
++
++# Use the maximum available, or set MAX_FD != -1 to use that value.
++MAX_FD="maximum"
++
++warn ( ) {
++    echo "$*"
++}
++
++die ( ) {
++    echo
++    echo "$*"
++    echo
++    exit 1
++}
++
++# OS specific support (must be 'true' or 'false').
++cygwin=false
++msys=false
++darwin=false
++case "`uname`" in
++  CYGWIN* )
++    cygwin=true
++    ;;
++  Darwin* )
++    darwin=true
++    ;;
++  MINGW* )
++    msys=true
++    ;;
++esac
++
++# Attempt to set APP_HOME
++# Resolve links: $0 may be a link
++PRG="$0"
++# Need this for relative symlinks.
++while [ -h "$PRG" ] ; do
++    ls=`ls -ld "$PRG"`
++    link=`expr "$ls" : '.*-> \(.*\)$'`
++    if expr "$link" : '/.*' > /dev/null; then
++        PRG="$link"
++    else
++        PRG=`dirname "$PRG"`"/$link"
++    fi
++done
++SAVED="`pwd`"
++cd "`dirname \"$PRG\"`/" >/dev/null
++APP_HOME="`pwd -P`"
++cd "$SAVED" >/dev/null
++
++CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
++
++# Determine the Java command to use to start the JVM.
++if [ -n "$JAVA_HOME" ] ; then
++    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
++        # IBM's JDK on AIX uses strange locations for the executables
++        JAVACMD="$JAVA_HOME/jre/sh/java"
++    else
++        JAVACMD="$JAVA_HOME/bin/java"
++    fi
++    if [ ! -x "$JAVACMD" ] ; then
++        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
++
++Please set the JAVA_HOME variable in your environment to match the
++location of your Java installation."
++    fi
++else
++    JAVACMD="java"
++    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
++
++Please set the JAVA_HOME variable in your environment to match the
++location of your Java installation."
++fi
++
++# Increase the maximum file descriptors if we can.
++if [ "$cygwin" = "false" -a "$darwin" = "false" ] ; then
++    MAX_FD_LIMIT=`ulimit -H -n`
++    if [ $? -eq 0 ] ; then
++        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
++            MAX_FD="$MAX_FD_LIMIT"
++        fi
++        ulimit -n $MAX_FD
++        if [ $? -ne 0 ] ; then
++            warn "Could not set maximum file descriptor limit: $MAX_FD"
++        fi
++    else
++        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
++    fi
++fi
++
++# For Darwin, add options to specify how the application appears in the dock
++if $darwin; then
++    GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
++fi
++
++# For Cygwin, switch paths to Windows format before running java
++if $cygwin ; then
++    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
++    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
++    JAVACMD=`cygpath --unix "$JAVACMD"`
++
++    # We build the pattern for arguments to be converted via cygpath
++    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
++    SEP=""
++    for dir in $ROOTDIRSRAW ; do
++        ROOTDIRS="$ROOTDIRS$SEP$dir"
++        SEP="|"
++    done
++    OURCYGPATTERN="(^($ROOTDIRS))"
++    # Add a user-defined pattern to the cygpath arguments
++    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
++        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
++    fi
++    # Now convert the arguments - kludge to limit ourselves to /bin/sh
++    i=0
++    for arg in "$@" ; do
++        CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
++        CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Determine if an option
++
++        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Added a condition
++            eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
++        else
++            eval `echo args$i`="\"$arg\""
++        fi
++        i=$((i+1))
++    done
++    case $i in
++        (0) set -- ;;
++        (1) set -- "$args0" ;;
++        (2) set -- "$args0" "$args1" ;;
++        (3) set -- "$args0" "$args1" "$args2" ;;
++        (4) set -- "$args0" "$args1" "$args2" "$args3" ;;
++        (5) set -- "$args0" "$args1" "$args2" "$args3" "$args4" ;;
++        (6) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" ;;
++        (7) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" ;;
++        (8) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" ;;
++        (9) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" "$args8" ;;
++    esac
++fi
++
++# Split up the JVM_OPTS And GRADLE_OPTS values into an array, following the shell quoting and substitution rules
++function splitJvmOpts() {
++    JVM_OPTS=("$@")
++}
++eval splitJvmOpts $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS
++JVM_OPTS[${#JVM_OPTS[*]}]="-Dorg.gradle.appname=$APP_BASE_NAME"
++
++exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+diff --git a/node_modules/@react-native-voice/voice/android/bin/gradlew.bat b/node_modules/@react-native-voice/voice/android/bin/gradlew.bat
+new file mode 100644
+index 0000000..aec9973
+--- /dev/null
++++ b/node_modules/@react-native-voice/voice/android/bin/gradlew.bat
+@@ -0,0 +1,90 @@
++@if "%DEBUG%" == "" @echo off
++@rem ##########################################################################
++@rem
++@rem  Gradle startup script for Windows
++@rem
++@rem ##########################################################################
++
++@rem Set local scope for the variables with windows NT shell
++if "%OS%"=="Windows_NT" setlocal
++
++@rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
++set DEFAULT_JVM_OPTS=
++
++set DIRNAME=%~dp0
++if "%DIRNAME%" == "" set DIRNAME=.
++set APP_BASE_NAME=%~n0
++set APP_HOME=%DIRNAME%
++
++@rem Find java.exe
++if defined JAVA_HOME goto findJavaFromJavaHome
++
++set JAVA_EXE=java.exe
++%JAVA_EXE% -version >NUL 2>&1
++if "%ERRORLEVEL%" == "0" goto init
++
++echo.
++echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
++echo.
++echo Please set the JAVA_HOME variable in your environment to match the
++echo location of your Java installation.
++
++goto fail
++
++:findJavaFromJavaHome
++set JAVA_HOME=%JAVA_HOME:"=%
++set JAVA_EXE=%JAVA_HOME%/bin/java.exe
++
++if exist "%JAVA_EXE%" goto init
++
++echo.
++echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME%
++echo.
++echo Please set the JAVA_HOME variable in your environment to match the
++echo location of your Java installation.
++
++goto fail
++
++:init
++@rem Get command-line arguments, handling Windowz variants
++
++if not "%OS%" == "Windows_NT" goto win9xME_args
++if "%@eval[2+2]" == "4" goto 4NT_args
++
++:win9xME_args
++@rem Slurp the command line arguments.
++set CMD_LINE_ARGS=
++set _SKIP=2
++
++:win9xME_args_slurp
++if "x%~1" == "x" goto execute
++
++set CMD_LINE_ARGS=%*
++goto execute
++
++:4NT_args
++@rem Get arguments from the 4NT Shell from JP Software
++set CMD_LINE_ARGS=%$
++
++:execute
++@rem Setup the command line
++
++set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
++
++@rem Execute Gradle
++"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %CMD_LINE_ARGS%
++
++:end
++@rem End local scope for the variables with windows NT shell
++if "%ERRORLEVEL%"=="0" goto mainEnd
++
++:fail
++rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
++rem the _cmd.exe /c_ return code!
++if  not "" == "%GRADLE_EXIT_CONSOLE%" exit 1
++exit /b 1
++
++:mainEnd
++if "%OS%"=="Windows_NT" endlocal
++
++:omega
+diff --git a/node_modules/@react-native-voice/voice/android/bin/react-native-voice.iml b/node_modules/@react-native-voice/voice/android/bin/react-native-voice.iml
+new file mode 100644
+index 0000000..e6f6adf
+--- /dev/null
++++ b/node_modules/@react-native-voice/voice/android/bin/react-native-voice.iml
+@@ -0,0 +1,188 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module external.linked.project.id=":react-native-voice" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$/../VoiceTest/android" external.system.id="GRADLE" type="JAVA_MODULE" version="4">
++  <component name="FacetManager">
++    <facet type="android-gradle" name="Android-Gradle">
++      <configuration>
++        <option name="GRADLE_PROJECT_PATH" value=":react-native-voice" />
++      </configuration>
++    </facet>
++    <facet type="android" name="Android">
++      <configuration>
++        <option name="SELECTED_BUILD_VARIANT" value="debug" />
++        <option name="ASSEMBLE_TASK_NAME" value="assembleDebug" />
++        <option name="COMPILE_JAVA_TASK_NAME" value="compileDebugSources" />
++        <afterSyncTasks>
++          <task>generateDebugSources</task>
++        </afterSyncTasks>
++        <option name="ALLOW_USER_CONFIGURATION" value="false" />
++        <option name="MANIFEST_FILE_RELATIVE_PATH" value="/../VoiceTest/node_modules/react-native-voice/android/src/main/AndroidManifest.xml" />
++        <option name="RES_FOLDER_RELATIVE_PATH" value="/../VoiceTest/node_modules/react-native-voice/android/src/main/res" />
++        <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/../VoiceTest/node_modules/react-native-voice/android/src/main/assets" />
++        <option name="PROJECT_TYPE" value="1" />
++      </configuration>
++    </facet>
++  </component>
++  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
++    <output url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/classes/debug" />
++    <output-test url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/classes/test/debug" />
++    <exclude-output />
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/source/r/debug" isTestSource="false" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/source/aidl/debug" isTestSource="false" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/source/buildConfig/debug" isTestSource="false" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/source/rs/debug" isTestSource="false" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/source/apt/debug" isTestSource="false" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/res/rs/debug" type="java-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/res/resValues/debug" type="java-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/source/r/androidTest/debug" isTestSource="true" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/source/aidl/androidTest/debug" isTestSource="true" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/source/buildConfig/androidTest/debug" isTestSource="true" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/source/rs/androidTest/debug" isTestSource="true" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/source/apt/androidTest/debug" isTestSource="true" generated="true" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/res/rs/androidTest/debug" type="java-test-resource" />
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/generated/res/resValues/androidTest/debug" type="java-test-resource" />
++      <excludeFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.0.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/exploded-aar/com.facebook.fresco/drawee/0.8.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/exploded-aar/com.facebook.fresco/fbcore/0.8.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/exploded-aar/com.facebook.fresco/fresco/0.8.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/exploded-aar/com.facebook.fresco/imagepipeline-okhttp/0.8.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/exploded-aar/com.facebook.fresco/imagepipeline/0.8.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/exploded-aar/com.facebook.react/react-native/0.17.1/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/exploded-aar/org.webkit/android-jsc/r174650/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/build/intermediates/incremental" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/aidl">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/aidl" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/assets">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/assets" type="java-test-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/java">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/java" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/res">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/res" type="java-test-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/resources">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/resources" type="java-test-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/rs">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/rs" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/shaders">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/androidTest/shaders" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/aidl">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/aidl" isTestSource="false" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/assets">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/assets" type="java-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/java">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/java" isTestSource="false" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/res">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/res" type="java-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/resources">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/resources" type="java-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/rs">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/rs" isTestSource="false" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/shaders">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/debug/shaders" isTestSource="false" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/aidl">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/aidl" isTestSource="false" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/assets">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/assets" type="java-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/java">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/java" isTestSource="false" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/res">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/res" type="java-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/resources">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/resources" type="java-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/rs">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/rs" isTestSource="false" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/shaders">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/main/shaders" isTestSource="false" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/aidl">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/aidl" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/assets">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/assets" type="java-test-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/java">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/java" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/res">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/res" type="java-test-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/resources">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/resources" type="java-test-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/rs">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/rs" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/shaders">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/test/shaders" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/aidl">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/aidl" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/assets">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/assets" type="java-test-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/java">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/java" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/res">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/res" type="java-test-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/resources">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/resources" type="java-test-resource" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/rs">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/rs" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/shaders">
++      <sourceFolder url="file://$MODULE_DIR$/../VoiceTest/node_modules/react-native-voice/android/src/testDebug/shaders" isTestSource="true" />
++    </content>
++    <content url="file://$MODULE_DIR$" />
++    <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
++    <orderEntry type="sourceFolder" forTests="false" />
++    <orderEntry type="library" exported="" name="okhttp-ws-2.5.0" level="project" />
++    <orderEntry type="library" exported="" name="library-2.4.0" level="project" />
++    <orderEntry type="library" exported="" name="okio-1.6.0" level="project" />
++    <orderEntry type="library" exported="" name="stetho-okhttp-1.2.0" level="project" />
++    <orderEntry type="library" exported="" name="okhttp-2.5.0" level="project" />
++    <orderEntry type="library" exported="" name="jsr305-3.0.0" level="project" />
++    <orderEntry type="library" exported="" name="stetho-1.2.0" level="project" />
++    <orderEntry type="library" exported="" name="jackson-core-2.2.3" level="project" />
++    <orderEntry type="library" exported="" name="fbcore-0.8.1" level="project" />
++    <orderEntry type="library" exported="" name="commons-cli-1.2" level="project" />
++    <orderEntry type="library" exported="" name="recyclerview-v7-23.0.1" level="project" />
++    <orderEntry type="library" exported="" name="imagepipeline-0.8.1" level="project" />
++    <orderEntry type="library" exported="" name="support-v4-23.1.1" level="project" />
++    <orderEntry type="library" exported="" name="react-native-0.17.1" level="project" />
++    <orderEntry type="library" exported="" name="android-jsc-r174650" level="project" />
++    <orderEntry type="library" exported="" scope="TEST" name="hamcrest-core-1.3" level="project" />
++    <orderEntry type="library" exported="" name="fresco-0.8.1" level="project" />
++    <orderEntry type="library" exported="" name="imagepipeline-okhttp-0.8.1" level="project" />
++    <orderEntry type="library" exported="" scope="TEST" name="junit-4.12" level="project" />
++    <orderEntry type="library" exported="" name="bolts-android-1.1.4" level="project" />
++    <orderEntry type="library" exported="" name="drawee-0.8.1" level="project" />
++    <orderEntry type="library" exported="" name="support-annotations-23.1.1" level="project" />
++    <orderEntry type="library" exported="" name="appcompat-v7-23.1.1" level="project" />
++  </component>
++</module>
+\ No newline at end of file
+diff --git a/node_modules/@react-native-voice/voice/android/bin/src/main/AndroidManifest.xml b/node_modules/@react-native-voice/voice/android/bin/src/main/AndroidManifest.xml
+new file mode 100644
+index 0000000..9a75230
+--- /dev/null
++++ b/node_modules/@react-native-voice/voice/android/bin/src/main/AndroidManifest.xml
+@@ -0,0 +1,8 @@
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.wenkesj.voice"
++    xmlns:tools="http://schemas.android.com/tools">
++
++    <uses-sdk tools:overrideLibrary="com.facebook.react" />
++    <uses-permission android:name="android.permission.RECORD_AUDIO" />
++    <uses-permission android:name="android.permission.INTERNET" />
++</manifest>
+diff --git a/node_modules/@react-native-voice/voice/android/bin/src/main/java/com/wenkesj/voice/VoiceModule.class b/node_modules/@react-native-voice/voice/android/bin/src/main/java/com/wenkesj/voice/VoiceModule.class
+new file mode 100644
+index 0000000..6cb7531
+Binary files /dev/null and b/node_modules/@react-native-voice/voice/android/bin/src/main/java/com/wenkesj/voice/VoiceModule.class differ
+diff --git a/node_modules/@react-native-voice/voice/android/bin/src/main/java/com/wenkesj/voice/VoicePackage.class b/node_modules/@react-native-voice/voice/android/bin/src/main/java/com/wenkesj/voice/VoicePackage.class
+new file mode 100644
+index 0000000..cb9ff87
+Binary files /dev/null and b/node_modules/@react-native-voice/voice/android/bin/src/main/java/com/wenkesj/voice/VoicePackage.class differ
+diff --git a/node_modules/@react-native-voice/voice/android/build.gradle b/node_modules/@react-native-voice/voice/android/build.gradle
+index 8fce879..9041299 100644
+--- a/node_modules/@react-native-voice/voice/android/build.gradle
++++ b/node_modules/@react-native-voice/voice/android/build.gradle
+@@ -2,7 +2,8 @@ apply plugin: 'com.android.library'
+ 
+ repositories {
+     mavenLocal()
+-    jcenter()
++    google()
++    mavenCentral()
+     maven {
+         // For developing the library outside the context of the example app, expect `react-native`
+         // to be installed at `./node_modules`.
+@@ -14,18 +15,13 @@ repositories {
+     }
+ }
+ 
+-def DEFAULT_COMPILE_SDK_VERSION = 28
+-def DEFAULT_BUILD_TOOLS_VERSION = "28.0.3"
+-def DEFAULT_TARGET_SDK_VERSION = 28
+-def DEFAULT_SUPPORT_LIB_VERSION = "28.0.0"
+-
+ android {
+-    compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
+-    buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
++    namespace "com.wenkesj.voice"
++    compileSdk rootProject.ext.compileSdkVersion
+ 
+     defaultConfig {
+-        minSdkVersion 15
+-        targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
++        minSdkVersion rootProject.ext.minSdkVersion
++        targetSdkVersion rootProject.ext.targetSdkVersion
+         versionCode 1
+         versionName "1.0"
+     }
+@@ -40,7 +36,8 @@ android {
+ buildscript {
+     if (project == rootProject) {
+         repositories {
+-            jcenter()
++            google()
++            mavenCentral()
+         }
+         dependencies {
+             classpath 'com.android.tools.build:gradle:3.3.2'
+@@ -53,15 +50,14 @@ buildscript {
+ 
+ allprojects {
+     repositories {
+-        jcenter()
++        google()
++        mavenCentral()
+     }
+ }
+ 
+-def supportVersion = rootProject.hasProperty('supportLibVersion') ? rootProject.supportLibVersion : DEFAULT_SUPPORT_LIB_VERSION
+-
+ dependencies {
+     implementation fileTree(dir: 'libs', include: ['*.jar'])
+     testImplementation 'junit:junit:4.12'
+-    implementation "com.android.support:appcompat-v7:${supportVersion}"
+-    implementation 'com.facebook.react:react-native:+'
++    implementation 'androidx.annotation:annotation:1.9.1'
++    implementation 'com.facebook.react:react-android'
+ }
+diff --git a/node_modules/@react-native-voice/voice/android/src/main/java/com/wenkesj/voice/VoiceModule.java b/node_modules/@react-native-voice/voice/android/src/main/java/com/wenkesj/voice/VoiceModule.java
+index f22833e..d86f7cc 100644
+--- a/node_modules/@react-native-voice/voice/android/src/main/java/com/wenkesj/voice/VoiceModule.java
++++ b/node_modules/@react-native-voice/voice/android/src/main/java/com/wenkesj/voice/VoiceModule.java
+@@ -60,10 +60,11 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
+       speech = null;
+     }
+ 
+-    if(opts.hasKey("RECOGNIZER_ENGINE")) {
++    if (opts.hasKey("RECOGNIZER_ENGINE")) {
+       switch (opts.getString("RECOGNIZER_ENGINE")) {
+         case "GOOGLE": {
+-          speech = SpeechRecognizer.createSpeechRecognizer(this.reactContext, ComponentName.unflattenFromString("com.google.android.googlequicksearchbox/com.google.android.voicesearch.serviceapi.GoogleRecognitionService"));
++          speech = SpeechRecognizer.createSpeechRecognizer(this.reactContext, ComponentName.unflattenFromString(
++              "com.google.android.googlequicksearchbox/com.google.android.voicesearch.serviceapi.GoogleRecognitionService"));
+           break;
+         }
+         default:
+@@ -116,7 +117,8 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
+         }
+         case "EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS": {
+           Double extras = opts.getDouble(key);
+-          intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, extras.intValue());
++          intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
++              extras.intValue());
+           break;
+         }
+       }
+@@ -152,21 +154,22 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
+   @ReactMethod
+   public void startSpeech(final String locale, final ReadableMap opts, final Callback callback) {
+     if (!isPermissionGranted() && opts.getBoolean("REQUEST_PERMISSIONS_AUTO")) {
+-      String[] PERMISSIONS = {Manifest.permission.RECORD_AUDIO};
++      String[] PERMISSIONS = { Manifest.permission.RECORD_AUDIO };
+       if (this.getCurrentActivity() != null) {
+-        ((PermissionAwareActivity) this.getCurrentActivity()).requestPermissions(PERMISSIONS, 1, new PermissionListener() {
+-          public boolean onRequestPermissionsResult(final int requestCode,
+-                                                    @NonNull final String[] permissions,
+-                                                    @NonNull final int[] grantResults) {
+-            boolean permissionsGranted = true;
+-            for (int i = 0; i < permissions.length; i++) {
+-              final boolean granted = grantResults[i] == PackageManager.PERMISSION_GRANTED;
+-              permissionsGranted = permissionsGranted && granted;
+-            }
+-            startSpeechWithPermissions(locale, opts, callback);
+-            return permissionsGranted;
+-          }
+-        });
++        ((PermissionAwareActivity) this.getCurrentActivity()).requestPermissions(PERMISSIONS, 1,
++            new PermissionListener() {
++              public boolean onRequestPermissionsResult(final int requestCode,
++                  @NonNull final String[] permissions,
++                  @NonNull final int[] grantResults) {
++                boolean permissionsGranted = true;
++                for (int i = 0; i < permissions.length; i++) {
++                  final boolean granted = grantResults[i] == PackageManager.PERMISSION_GRANTED;
++                  permissionsGranted = permissionsGranted && granted;
++                }
++                startSpeechWithPermissions(locale, opts, callback);
++                return permissionsGranted;
++              }
++            });
+       }
+       return;
+     }
+@@ -185,7 +188,7 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
+           }
+           isRecognizing = false;
+           callback.invoke(false);
+-        } catch(Exception e) {
++        } catch (Exception e) {
+           callback.invoke(e.getMessage());
+         }
+       }
+@@ -204,7 +207,7 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
+           }
+           isRecognizing = false;
+           callback.invoke(false);
+-        } catch(Exception e) {
++        } catch (Exception e) {
+           callback.invoke(e.getMessage());
+         }
+       }
+@@ -224,7 +227,7 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
+           speech = null;
+           isRecognizing = false;
+           callback.invoke(false);
+-        } catch(Exception e) {
++        } catch (Exception e) {
+           callback.invoke(e.getMessage());
+         }
+       }
+@@ -241,7 +244,7 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
+         try {
+           Boolean isSpeechAvailable = SpeechRecognizer.isRecognitionAvailable(self.reactContext);
+           callback.invoke(isSpeechAvailable, false);
+-        } catch(Exception e) {
++        } catch (Exception e) {
+           callback.invoke(false, e.getMessage());
+         }
+       }
+@@ -273,8 +276,8 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
+ 
+   private void sendEvent(String eventName, @Nullable WritableMap params) {
+     this.reactContext
+-      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+-      .emit(eventName, params);
++        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
++        .emit(eventName, params);
+   }
+ 
+   @Override
+@@ -315,15 +318,24 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
+   }
+ 
+   @Override
+-  public void onEvent(int arg0, Bundle arg1) { }
++  public void onEvent(int arg0, Bundle arg1) {
++  }
+ 
+   @Override
+   public void onPartialResults(Bundle results) {
+     WritableArray arr = Arguments.createArray();
+ 
+-    ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+-    for (String result : matches) {
+-      arr.pushString(result);
++    ArrayList<String> matches = null;
++
++    if (results != null) {
++      matches = results.getStringArrayList(
++          SpeechRecognizer.RESULTS_RECOGNITION);
++    }
++
++    if (matches != null) {
++      for (String result : matches) {
++        arr.pushString(result);
++      }
+     }
+ 
+     WritableMap event = Arguments.createMap();
+@@ -344,9 +356,17 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
+   public void onResults(Bundle results) {
+     WritableArray arr = Arguments.createArray();
+ 
+-    ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+-    for (String result : matches) {
+-      arr.pushString(result);
++    ArrayList<String> matches = null;
++
++    if (results != null) {
++      matches = results.getStringArrayList(
++          SpeechRecognizer.RESULTS_RECOGNITION);
++    }
++
++    if (matches != null) {
++      for (String result : matches) {
++        arr.pushString(result);
++      }
+     }
+ 
+     WritableMap event = Arguments.createMap();
+diff --git a/node_modules/@react-native-voice/voice/example/android/.gradle/5.5/fileChanges/last-build.bin b/node_modules/@react-native-voice/voice/example/android/.gradle/5.5/fileChanges/last-build.bin
+new file mode 100644
+index 0000000..f76dd23
+Binary files /dev/null and b/node_modules/@react-native-voice/voice/example/android/.gradle/5.5/fileChanges/last-build.bin differ
+diff --git a/node_modules/@react-native-voice/voice/example/android/.gradle/5.5/fileHashes/fileHashes.lock b/node_modules/@react-native-voice/voice/example/android/.gradle/5.5/fileHashes/fileHashes.lock
+new file mode 100644
+index 0000000..33f76f5
+Binary files /dev/null and b/node_modules/@react-native-voice/voice/example/android/.gradle/5.5/fileHashes/fileHashes.lock differ
+diff --git a/node_modules/@react-native-voice/voice/example/android/.gradle/5.5/gc.properties b/node_modules/@react-native-voice/voice/example/android/.gradle/5.5/gc.properties
+new file mode 100644
+index 0000000..e69de29
