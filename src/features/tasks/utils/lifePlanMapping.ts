@@ -10,7 +10,7 @@ import {
   LifePlanDraft,
   Weekday,
 } from '../types';
-import { formatDateOnly, formatTimeOnly, parseWallClock } from './dateTime';
+import { formatDateOnly, formatTimeOnly, parseScheduleTime } from './dateTime';
 
 const WEEKDAY_TO_API: Record<Weekday, ApiWeekday> = {
   Monday: 'MONDAY',
@@ -59,34 +59,10 @@ export function toCreateLifePlanRequest(
   };
 }
 
-const API_WEEKDAY_TO_DAY_INDEX: Record<ApiWeekday, number> = {
-  SUNDAY: 0,
-  MONDAY: 1,
-  TUESDAY: 2,
-  WEDNESDAY: 3,
-  THURSDAY: 4,
-  FRIDAY: 5,
-  SATURDAY: 6,
-};
-
+// jumlah sesi diambil dari schedules beneran (bukan dihitung ulang dari
+// rentang tanggal) — jadi skipped dates & task yg dihapus ikut kehitung bener
 export function countLifePlanSessions(plan: LifePlanRecord): number {
-  const availableDayIndexes = new Set(
-    plan.availableDays.map(day => API_WEEKDAY_TO_DAY_INDEX[day]),
-  );
-  if (availableDayIndexes.size === 0) return 0;
-
-  const cursor = new Date(plan.startDate);
-  const end = new Date(plan.endDate);
-  let count = 0;
-
-  while (cursor.getTime() <= end.getTime()) {
-    if (availableDayIndexes.has(cursor.getUTCDay())) {
-      count += 1;
-    }
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
-  }
-
-  return plan.schedules?.length || count;
+  return plan.schedules?.length ?? 0;
 }
 
 export function countCompletedSessions(plan: LifePlanRecord): number {
@@ -99,11 +75,13 @@ export function countCompletedSessions(plan: LifePlanRecord): number {
     now.getDate(),
   ).getTime();
 
-  return plan.schedules.filter(schedule => {
-    const sessionStart = new Date(schedule.startDateTime).getTime();
+  return (
+    plan.schedules?.filter(schedule => {
+      const sessionStart = new Date(schedule.startDateTime).getTime();
 
-    return Number.isFinite(sessionStart) && sessionStart < todayStart;
-  }).length;
+      return Number.isFinite(sessionStart) && sessionStart < todayStart;
+    }).length ?? 0
+  );
 }
 
 export function isLifePlanCompleted(plan: LifePlanRecord): boolean {
@@ -158,7 +136,7 @@ export function getThisWeekSchedules(
   // sengaja ikut nampilin sesi yg udah lewat (buat checkmark otomatis),
   // batasnya cuma sampai 7 hari ke depan
   return schedules.filter(
-    schedule => parseWallClock(schedule.startDateTime).getTime() <= end,
+    schedule => parseScheduleTime(schedule.startDateTime).getTime() <= end,
   );
 }
 

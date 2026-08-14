@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Modal, Pressable, Text, TouchableOpacity } from 'react-native';
 import { ChevronDown } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 interface SelectOption<T extends string> {
   value: T;
@@ -15,6 +15,8 @@ interface SelectFieldProps<T extends string> {
 }
 
 export function SelectField<T extends string>({ value, options, onChange }: SelectFieldProps<T>) {
+  const textStyle = useTextStyle();
+
   const [open, setOpen] = useState(false);
   const selectedLabel = options.find(option => option.value === value)?.label ?? '';
 

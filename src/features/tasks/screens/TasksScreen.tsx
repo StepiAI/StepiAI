@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { useTabBarVisibility } from '../../../app/navigation/TabBarVisibilityContext';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { PlanFilterTabs, PlanFilter } from '../components/PlanFilterTabs';
 import { LifePlanCard } from '../components/LifePlanCard';
 import { LifePlanConflictModal } from '../components/LifePlanConflictModal';
@@ -21,7 +21,11 @@ import {
   LifePlanConflictOption,
   LifePlanConflictResult,
 } from '../../../services/lifePlan/client';
-import { LifePlanResolution, useCreateLifePlan } from '../hooks/useCreateLifePlan';
+import {
+  CreateLifePlanOutcome,
+  LifePlanResolution,
+  useCreateLifePlan,
+} from '../hooks/useCreateLifePlan';
 import { useLifePlanDraft } from '../hooks/useLifePlanDraft';
 import { useLifePlans } from '../hooks/useLifePlans';
 import { isLifePlanCompleted } from '../utils/lifePlanMapping';
@@ -66,18 +70,36 @@ export function TasksScreen() {
   const { create, saving } = useCreateLifePlan();
   const { plans, loading, refreshing, error, refresh, setArchived, remove } = useLifePlans();
   const [conflict, setConflict] = useState<LifePlanConflictResult | null>(null);
+  const [creationSettled, setCreationSettled] = useState(false);
+  const pendingOutcome = useRef<CreateLifePlanOutcome | null>(null);
 
   const exitCreation = () => {
     setStep(null);
     setConflict(null);
+    setCreationSettled(false);
+    pendingOutcome.current = null;
     reset();
   };
 
   const submitDraft = async (resolution?: LifePlanResolution) => {
     setConflict(null);
+    setCreationSettled(false);
+    pendingOutcome.current = null;
     setStep('creating');
 
-    const outcome = await create(draft, resolution);
+    pendingOutcome.current = await create(draft, resolution);
+    // Hand off to the progress bar; it calls applyOutcome once it hits 100%.
+    setCreationSettled(true);
+  };
+
+  const applyOutcome = () => {
+    const outcome = pendingOutcome.current;
+    pendingOutcome.current = null;
+    setCreationSettled(false);
+
+    if (!outcome) {
+      return;
+    }
 
     if (outcome.type === 'created') {
       exitCreation();
@@ -170,7 +192,7 @@ export function TasksScreen() {
   }
 
   if (step === 'creating') {
-    return <CreatingLifePlanScreen />;
+    return <CreatingLifePlanScreen done={creationSettled} onComplete={applyOutcome} />;
   }
 
   if (selectedPlanId) {
@@ -202,6 +224,8 @@ export function TasksScreen() {
 }
 
 function ScreenHeader() {
+  const textStyle = useTextStyle();
+
   return (
     <Text className="mt-[20px] text-center text-[21px] text-light-inkStrong" style={textStyle('bold')}>
       Life Plan
@@ -222,6 +246,8 @@ function LifePlanLoadingScreen() {
 }
 
 function LifePlanEmptyState({ onCreatePress }: { onCreatePress: () => void }) {
+  const textStyle = useTextStyle();
+
   const tabBarSpace = useTabBarSpace();
 
   return (
@@ -282,6 +308,8 @@ function LifePlanListScreen({
   onSetArchived,
   onDeletePlan,
 }: LifePlanListScreenProps) {
+  const textStyle = useTextStyle();
+
   const tabBarSpace = useTabBarSpace();
   const [filter, setFilter] = useState<PlanFilter>('all');
 
@@ -374,6 +402,8 @@ function LifePlanListScreen({
 }
 
 function Notice({ title, caption }: { title: string; caption: string }) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="items-center px-[12px] py-[24px]">
       <Text className="text-[15px] text-light-ink" style={textStyle('medium')}>

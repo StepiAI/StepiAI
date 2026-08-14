@@ -9,34 +9,52 @@ import { listSchedules } from '../../../services/schedules/client';
 import type { ScheduleRecord } from '../../../services/lifePlan/client';
 import { syncWidgetFromApp } from '../../widget/sync';
 
-// Sesi life plan disimpan di DB STEPI, bukan Google Calendar. Di sini dia
-// dibentuk jadi GoogleCalendarEvent biar semua screen kalender langsung bisa
-// nampilin tanpa diubah. Cuma yg lifePlanId != null yg diambil — schedule chat
-// yg di-accept udah disinkron ke Google, kalau ikut digabung bakal dobel.
-// Jam sesi life plan itu "wall clock": BE nyimpen jam lokal user di kontainer
-// UTC ("19:00" -> "...T19:00:00Z"). Buang 'Z'-nya biar new Date() di layer
-// kalender mbaca sebagai jam lokal — kalau enggak, sesinya geser +7 jam (WIB).
-function toWallClockIso(iso: string) {
-  return iso.slice(0, 19);
-}
-
 function lifePlanSchedulesToEvents(
   schedules: ScheduleRecord[],
 ): GoogleCalendarEvent[] {
   return schedules
-    .filter(schedule => schedule.lifePlanId !== null)
+    .filter(
+      schedule =>
+        schedule.lifePlanId !== null && !schedule.googleCalendarEventId,
+    )
     .map(schedule => ({
       id: schedule.id,
       summary: schedule.summary,
       description: schedule.description,
       location: schedule.location,
-      start: { dateTime: toWallClockIso(schedule.startDateTime) },
-      end: { dateTime: toWallClockIso(schedule.endDateTime) },
+      start: { dateTime: schedule.startDateTime },
+      end: { dateTime: schedule.endDateTime },
       isLifePlanSession: true,
     }));
 }
 
 const DEFAULT_RANGE_DAYS = 7;
+
+function timeKey(
+  slot?: { dateTime?: string | null; date?: string | null } | null,
+) {
+  const raw = slot?.dateTime ?? slot?.date;
+  if (!raw) return '';
+  const parsed = new Date(raw).getTime();
+  return Number.isNaN(parsed) ? raw : String(parsed);
+}
+
+function dedupeEvents(events: GoogleCalendarEvent[]): GoogleCalendarEvent[] {
+  const seen = new Set<string>();
+  const result: GoogleCalendarEvent[] = [];
+  for (const event of events) {
+    const key = [
+      event.summary?.trim().toLowerCase() ?? '',
+      event.location?.trim().toLowerCase() ?? '',
+      timeKey(event.start),
+      timeKey(event.end),
+    ].join('|');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(event);
+  }
+  return result;
+}
 
 function describeError(err: unknown) {
   if (err instanceof ApiError) {
@@ -107,7 +125,10 @@ export function useGoogleCalendarEvents({ from, to }: Options = {}) {
           }),
         ]);
 
-        const merged = [...events, ...lifePlanSchedulesToEvents(localSchedules)];
+        const merged = dedupeEvents([
+          ...events,
+          ...lifePlanSchedulesToEvents(localSchedules),
+        ]);
 
         setState({
           events: merged,

@@ -6,7 +6,6 @@ import type { BottomTabBarProps, BottomTabNavigationProp } from '@react-navigati
 import { HomeScreen } from '../../features/scheduler/screens/HomeScreen';
 import { NewScheduleModal } from '../../features/scheduler/components/NewScheduleModal';
 import { TasksScreen } from '../../features/tasks/screens/TasksScreen';
-import { SummaryScreen } from '../../features/summary/screens/SummaryScreen';
 import { ProfileScreen } from '../../features/profile/screens/ProfileScreen';
 import { ConnectedAppsScreen } from '../../features/profile/screens/ConnectedAppsScreen';
 import { AccessibilityScreen } from '../../features/profile/screens/AccessibilityScreen';
@@ -27,7 +26,7 @@ import { MissingDetailsScreen } from '../../features/scheduler/screens/MissingDe
 import { EventDetailRoute } from '../../features/scheduler/screens/EventDetailRoute';
 import { ChatScreen } from '../../features/chat/screens/ChatScreen';
 import { useAuthSession } from '../../features/auth/hooks/useAuthSession';
-import { supabase } from '../../services/supabase/client';
+import { performSignOut } from '../../features/auth/services/signOut';
 import { TabBar } from './TabBar';
 import { TabBarVisibilityContext } from './TabBarVisibilityContext';
 import { MainTabParamList } from './types';
@@ -58,7 +57,9 @@ function PersonalizeTab() {
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const back = () =>
     navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home');
-  return <PersonalizeDayScreen onBack={back} onContinue={() => navigation.navigate('Location')} />;
+  // continue langsung ke Home — izin lokasi udah diminta OS pas app pertama
+  // kali dibuka, jadi gak perlu mampir ke Location Access lagi
+  return <PersonalizeDayScreen onBack={back} onContinue={() => navigation.navigate('Home')} />;
 }
 
 function LocationTab() {
@@ -107,7 +108,6 @@ function MainTabs() {
         <Tab.Screen name="AdjustSchedule" component={AdjustScheduleScreen} />
         <Tab.Screen name="MissingDetails" component={MissingDetailsScreen} />
         <Tab.Screen name="EventDetail" component={EventDetailRoute} />
-        <Tab.Screen name="Summary" component={SummaryScreen} />
         <Tab.Screen name="Personalize" component={PersonalizeTab} />
         <Tab.Screen name="Location" component={LocationTab} />
       </Tab.Navigator>
@@ -153,7 +153,9 @@ function SignedInApp() {
         onConnect={toggleConnection}
         // back = sign out -> balik ke halaman login (RegisterScreen)
         onBack={() => {
-          supabase.auth.signOut();
+          performSignOut().catch(err => {
+            console.error('[Auth] failed to sign out:', err);
+          });
         }}
       />
     );
@@ -164,8 +166,20 @@ function SignedInApp() {
   // if (onboarding === 'loading') return loadingSpinner;
   // if (onboarding === 'needed') return <OnboardingFlow onDone={complete} />;
 
+  const linking = {
+    prefixes: ['stepiai://'],
+    config: {
+      screens: {
+        Chat: {
+          path: 'voice',
+          parse: { openVoice: () => true },
+        },
+      },
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <MainTabs />
     </NavigationContainer>
   );

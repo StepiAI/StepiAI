@@ -1,10 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ApiError } from '../../../services/api/client';
 import {
   connectGoogleCalendar,
   disconnectGoogleCalendar,
   getGoogleCalendarStatus,
   GoogleCalendarStatus,
 } from '../../../services/googleCalendar/client';
+
+// 400/403 dari backend itu pesan yg emang ditujukan ke user — mis. akun Google
+// yg dipilih di picker beda sama akun login. jangan ditelen jadi pesan generik,
+// user gak bakal tau harus milih akun yg mana.
+function describeConnectionError(err: unknown): string {
+  if (err instanceof ApiError && (err.status === 400 || err.status === 403)) {
+    return err.message;
+  }
+
+  return 'Something went wrong connecting to Google Calendar.';
+}
 
 export function useGoogleCalendarConnection() {
   const [status, setStatus] = useState<GoogleCalendarStatus | null>(null);
@@ -37,7 +49,7 @@ export function useGoogleCalendarConnection() {
       }
     } catch (err) {
       console.error('GoogleCalendar connect/disconnect failed:', err);
-      setError('Something went wrong connecting to Google Calendar.');
+      setError(describeConnectionError(err));
     } finally {
       setBusy(false);
     }

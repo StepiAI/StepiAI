@@ -1,8 +1,8 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import { CalendarIcon, CheckIcon } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import type { ScheduleRecord } from '../../../services/lifePlan/client';
-import { formatTimeLabel, parseWallClock } from '../utils/dateTime';
+import { formatTimeLabel, parseScheduleTime } from '../utils/dateTime';
 import { formatSessionDayLabel } from '../utils/lifePlanMapping';
 
 interface TaskRowProps {
@@ -22,8 +22,10 @@ export function TaskRow({
   onViewPress,
   onLongPress,
 }: TaskRowProps) {
-  const start = parseWallClock(schedule.startDateTime);
-  const end = parseWallClock(schedule.endDateTime);
+  const textStyle = useTextStyle();
+
+  const start = parseScheduleTime(schedule.startDateTime);
+  const end = parseScheduleTime(schedule.endDateTime);
   const highlighted = selected;
   // checkmark otomatis: sesi dianggap kelar begitu waktunya udah lewat,
   // bukan dari klik manual
@@ -80,6 +82,8 @@ function Checkbox({ checked }: { checked: boolean }) {
 }
 
 function ViewButton({ highlighted, onPress }: { highlighted: boolean; onPress?: () => void }) {
+  const textStyle = useTextStyle();
+
   return (
     <TouchableOpacity
       onPress={onPress}

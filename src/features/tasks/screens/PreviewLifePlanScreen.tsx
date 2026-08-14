@@ -4,7 +4,7 @@ import { ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
 import { ChevronLeft, ChevronRight } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { LIFE_PLAN_GRADIENT } from '../theme';
 import type { DifficultyLevel, FocusPreference, LifePlanDraft, Weekday } from '../types';
 import { formatDateLabel, formatTimeLabel } from '../utils/dateTime';
@@ -38,6 +38,8 @@ interface PreviewLifePlanScreenProps {
 }
 
 export function PreviewLifePlanScreen({ draft, onBack, onSubmit }: PreviewLifePlanScreenProps) {
+  const textStyle = useTextStyle();
+
   const tabBarSpace = useTabBarSpace();
   const [topicsExpanded, setTopicsExpanded] = useState(false);
 
@@ -163,6 +165,8 @@ interface ReviewRowProps {
 }
 
 function ReviewRow({ label, value, onPress, trailing }: ReviewRowProps) {
+  const textStyle = useTextStyle();
+
   const content = (
     <View className="min-h-[56px] flex-row items-center justify-between gap-[16px] px-[18px] py-[16px]">
       <Text className="text-[15px] text-light-inkStrong" style={textStyle('semibold')}>

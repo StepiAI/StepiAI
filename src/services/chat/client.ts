@@ -1,4 +1,5 @@
 import { apiClient } from '../api/client';
+import { bumpCalendarRevision } from '../googleCalendar/revision';
 import type {
   ApiDifficultyLevel,
   ApiFocusPreference,
@@ -131,6 +132,13 @@ export interface SendVoiceMessageResponse extends SendMessageResponse {
   popup: VoicePopup | null;
 }
 
+function bumpCalendarAfter<T>(promise: Promise<T>): Promise<T> {
+  return Promise.resolve(promise).then(result => {
+    bumpCalendarRevision();
+    return result;
+  });
+}
+
 export function getMyChat() {
   return apiClient.get<ChatApiChat>('/chats');
 }
@@ -140,8 +148,10 @@ export function clearChat() {
 }
 
 export function acceptScheduleProposal(messageId: string) {
-  return apiClient.post<AcceptScheduleResponse>(
-    `/chats/messages/${messageId}/accept`,
+  return bumpCalendarAfter(
+    apiClient.post<AcceptScheduleResponse>(
+      `/chats/messages/${messageId}/accept`,
+    ),
   );
 }
 
@@ -152,42 +162,52 @@ export function dismissScheduleProposal(messageId: string) {
 }
 
 export function acceptScheduleUpdate(messageId: string) {
-  return apiClient.post<{
-    updated: true;
-    schedule: ScheduleRecord;
-    syncedToGoogleCalendar: boolean;
-    googleSyncError?: string;
-  }>(`/chats/messages/${messageId}/accept-schedule-update`);
+  return bumpCalendarAfter(
+    apiClient.post<{
+      updated: true;
+      schedule: ScheduleRecord;
+      syncedToGoogleCalendar: boolean;
+      googleSyncError?: string;
+    }>(`/chats/messages/${messageId}/accept-schedule-update`),
+  );
 }
 
 export function acceptScheduleDelete(messageId: string) {
-  return apiClient.post<{
-    deleted: true;
-    schedule: ScheduleRecord;
-    syncedToGoogleCalendar: boolean;
-    googleSyncError?: string;
-  }>(`/chats/messages/${messageId}/accept-schedule-delete`);
+  return bumpCalendarAfter(
+    apiClient.post<{
+      deleted: true;
+      schedule: ScheduleRecord;
+      syncedToGoogleCalendar: boolean;
+      googleSyncError?: string;
+    }>(`/chats/messages/${messageId}/accept-schedule-delete`),
+  );
 }
 
 export function acceptLifePlan(messageId: string) {
-  return apiClient.post<{
-    created: boolean;
-    lifePlan: LifePlanRecord | null;
-    lifePlanConflict: unknown | null;
-  }>(`/chats/messages/${messageId}/accept-life-plan`);
+  return bumpCalendarAfter(
+    apiClient.post<{
+      created: boolean;
+      lifePlan: LifePlanRecord | null;
+      lifePlanConflict: unknown | null;
+    }>(`/chats/messages/${messageId}/accept-life-plan`),
+  );
 }
 
 export function acceptLifePlanUpdate(messageId: string) {
-  return apiClient.post<{
-    updated: boolean;
-    lifePlan: LifePlanRecord | null;
-    lifePlanConflict: unknown | null;
-  }>(`/chats/messages/${messageId}/accept-life-plan-update`);
+  return bumpCalendarAfter(
+    apiClient.post<{
+      updated: boolean;
+      lifePlan: LifePlanRecord | null;
+      lifePlanConflict: unknown | null;
+    }>(`/chats/messages/${messageId}/accept-life-plan-update`),
+  );
 }
 
 export function acceptLifePlanDelete(messageId: string) {
-  return apiClient.post<{ deleted: true; lifePlan: LifePlanRecord }>(
-    `/chats/messages/${messageId}/accept-life-plan-delete`,
+  return bumpCalendarAfter(
+    apiClient.post<{ deleted: true; lifePlan: LifePlanRecord }>(
+      `/chats/messages/${messageId}/accept-life-plan-delete`,
+    ),
   );
 }
 

@@ -30,23 +30,13 @@ export interface UpdateScheduleInput {
   summary: string;
   description?: string;
   location?: string;
-  // wall-clock ISO (komponen jam lokal dalam kontainer UTC) — lihat catatan
-  // toWallClockUtcIso di bawah
   startDateTime: string;
   endDateTime: string;
 }
 
-/**
- * Jadwal lokal disimpan "wall clock": jam lokal user ditulis apa adanya ke
- * kontainer UTC. Jadi pas ngirim update, komponen LOKAL dari Date-nya yg
- * dipakai, bukan hasil toISOString() (itu konversi beneran ke UTC → geser 7 jam).
- */
-export function toWallClockUtcIso(date: Date): string {
-  const pad = (value: number) => String(value).padStart(2, '0');
-  return (
-    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
-    `T${pad(date.getHours())}:${pad(date.getMinutes())}:00.000Z`
-  );
+
+export function toUtcIso(date: Date): string {
+  return date.toISOString();
 }
 
 export function updateSchedule(scheduleId: string, input: UpdateScheduleInput) {

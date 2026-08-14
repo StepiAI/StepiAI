@@ -4,7 +4,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Modal,
-  Platform,
   ScrollView,
   Switch,
   Text,
@@ -21,12 +20,13 @@ import {
   ChevronUpDownIcon,
   CloseIcon,
 } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { KEYBOARD_AVOIDING_BEHAVIOR } from '../../../shared/keyboard';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { TimePickerModal } from '../../tasks/components/TimePickerModal';
 import { formatDateLabel, formatTimeLabel } from '../../tasks/utils/dateTime';
 import type { PlaceSuggestion } from '../../../services/weather/client';
 import { useCreateGoogleCalendarEvent } from '../hooks/useCreateGoogleCalendarEvent';
-import { toWallClockUtcIso, updateSchedule } from '../../../services/schedules/client';
+import { toUtcIso, updateSchedule } from '../../../services/schedules/client';
 import { usePlaceSearch } from '../hooks/usePlaceSearch';
 import { useScheduleWeather } from '../hooks/useScheduleWeather';
 import { removeAttachment as removeUploadedAttachment } from '../../../services/attachments/client';
@@ -93,8 +93,6 @@ function combineDateAndTime(date: Date, time: Date) {
   return result;
 }
 
-// gw nemu edge case, method atas ini cuma abil jam ama menit, jd acara cross midnight gitu kek jam 11 malem selsai 00 bisa bikin "selesai" sebelom "mulai". 
-// solusi gw: date++
 function resolveRange(
   startDate: Date,
   startTime: Date,
@@ -103,10 +101,6 @@ function resolveRange(
 ) {
   const start = combineDateAndTime(startDate, startTime);
   const end = combineDateAndTime(endDate, endTime);
-
-  if (end.getTime() <= start.getTime()) {
-    end.setDate(end.getDate() + 1);
-  }
 
   return { start, end };
 }
@@ -142,6 +136,8 @@ export function NewScheduleModal({
   draft,
   onUpdated,
 }: NewScheduleModalProps) {
+  const textStyle = useTextStyle();
+
   const { create, update, saving, error, reset } = useCreateGoogleCalendarEvent();
   const insets = useSafeAreaInsets();
   const isEdit = Boolean(draft);
@@ -266,7 +262,7 @@ export function NewScheduleModal({
     const { start, end } = resolveRange(startDate, startTime, endDate, endTime);
 
     if (end.getTime() <= start.getTime()) {
-      setFormError('End time must be after the start time.');
+      setFormError('End date and time must be after the start date and time.');
       return;
     }
 
@@ -305,8 +301,8 @@ export function NewScheduleModal({
           summary: payload.summary,
           description: payload.description,
           location: payload.location,
-          startDateTime: toWallClockUtcIso(start),
-          endDateTime: toWallClockUtcIso(end),
+          startDateTime: toUtcIso(start),
+          endDateTime: toUtcIso(end),
         });
         ok = true;
       } catch (err) {
@@ -343,7 +339,7 @@ export function NewScheduleModal({
           <SafeAreaView className="flex-1" edges={['bottom']}>
             <KeyboardAvoidingView
               className="flex-1"
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              behavior={KEYBOARD_AVOIDING_BEHAVIOR}
             >
               <View className="flex-row items-center justify-between px-[20px] pb-[14px] pt-[18px]">
                 <TouchableOpacity
@@ -661,6 +657,8 @@ function SelectRow({
   value: string;
   onPress: () => void;
 }) {
+  const textStyle = useTextStyle();
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -684,6 +682,8 @@ function SelectRow({
 }
 
 function Pill({ label, onPress }: { label: string; onPress: () => void }) {
+  const textStyle = useTextStyle();
+
   return (
     <TouchableOpacity
       onPress={onPress}

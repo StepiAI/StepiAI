@@ -14,9 +14,10 @@ import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from '../../../app/navigation/types';
 import { useTabBarSpace } from '../../../app/navigation/tabBarLayout';
-import { textStyle } from '../../../shared/theme/typography';
-import { AlertTriangleIcon, ChevronLeft, CloseIcon, PersonIcon } from '../../../shared/components/Icons';
+import { useTextStyle } from '../../../shared/theme/typography';
+import { AlertTriangleIcon, BellIcon, ChevronLeft, CloseIcon, PersonIcon } from '../../../shared/components/Icons';
 import { useAuthSession } from '../../auth/hooks/useAuthSession';
+import { useNotificationPermission } from '../../notifications/hooks/useNotificationPermission';
 import { CalendarZoom } from '../components/CalendarZoom';
 import { DayTimeline } from '../components/DayTimeline';
 import { WeekStrip } from '../components/WeekStrip';
@@ -26,6 +27,7 @@ import { useCurrentLocation } from '../../settings/hooks/useCurrentLocation';
 import type { ScheduleAlert } from '../../../services/alerts/client';
 import { ALERT_TONE } from '../theme';
 import { toDayEvents } from '../utils/calendarMapping';
+import { isSameDay } from '../utils/day';
 import { analyzeMissingDetails, summarizeMissingDetails } from '../utils/missingDetails';
 import { startOfMonth } from '../utils/month';
 import { buildDayChips, buildWeekWindow } from '../utils/monthChips';
@@ -40,6 +42,8 @@ function greetingForHour(hour: number) {
 }
 
 export function HomeScreen() {
+  const textStyle = useTextStyle();
+
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const { session } = useAuthSession();
   const [selected, setSelected] = useState(() => new Date());
@@ -99,6 +103,26 @@ export function HomeScreen() {
 
   const dismissAlert = (alert: ScheduleAlert) =>
     setDismissed(prev => new Set(prev).add(alertKey(alert)));
+
+  const {
+    status: notifStatus,
+    requesting: notifRequesting,
+    request: requestNotif,
+    openSettings: openNotifSettings,
+  } = useNotificationPermission(session?.user?.id);
+  const [notifBannerDismissed, setNotifBannerDismissed] = useState(false);
+  const showNotifBanner =
+    !notifBannerDismissed &&
+    (notifStatus === 'denied' || notifStatus === 'blocked');
+
+  const handleEnableNotifications = async () => {
+    if (notifStatus === 'blocked') {
+      openNotifSettings();
+      return;
+    }
+    const next = await requestNotif();
+    if (next === 'granted') setNotifBannerDismissed(true);
+  };
 
   const [missingBannerDismissed, setMissingBannerDismissed] = useState(false);
   const missingSummary = useMemo(
@@ -181,6 +205,15 @@ export function HomeScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}
       >
+        {showNotifBanner ? (
+          <NotificationBanner
+            blocked={notifStatus === 'blocked'}
+            busy={notifRequesting}
+            onEnable={handleEnableNotifications}
+            onDismiss={() => setNotifBannerDismissed(true)}
+          />
+        ) : null}
+
         {visibleAlerts.map(alert => (
           <AlertCard
             key={alertKey(alert)}
@@ -231,7 +264,11 @@ export function HomeScreen() {
           ) : error ? (
             <Notice title="Something went wrong" caption={error} />
           ) : (
-            <DayTimeline events={timed} onEventPress={setSelectedEvent} />
+            <DayTimeline
+              events={timed}
+              isToday={isSameDay(selected, new Date())}
+              onEventPress={setSelectedEvent}
+            />
           )}
         </View>
 
@@ -255,6 +292,24 @@ function alertKey(alert: ScheduleAlert) {
   return `${alert.type}:${alert.eventId}`;
 }
 
+// alert itu week-scoped (bukan cuma hari yg lagi dibuka), jd kalo ada >1
+// card bisa gampang ketuker punya event yg mana. kasih nama acara + hari/jam
+// biar jelas ini soal jadwal yg mana.
+function formatAlertEventMeta(iso: string) {
+  const date = new Date(iso);
+  const day = date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
+  const time = date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  return `${day} · ${time}`;
+}
+
 function AlertCard({
   alert,
   onAdjust,
@@ -264,7 +319,10 @@ function AlertCard({
   onAdjust: () => void;
   onDismiss: () => void;
 }) {
+  const textStyle = useTextStyle();
+
   const isTraffic = alert.type === 'HEAVY_TRAFFIC';
+  const canAdjust = alert.type === 'HEAVY_TRAFFIC' || alert.type === 'WEATHER_RAIN';
 
   return (
     <View
@@ -283,13 +341,19 @@ function AlertCard({
           {alert.title}
         </Text>
         <Text
+          className="mt-[2px] text-[12px]"
+          style={[textStyle('medium'), { color: ALERT_TONE.action }]}
+        >
+          {alert.summary} · {formatAlertEventMeta(alert.eventStart)}
+        </Text>
+        <Text
           className="mt-[4px] text-[12px] leading-[17px]"
           style={[textStyle('regular'), { color: ALERT_TONE.body }]}
         >
           {alert.body}
         </Text>
 
-        {isTraffic ? (
+        {canAdjust ? (
           <TouchableOpacity
             onPress={onAdjust}
             activeOpacity={0.7}
@@ -312,6 +376,68 @@ function AlertCard({
   );
 }
 
+function NotificationBanner({
+  blocked,
+  busy,
+  onEnable,
+  onDismiss,
+}: {
+  blocked: boolean;
+  busy: boolean;
+  onEnable: () => void;
+  onDismiss: () => void;
+}) {
+  const textStyle = useTextStyle();
+
+  const body = blocked
+    ? 'Notifications are turned off for STEPI. Turn them on in Settings so we can remind you before events.'
+    : 'Get reminders before events, plan updates, and traffic alerts so you never miss a thing.';
+
+  return (
+    <View
+      className="mt-[12px] flex-row items-start gap-[10px] rounded-[14px] p-[14px]"
+      style={{ backgroundColor: '#EAF2FF' }}
+    >
+      <View className="mt-[1px]">
+        <BellIcon color="#2E7BE0" size={18} />
+      </View>
+
+      <View className="flex-1">
+        <Text className="text-[14px]" style={[textStyle('semibold'), { color: '#1B4E9B' }]}>
+          Turn on notifications
+        </Text>
+        <Text
+          className="mt-[4px] text-[12px] leading-[17px]"
+          style={[textStyle('regular'), { color: '#3E6BA5' }]}
+        >
+          {body}
+        </Text>
+
+        <TouchableOpacity
+          onPress={onEnable}
+          disabled={busy}
+          activeOpacity={0.7}
+          className={`mt-[10px] h-[30px] min-w-[92px] items-center justify-center self-start rounded-full bg-white px-[14px] ${
+            busy ? 'opacity-60' : ''
+          }`}
+        >
+          {busy ? (
+            <ActivityIndicator size="small" color="#1B4E9B" />
+          ) : (
+            <Text className="text-[12px]" style={[textStyle('semibold'), { color: '#1B4E9B' }]}>
+              {blocked ? 'Open Settings' : 'Enable'}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity onPress={onDismiss} hitSlop={10}>
+        <CloseIcon color="#7FA3D1" size={10} />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 function MissingDetailsBanner({
   count,
   onReview,
@@ -321,6 +447,8 @@ function MissingDetailsBanner({
   onReview: () => void;
   onDismiss: () => void;
 }) {
+  const textStyle = useTextStyle();
+
   const plural = count === 1 ? 'event is' : 'events are';
   const body = `${count} ${plural} missing a location. Add it so STEPI can plan your travel time.`;
 
@@ -361,6 +489,8 @@ function MissingDetailsBanner({
 }
 
 function Notice({ title, caption }: { title: string; caption: string }) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="items-center px-[20px] py-[24px]">
       <Text className="text-[15px] text-light-ink" style={textStyle('medium')}>

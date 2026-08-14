@@ -1,5 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import type { PlaceSuggestion } from '../../../services/weather/client';
 
 interface PlaceSuggestionsProps {
@@ -15,6 +15,8 @@ export function PlaceSuggestions({
   emptyQuery,
   onPick,
 }: PlaceSuggestionsProps) {
+  const textStyle = useTextStyle();
+
   if (loading && results.length === 0) {
     return (
       <View className="flex-row items-center gap-[6px] px-[18px] py-[12px]">

@@ -1,5 +1,5 @@
 import { Text, TouchableOpacity } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 interface DayChipProps {
   label: string;
@@ -8,6 +8,8 @@ interface DayChipProps {
 }
 
 export function DayChip({ label, selected, onToggle }: DayChipProps) {
+  const textStyle = useTextStyle();
+
   return (
     <TouchableOpacity
       onPress={onToggle}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import {
   WEEKDAY_HEADINGS,
   addMonths,
@@ -27,6 +27,8 @@ export function MonthPickerModal({
   onClose,
   onSelect,
 }: MonthPickerModalProps) {
+  const textStyle = useTextStyle();
+
   const [month, setMonth] = useState(() => startOfMonth(selected));
 
   useEffect(() => {

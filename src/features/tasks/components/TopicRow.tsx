@@ -1,6 +1,6 @@
 import { TextInput, TouchableOpacity, View } from 'react-native';
 import { ClearIcon } from '../../../shared/components/Icons';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 
 const PLACEHOLDER_COLOR = '#B0B0B8';
 
@@ -12,6 +12,8 @@ interface TopicRowProps {
 }
 
 export function TopicRow({ label, placeholder, onChangeLabel, onRemove }: TopicRowProps) {
+  const textStyle = useTextStyle();
+
   return (
     <View className="mb-[10px] h-[54px] flex-row items-center gap-[12px] rounded-full bg-white px-[18px]">
       <DragHandleIcon />

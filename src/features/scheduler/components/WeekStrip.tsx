@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react';
 import { Animated, PanResponder, Text, TouchableOpacity, View } from 'react-native';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { isSameDay } from '../utils/day';
 import { WeekDay } from '../utils/week';
 
@@ -25,6 +25,8 @@ export function WeekStrip({
   onPrevWeek,
   onNextWeek,
 }: WeekStripProps) {
+  const textStyle = useTextStyle();
+
   const slide = useRef(new Animated.Value(0)).current;
 
   // disimpen di ref biar PanResponder-nya gak perlu dibikin ulang tiap render

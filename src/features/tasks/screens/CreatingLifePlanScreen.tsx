@@ -2,26 +2,79 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MeshGradient } from '../../../shared/components/MeshGradient';
-import { textStyle } from '../../../shared/theme/typography';
+import { useTextStyle } from '../../../shared/theme/typography';
 import { LifePlanLogo } from '../components/LifePlanLogo';
 import { PROGRESS_TRACK_COLOR, LIFE_PLAN_GRADIENT } from '../theme';
 
-const FILL_DURATION_MS = 1600;
+// The bar creeps toward — but never reaches — 100% while the request is in
+// flight, each stage slower than the last. Only `done` fills it the rest of
+// the way, so the bar can't claim to be finished before the plan exists.
+const CRAWL_STAGES = [
+  { toValue: 0.55, duration: 900 },
+  { toValue: 0.78, duration: 2200 },
+  { toValue: 0.88, duration: 4500 },
+  { toValue: 0.94, duration: 9000 },
+  { toValue: 0.97, duration: 20000 },
+];
 
-export function CreatingLifePlanScreen() {
+const SETTLE_DURATION_MS = 280;
+
+interface CreatingLifePlanScreenProps {
+  /** Flips to true once the create request has settled. */
+  done?: boolean;
+  /** Called after the bar has animated to 100%. */
+  onComplete?: () => void;
+}
+
+export function CreatingLifePlanScreen({
+  done = false,
+  onComplete,
+}: CreatingLifePlanScreenProps) {
+  const textStyle = useTextStyle();
+
   const progress = useRef(new Animated.Value(0)).current;
   const [trackWidth, setTrackWidth] = useState(0);
 
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
   useEffect(() => {
-    const anim = Animated.timing(progress, {
-      toValue: 1,
-      duration: FILL_DURATION_MS,
-      easing: Easing.inOut(Easing.ease),
-      useNativeDriver: false,
-    });
+    if (done) {
+      return;
+    }
+
+    const anim = Animated.sequence(
+      CRAWL_STAGES.map(stage =>
+        Animated.timing(progress, {
+          toValue: stage.toValue,
+          duration: stage.duration,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: false,
+        }),
+      ),
+    );
     anim.start();
     return () => anim.stop();
-  }, [progress]);
+  }, [done, progress]);
+
+  useEffect(() => {
+    if (!done) {
+      return;
+    }
+
+    const anim = Animated.timing(progress, {
+      toValue: 1,
+      duration: SETTLE_DURATION_MS,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: false,
+    });
+    anim.start(({ finished }) => {
+      if (finished) {
+        onCompleteRef.current?.();
+      }
+    });
+    return () => anim.stop();
+  }, [done, progress]);
 
   const fillWidth = progress.interpolate({
     inputRange: [0, 1],

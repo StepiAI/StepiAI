@@ -3,13 +3,13 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { KEYBOARD_AVOIDING_BEHAVIOR } from '../../../shared/keyboard';
 import { useCreateGoogleCalendarEvent } from '../hooks/useCreateGoogleCalendarEvent';
 import {
   addHourToTimeInput,
@@ -88,7 +88,7 @@ export function AddEventModal({ visible, onClose, onCreated }: AddEventModalProp
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <KeyboardAvoidingView
         className="flex-1 justify-end"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={KEYBOARD_AVOIDING_BEHAVIOR}
       >
         <Pressable className="flex-1 bg-black/60" onPress={onClose} />
 

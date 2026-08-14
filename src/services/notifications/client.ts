@@ -1,17 +1,9 @@
 import messaging, {
   FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging';
-import { Platform } from 'react-native';
 import { apiClient } from '../api/client';
 import { supabase } from '../supabase/client';
-
-export interface InitializeNotificationsRequest {
-  userId: string;
-}
-
-interface RegisterDeviceRequest extends InitializeNotificationsRequest {
-  deviceToken: string;
-}
+import { getFirebaseMessaging, type RemoteMessage } from './messaging';
 
 export interface RegisterDeviceResponse {
   id: number;
@@ -21,10 +13,14 @@ export interface RegisterDeviceResponse {
   lastUsedAt: string;
 }
 
-export async function initializeNotifications(
-  request: InitializeNotificationsRequest,
-): Promise<null | RegisterDeviceResponse> {
+export async function initializeNotifications(p0: { userId: string; }): Promise<null | RegisterDeviceResponse> {
   try {
+    const messaging = getFirebaseMessaging();
+
+    if (!messaging) {
+      return null;
+    }
+
     const authStatus = await messaging().requestPermission();
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
@@ -36,37 +32,54 @@ export async function initializeNotifications(
 
     const token = await messaging().getToken();
 
-    const registerDeviceRequest: RegisterDeviceRequest = {
-      userId: request.userId,
-      deviceToken: token,
-    };
-
-    return await registerDevice(registerDeviceRequest);
+    return await registerDevice(token);
   } catch (error) {
     return null;
   }
 }
 
+// userId-nya diambil backend dari JWT, jadi gak usah dikirim dari sini
 async function registerDevice(
-  request: RegisterDeviceRequest,
+  deviceToken: string,
 ): Promise<RegisterDeviceResponse> {
   return apiClient.post<RegisterDeviceResponse>(
     '/notifications/register-device',
-    request,
+    { deviceToken },
   );
 }
 
+/**
+ * Lepasin device ini dari user yg lagi login. WAJIB dipanggil sebelum
+ * supabase.auth.signOut() — butuh JWT yg masih hidup. Kalau dilewat, baris
+ * token-nya masih nunjuk user lama dan reminder jadwal dia terus masuk ke HP
+ * ini walaupun yg login udah ganti orang.
+ */
+export async function unregisterDevice(): Promise<void> {
+  try {
+    const deviceToken = await messaging().getToken();
+    await apiClient.post('/notifications/unregister-device', { deviceToken });
+  } catch (error) {
+    console.warn('[Notifications] gagal lepas device token pas logout:', error);
+  }
+}
+
 export function setupNotificationListeners() {
+  const messaging = getFirebaseMessaging();
+
+  if (!messaging) {
+    return () => {};
+  }
+
   // Handle foreground messages
   const unsubscribeForeground = messaging().onMessage(
-    async (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
+    async (remoteMessage: RemoteMessage) => {
       console.log('Foreground notification:', remoteMessage);
     },
   );
 
   // Handle background messages
   messaging().onNotificationOpenedApp(
-    (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
+    (remoteMessage: RemoteMessage) => {
       console.log('Notification opened app:', remoteMessage);
     },
   );
@@ -74,7 +87,7 @@ export function setupNotificationListeners() {
   // Handle notification that opened the app from quit state
   messaging()
     .getInitialNotification()
-    .then((remoteMessage: FirebaseMessagingTypes.RemoteMessage | null) => {
+    .then((remoteMessage: RemoteMessage | null) => {
       if (remoteMessage) {
         console.log('App opened from quit by notification:', remoteMessage);
       }
@@ -89,10 +102,10 @@ export function setupNotificationListeners() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      const userId = session?.user.id;
 
-      if (userId) {
-        await registerDevice({ userId, deviceToken: token });
+      // tanpa session, token barunya bakal nyantol ke user yg salah
+      if (session) {
+        await registerDevice(token);
       }
     } catch (error) {
       console.error('Failed to re-register refreshed FCM token:', error);

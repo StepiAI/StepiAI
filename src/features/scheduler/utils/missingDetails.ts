@@ -44,9 +44,7 @@ export function missingLabel(kind: MissingKind) {
 function formatClock(date: Date) {
   const hour24 = date.getHours();
   const minute = date.getMinutes();
-  const suffix = hour24 < 12 ? 'AM' : 'PM';
-  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
-  return `${hour12}:${String(minute).padStart(2, '0')} ${suffix}`;
+  return `${String(hour24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 }
 
 function minutesFromMidnight(date: Date) {

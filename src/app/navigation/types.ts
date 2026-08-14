@@ -4,14 +4,13 @@ import type { TimelineEvent } from '../../features/scheduler/utils/timeline';
 export type MainTabParamList = {
   Home: undefined;
   Tasks: undefined;
-  Summary: undefined;
   Profile: undefined;
   Calendar: undefined;
   AdjustSchedule: { alert: ScheduleAlert } | undefined;
   MissingDetails: undefined;
   // dayIso dikirim string biar param-nya serializable
   EventDetail: { event: TimelineEvent; dayIso: string };
-  Chat: undefined;
+  Chat: { openVoice?: boolean } | undefined;
   ConnectedApps: undefined;
   Accessibility: undefined;
   Notifications: undefined;

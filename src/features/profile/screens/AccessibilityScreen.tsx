@@ -1,53 +1,51 @@
-import { useState } from 'react';
+import { Linking } from 'react-native';
+import { useAccessibilitySettings } from '../../../shared/accessibility/AccessibilitySettingsContext';
 import { SettingsRow } from '../components/SettingsRow';
 import { SettingsScreenLayout } from '../components/SettingsScreenLayout';
 import { SettingsSection } from '../components/SettingsSection';
 import { SettingsSwitch } from '../components/SettingsSwitch';
 
 export function AccessibilityScreen() {
-  // semua masih state lokal, belum ada endpoint buat nyimpen preferensi ini
-  const [boldText, setBoldText] = useState(false);
-  const [largerText, setLargerText] = useState(false);
-  const [autoBrightness, setAutoBrightness] = useState(false);
-  const [increaseContrast, setIncreaseContrast] = useState(false);
-  const [colorFilters, setColorFilters] = useState(false);
+  const { settings, setSetting } = useAccessibilitySettings();
+
+  const openSystemSettings = () => {
+    Linking.openSettings().catch(() => {
+
+    });
+  };
 
   return (
     <SettingsScreenLayout title="Accessibility">
-      <SettingsSection title="Display & Text Size">
+      <SettingsSection
+        title="Display & Text Size"
+        caption="Bold Text applies across the app. Larger Text follows your device setting."
+      >
         <SettingsRow
           label="Bold Text"
-          accessory={<SettingsSwitch value={boldText} onValueChange={setBoldText} />}
+          accessory={
+            <SettingsSwitch
+              value={settings.boldText}
+              onValueChange={next => setSetting('boldText', next)}
+            />
+          }
         />
         <SettingsRow
           label="Larger Text"
-          value={largerText ? 'On' : 'Off'}
+          caption="Follows your device text size setting."
           showChevron
-          onPress={() => setLargerText(current => !current)}
-        />
-        <SettingsRow
-          label="Auto-Brightness"
-          accessory={
-            <SettingsSwitch value={autoBrightness} onValueChange={setAutoBrightness} />
-          }
+          onPress={openSystemSettings}
         />
       </SettingsSection>
 
-      <SettingsSection caption="Increase color contrast between app foreground and background colors.">
+      <SettingsSection caption="Increase color contrast between app foreground and background colors. Icons and placeholders keep their current color.">
         <SettingsRow
           label="Increase Contrast"
           accessory={
-            <SettingsSwitch value={increaseContrast} onValueChange={setIncreaseContrast} />
+            <SettingsSwitch
+              value={settings.increaseContrast}
+              onValueChange={next => setSetting('increaseContrast', next)}
+            />
           }
-        />
-      </SettingsSection>
-
-      <SettingsSection caption="Color filters can be used to differentiate colors by users who are color blind and aid users who have difficulty reading text on the display.">
-        <SettingsRow
-          label="Color Filters"
-          value={colorFilters ? 'On' : 'Off'}
-          showChevron
-          onPress={() => setColorFilters(current => !current)}
         />
       </SettingsSection>
     </SettingsScreenLayout>
