@@ -13,7 +13,7 @@ export interface RegisterDeviceResponse {
   lastUsedAt: string;
 }
 
-export async function initializeNotifications(): Promise<null | RegisterDeviceResponse> {
+export async function initializeNotifications(p0: { userId: string; }): Promise<null | RegisterDeviceResponse> {
   try {
     const messaging = getFirebaseMessaging();
 

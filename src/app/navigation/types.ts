@@ -10,7 +10,7 @@ export type MainTabParamList = {
   MissingDetails: undefined;
   // dayIso dikirim string biar param-nya serializable
   EventDetail: { event: TimelineEvent; dayIso: string };
-  Chat: undefined;
+  Chat: { openVoice?: boolean } | undefined;
   ConnectedApps: undefined;
   Accessibility: undefined;
   Notifications: undefined;

@@ -1,4 +1,4 @@
-import { FlexWidget, TextWidget } from 'react-native-android-widget';
+import { FlexWidget, OverlapWidget, SvgWidget, TextWidget } from 'react-native-android-widget';
 import type { WidgetEvent, WidgetSnapshot } from '../types';
 import { darkTheme, lightTheme, type WidgetTheme } from '../theme';
 
@@ -195,6 +195,42 @@ function UpcomingPanel({ snapshot, theme, height }: AgendaWidgetProps) {
   );
 }
 
+const MIC_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>`;
+
+function MicButton({ theme }: { theme: WidgetTheme }) {
+  return (
+    <FlexWidget
+      style={{
+        width: 'match_parent',
+        height: 'match_parent',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
+        padding: 6,
+      }}
+    >
+      <FlexWidget
+        clickAction="OPEN_URI"
+        clickActionData={{ uri: 'stepiai://voice' }}
+        accessibilityLabel="Open voice assistant"
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 18,
+          backgroundColor: theme.micBg,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <SvgWidget
+          svg={MIC_SVG}
+          style={{ width: 18, height: 18 }}
+        />
+      </FlexWidget>
+    </FlexWidget>
+  );
+}
+
 export function AgendaWidget({ snapshot, theme, height }: AgendaWidgetProps) {
   const date = resolveDate(snapshot.generatedAt);
   const count = allEvents(snapshot).length;
@@ -206,25 +242,36 @@ export function AgendaWidget({ snapshot, theme, height }: AgendaWidgetProps) {
         ? 'No events'
         : `${count} event${count === 1 ? '' : 's'}`;
 
+  const widgetHeight = Math.max(120, Math.round(height) - VISIBLE_TRIM_DP);
+
   return (
-    <FlexWidget
-      clickAction="OPEN_APP"
-      accessibilityLabel="Stepi agenda. Tap to open the app."
+    <OverlapWidget
       style={{
         width: 'match_parent',
-        height: Math.max(120, Math.round(height) - VISIBLE_TRIM_DP),
-        flexDirection: 'row',
-        backgroundColor: theme.canvas,
-        borderRadius: 28,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
+        height: widgetHeight,
       }}
     >
-      <DateCard date={date} countLabel={countLabel} theme={theme} />
-      <FlexWidget style={{ flex: 6, height: 'match_parent', marginLeft: 12, flexDirection: 'column' }}>
-        <UpcomingPanel snapshot={snapshot} theme={theme} height={height} />
+      <FlexWidget
+        clickAction="OPEN_APP"
+        accessibilityLabel="Stepi agenda. Tap to open the app."
+        style={{
+          width: 'match_parent',
+          height: widgetHeight,
+          flexDirection: 'row',
+          backgroundColor: theme.canvas,
+          borderRadius: 28,
+          paddingHorizontal: 12,
+          paddingVertical: 10,
+        }}
+      >
+        <DateCard date={date} countLabel={countLabel} theme={theme} />
+        <FlexWidget style={{ flex: 6, height: 'match_parent', marginLeft: 12, flexDirection: 'column' }}>
+          <UpcomingPanel snapshot={snapshot} theme={theme} height={height} />
+        </FlexWidget>
       </FlexWidget>
-    </FlexWidget>
+
+      <MicButton theme={theme} />
+    </OverlapWidget>
   );
 }
 

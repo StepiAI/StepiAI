@@ -17,8 +17,8 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { BottomTabNavigationProp, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { useTextStyle } from '../../../shared/theme/typography';
 import { GradientText } from '../../../shared/components/GradientText';
 import {
@@ -166,8 +166,16 @@ export function ChatScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
   const keyboardVisible = useKeyboardVisible();
+  const route = useRoute<BottomTabScreenProps<MainTabParamList, 'Chat'>['route']>();
   const [voiceVisible, setVoiceVisible] = useState(false);
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
+
+  useEffect(() => {
+    if (route.params?.openVoice) {
+      setVoiceVisible(true);
+      navigation.setParams({ openVoice: undefined });
+    }
+  }, [route.params?.openVoice, navigation]);
 
   const confirmClear = () => {
     if (messages.length === 0) return;

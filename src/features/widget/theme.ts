@@ -14,6 +14,8 @@ export interface WidgetTheme {
   barNow: ColorProp;
   line: ColorProp;
   onAccent: ColorProp;
+  micBg: ColorProp;
+  micIcon: ColorProp;
 }
 
 export const lightTheme: WidgetTheme = {
@@ -29,6 +31,8 @@ export const lightTheme: WidgetTheme = {
   barNow: '#2B5BE0',
   line: '#EAEFF8',
   onAccent: '#FFFFFF',
+  micBg: '#2B5BE0',
+  micIcon: '#FFFFFF',
 };
 
 export const darkTheme: WidgetTheme = {
@@ -44,4 +48,6 @@ export const darkTheme: WidgetTheme = {
   barNow: '#6E93FF',
   line: '#242634',
   onAccent: '#FFFFFF',
+  micBg: '#2955D4',
+  micIcon: '#FFFFFF',
 };

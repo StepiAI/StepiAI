@@ -166,8 +166,20 @@ function SignedInApp() {
   // if (onboarding === 'loading') return loadingSpinner;
   // if (onboarding === 'needed') return <OnboardingFlow onDone={complete} />;
 
+  const linking = {
+    prefixes: ['stepiai://'],
+    config: {
+      screens: {
+        Chat: {
+          path: 'voice',
+          parse: { openVoice: () => true },
+        },
+      },
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <MainTabs />
     </NavigationContainer>
   );
