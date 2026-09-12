@@ -1,98 +1,179 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# StepiAI
 
-# Getting Started
+**StepiAI** is an AI-powered personal scheduling and productivity assistant designed to help users organize their day, manage tasks, and adapt their schedule more efficiently.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+Instead of only displaying calendar events, StepiAI combines calendar integration with an AI assistant to help users understand their schedule, find available time, create plans, and respond to changes throughout the day.
 
-## Step 1: Start Metro
+## ✨ Main Features
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+### 📅 Smart Schedule Management
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+View daily and weekly schedules through an integrated calendar experience. StepiAI connects with Google Calendar to retrieve and organize existing events.
 
-```sh
-# Using npm
-npm start
+### 🤖 AI-Powered Schedule Assistant
 
-# OR using Yarn
-yarn start
+Chat with STEPI AI to get help managing your schedule using natural language.
+
+Users can ask STEPI to:
+
+* Summarize today's schedule
+* Find available time during the week
+* Build a study schedule
+* Help organize activities and plans
+
+### 🎙️ Voice Assistant
+
+Manage your schedule through voice commands for a faster and more natural way to interact with StepiAI.
+
+### ⚡ Automatic Schedule Adjustment
+
+Automatically adapt your day based on real-time conditions such as traffic, weather, delays, and changing plans. StepiAI helps adjust upcoming activities when unexpected changes affect your schedule.
+
+### 📅 Smart Calendar Management
+
+Connect and manage your Google Calendar in one place. View daily and weekly schedules while using existing events as context for smarter planning
+
+### ✅ Tasks & Life Plans
+
+Turn goals and activities into structured plans. StepiAI helps organize tasks, study sessions, and other activities around your existing schedule.
+
+### 📍 Context-Aware Scheduling
+
+Use factors such as time, location, travel duration, and surrounding conditions to create more practical and realistic schedules.
+
+### 🔔 Smart Reminders & Alerts
+
+Receive timely reminders and alerts about upcoming activities, schedule conflicts, or changes that may affect your plans.
+
+## 🛠️ Technologies Used
+
+StepiAI is built as a cross-platform mobile application using:
+
+| Technology                | Usage                               |
+| ------------------------- | ----------------------------------- |
+| React Native              | Cross-platform mobile application   |
+| React 19                  | UI and component architecture       |
+| TypeScript                | Type-safe application development   |
+| NativeWind / Tailwind CSS | Styling                             |
+| React Navigation          | Application navigation              |
+| Supabase                  | Authentication and backend services |
+| Google Sign-In            | Google account authentication       |
+| Google Calendar           | Calendar integration                |
+| Azure AI Foundry TTS      | AI-powered text-to-speech for voice assistant responses |
+| Firebase Cloud Messaging  | Push notifications                  |
+| React Native Voice        | Voice input                         |
+| React Native Audio API    | Audio functionality                 |
+| AsyncStorage              | Local data persistence              |
+| Geolocation               | Location-based functionality        |
+| Jest                      | Testing                             |
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Before running StepiAI, make sure the React Native development environment is installed and configured.
+
+You will need:
+
+* Node.js **22.11.0 or newer**
+* npm
+* Android Studio for Android development
+* Xcode for iOS development
+* CocoaPods for iOS dependencies
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/StepiAI/StepiAI.git
+cd StepiAI
 ```
 
-## Step 2: Build and run your app
+### 2. Install Dependencies
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+```bash
+npm install
 ```
 
-### iOS
+For iOS, install the native dependencies:
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
+```bash
 bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
+cd ios
 bundle exec pod install
+cd ..
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+### 3. Configure Environment Variables
 
-```sh
-# Using npm
+Create a `.env` file in the project root.
+
+You can use `.env.example` as the template:
+
+```env
+API_BASE_URL=http://localhost:3000
+
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+
+GOOGLE_WEB_CLIENT_ID=your_google_web_client_id
+GOOGLE_IOS_CLIENT_ID=your_google_ios_client_id
+```
+
+Replace the placeholder values with the credentials for your development environment.
+
+### 4. Start Metro
+
+Start the React Native Metro development server:
+
+```bash
+npm start
+```
+
+Keep Metro running while developing the application.
+
+### 5. Run the Application
+
+Open another terminal and run:
+
+#### Android
+
+```bash
+npm run android
+```
+
+Make sure an Android emulator is running or an Android device is connected.
+
+#### iOS
+
+```bash
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Make sure Xcode and the required iOS dependencies are properly configured.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## 🧪 Testing
 
-## Step 3: Modify your app
+Run the test suite with:
 
-Now that you have successfully run the app, let's make changes!
+```bash
+npm test
+```
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+Run ESLint with:
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+```bash
+npm run lint
+```
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+## 📱 Supported Platforms
 
-## Congratulations! :tada:
+* Android
+* iOS
 
-You've successfully run and modified your React Native App. :partying_face:
+## 📌 Project Status
 
-### Now what?
+StepiAI is currently under active development. Some features and integrations may still be experimental or under development.
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+---
 
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
-"# StepiAI" 
+**StepiAI — Plan smarter. Achieve better.**
